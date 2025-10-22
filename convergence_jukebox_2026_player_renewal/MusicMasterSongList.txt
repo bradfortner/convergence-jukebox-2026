@@ -1,7 +1,7 @@
 [
   {
     "number": 0,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Barrence Whitfield & The Savag - Full Moon In The Daylight Sky.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Barrence Whitfield & The Savag - Full Moon In The Daylight Sky.mp3",
     "title": "Full Moon in the Daylight Sky",
     "artist": "Barrence Whitfield & The Savag",
     "album": "Live on WFMU 9/9/2015",
@@ -11,7 +11,7 @@
   },
   {
     "number": 1,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Barrence Whitfield & The Savag - Im A Full Grown Man.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Barrence Whitfield & The Savag - Im A Full Grown Man.mp3",
     "title": "I'm A Full Grown Man",
     "artist": "Barrence Whitfield & The Savag",
     "album": "Live on WFMU 9/9/2015",
@@ -21,7 +21,7 @@
   },
   {
     "number": 2,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Barrence Whitfield & The Savag - Im Sad About It.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Barrence Whitfield & The Savag - Im Sad About It.mp3",
     "title": "I'm Sad About It",
     "artist": "Barrence Whitfield & The Savag",
     "album": "Live on WFMU 9/9/2015",
@@ -31,7 +31,7 @@
   },
   {
     "number": 3,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Barrence Whitfield & The Savag - The Claw.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Barrence Whitfield & The Savag - The Claw.mp3",
     "title": "The Claw",
     "artist": "Barrence Whitfield & The Savag",
     "album": "Live on WFMU 9/9/2015",
@@ -41,7 +41,7 @@
   },
   {
     "number": 4,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Barrence Whitfield & The Savag - The Corner Man.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Barrence Whitfield & The Savag - The Corner Man.mp3",
     "title": "The Corner Man",
     "artist": "Barrence Whitfield & The Savag",
     "album": "Live on WFMU 9/9/2015",
@@ -51,7 +51,7 @@
   },
   {
     "number": 5,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Barrence Whitfield & The Savag - Willow.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Barrence Whitfield & The Savag - Willow.mp3",
     "title": "Willow",
     "artist": "Barrence Whitfield & The Savag",
     "album": "Live on WFMU 9/9/2015",
@@ -61,7 +61,7 @@
   },
   {
     "number": 6,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Brandon Liew - All Out Of Time.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Brandon Liew - All Out Of Time.mp3",
     "title": "All Out of Time",
     "artist": "Brandon Liew",
     "album": "One",
@@ -71,7 +71,7 @@
   },
   {
     "number": 7,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Brandon Liew - Burned Out.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Brandon Liew - Burned Out.mp3",
     "title": "Burned Out",
     "artist": "Brandon Liew",
     "album": "One",
@@ -81,7 +81,7 @@
   },
   {
     "number": 8,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Brandon Liew - Come Home.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Brandon Liew - Come Home.mp3",
     "title": "Come Home",
     "artist": "Brandon Liew",
     "album": "One",
@@ -91,7 +91,7 @@
   },
   {
     "number": 9,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Brandon Liew - Part Of My Heart.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Brandon Liew - Part Of My Heart.mp3",
     "title": "Part of My Heart",
     "artist": "Brandon Liew",
     "album": "One",
@@ -101,7 +101,7 @@
   },
   {
     "number": 10,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Brandon Liew - Stuck On You.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Brandon Liew - Stuck On You.mp3",
     "title": "Stuck On You",
     "artist": "Brandon Liew",
     "album": "One",
@@ -111,7 +111,7 @@
   },
   {
     "number": 11,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Bridget St John - Duo With Michael Chapman.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Bridget St John - Duo With Michael Chapman.mp3",
     "title": "Duo with Michael Chapman",
     "artist": "Bridget St John",
     "album": "Live at WFMUs Monty Hall Oct 1",
@@ -121,7 +121,7 @@
   },
   {
     "number": 12,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Bridget St John - Fly High.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Bridget St John - Fly High.mp3",
     "title": "Fly High",
     "artist": "Bridget St John",
     "album": "Live at WFMUs Monty Hall Oct 1",
@@ -131,7 +131,7 @@
   },
   {
     "number": 13,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Bridget St John - Look At This Child.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Bridget St John - Look At This Child.mp3",
     "title": "Look At This Child",
     "artist": "Bridget St John",
     "album": "Live at WFMUs Monty Hall Oct 1",
@@ -141,7 +141,7 @@
   },
   {
     "number": 14,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Bridget St John - Song Four.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Bridget St John - Song Four.mp3",
     "title": "Song Four",
     "artist": "Bridget St John",
     "album": "Live at WFMUs Monty Hall Oct 1",
@@ -151,7 +151,7 @@
   },
   {
     "number": 15,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Bridget St John - Song Nine.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Bridget St John - Song Nine.mp3",
     "title": "Song Nine",
     "artist": "Bridget St John",
     "album": "Live at WFMUs Monty Hall Oct 1",
@@ -161,7 +161,7 @@
   },
   {
     "number": 16,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Bridget St John - Song One.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Bridget St John - Song One.mp3",
     "title": "Song One",
     "artist": "Bridget St John",
     "album": "Live at WFMUs Monty Hall Oct 1",
@@ -171,7 +171,7 @@
   },
   {
     "number": 17,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Bridget St John - Song Six.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Bridget St John - Song Six.mp3",
     "title": "Song Six",
     "artist": "Bridget St John",
     "album": "Live at WFMUs Monty Hall Oct 1",
@@ -181,7 +181,7 @@
   },
   {
     "number": 18,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Bridget St John - Song Two.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Bridget St John - Song Two.mp3",
     "title": "Song Two",
     "artist": "Bridget St John",
     "album": "Live at WFMUs Monty Hall Oct 1",
@@ -191,7 +191,7 @@
   },
   {
     "number": 19,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Bridget St John - The Hole In Your Heart.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Bridget St John - The Hole In Your Heart.mp3",
     "title": "The Hole In Your Heart",
     "artist": "Bridget St John",
     "album": "Live at WFMUs Monty Hall Oct 1",
@@ -201,7 +201,7 @@
   },
   {
     "number": 20,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Crypts - Ate A Pizza.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Crypts - Ate A Pizza.mp3",
     "title": "Ate A Pizza",
     "artist": "Crypts",
     "album": "Discover Science",
@@ -211,7 +211,7 @@
   },
   {
     "number": 21,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Crypts - Butterchops.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Crypts - Butterchops.mp3",
     "title": "Butterchops",
     "artist": "Crypts",
     "album": "Discover Science",
@@ -221,7 +221,7 @@
   },
   {
     "number": 22,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Crypts - Civil Servant Cyborg.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Crypts - Civil Servant Cyborg.mp3",
     "title": "Civil Servant Cyborg",
     "artist": "Crypts",
     "album": "Discover Science",
@@ -231,7 +231,7 @@
   },
   {
     "number": 23,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Crypts - Ghost Baby.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Crypts - Ghost Baby.mp3",
     "title": "Ghost Baby",
     "artist": "Crypts",
     "album": "Discover Science",
@@ -241,7 +241,7 @@
   },
   {
     "number": 24,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Crypts - Gila Monster Flop.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Crypts - Gila Monster Flop.mp3",
     "title": "Gila Monster Flop",
     "artist": "Crypts",
     "album": "Discover Science",
@@ -251,7 +251,7 @@
   },
   {
     "number": 25,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Crypts - Junky Magician.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Crypts - Junky Magician.mp3",
     "title": "Junky Magician",
     "artist": "Crypts",
     "album": "Discover Science",
@@ -261,7 +261,7 @@
   },
   {
     "number": 26,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Crypts - Marie Curie.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Crypts - Marie Curie.mp3",
     "title": "Marie Curie",
     "artist": "Crypts",
     "album": "Discover Science",
@@ -271,7 +271,7 @@
   },
   {
     "number": 27,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Crypts - Medusas On The Loose.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Crypts - Medusas On The Loose.mp3",
     "title": "Medusas On The Loose",
     "artist": "Crypts",
     "album": "Discover Science",
@@ -281,7 +281,7 @@
   },
   {
     "number": 28,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Crypts - Thunderbird Esq.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Crypts - Thunderbird Esq.mp3",
     "title": "Thunderbird Esq",
     "artist": "Crypts",
     "album": "Discover Science",
@@ -291,7 +291,7 @@
   },
   {
     "number": 29,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\David Amber - BoomShaKaLaKa.Mp3.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\David Amber - BoomShaKaLaKa.Mp3.mp3",
     "title": "BoomShaKaLaKa.mp3",
     "artist": "David Amber",
     "album": "David Amber and Friends, Vol.",
@@ -301,7 +301,7 @@
   },
   {
     "number": 30,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\David Amber Ft. Amanda Droste - Here To Stay.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\David Amber Ft. Amanda Droste - Here To Stay.mp3",
     "title": "Here to Stay",
     "artist": "David Amber ft. Amanda Droste",
     "album": "David Amber and Friends, Vol.",
@@ -311,7 +311,7 @@
   },
   {
     "number": 31,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\David Amber Ft. Ashley Jana - Beautiful Liar.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\David Amber Ft. Ashley Jana - Beautiful Liar.mp3",
     "title": "Beautiful Liar",
     "artist": "David Amber ft. Ashley Jana",
     "album": "David Amber and Friends, Vol.",
@@ -321,7 +321,7 @@
   },
   {
     "number": 32,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\David Amber Ft. Ashley Jana - Set Me On Fire.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\David Amber Ft. Ashley Jana - Set Me On Fire.mp3",
     "title": "Set Me On Fire",
     "artist": "David Amber ft. Ashley Jana",
     "album": "David Amber and Friends, Vol.",
@@ -331,7 +331,7 @@
   },
   {
     "number": 33,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\David Amber Ft. Evan Coles - Clayton Kershaw.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\David Amber Ft. Evan Coles - Clayton Kershaw.mp3",
     "title": "Clayton Kershaw",
     "artist": "David Amber ft. Evan Coles",
     "album": "David Amber and Friends, Vol.",
@@ -341,7 +341,7 @@
   },
   {
     "number": 34,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\David Amber Ft. Raymond Lee - Ride.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\David Amber Ft. Raymond Lee - Ride.mp3",
     "title": "Ride",
     "artist": "David Amber ft. Raymond Lee",
     "album": "David Amber and Friends, Vol.",
@@ -351,7 +351,7 @@
   },
   {
     "number": 35,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Dazie Mae - Call Me Dazie Mae.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Dazie Mae - Call Me Dazie Mae.mp3",
     "title": "Call me Dazie Mae",
     "artist": "Dazie Mae",
     "album": "Velvet Dress and Stockings",
@@ -361,7 +361,7 @@
   },
   {
     "number": 36,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Dazie Mae - Drink Beer Till The Day That.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Dazie Mae - Drink Beer Till The Day That.mp3",
     "title": "Drink Beer (Till The Day That",
     "artist": "Dazie Mae",
     "album": "Velvet Dress and Stockings",
@@ -371,7 +371,7 @@
   },
   {
     "number": 37,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Dazie Mae - Married To A Chelsea Supporter.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Dazie Mae - Married To A Chelsea Supporter.mp3",
     "title": "Married to a Chelsea Supporter",
     "artist": "Dazie Mae",
     "album": "Velvet Dress and Stockings",
@@ -381,7 +381,7 @@
   },
   {
     "number": 38,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Dazie Mae - Miss She Spends.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Dazie Mae - Miss She Spends.mp3",
     "title": "Miss she Spends",
     "artist": "Dazie Mae",
     "album": "Velvet Dress and Stockings",
@@ -391,7 +391,7 @@
   },
   {
     "number": 39,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Dazie Mae - Move On.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Dazie Mae - Move On.mp3",
     "title": "Move On",
     "artist": "Dazie Mae",
     "album": "Velvet Dress and Stockings",
@@ -401,7 +401,7 @@
   },
   {
     "number": 40,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Dazie Mae - My Pussycat.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Dazie Mae - My Pussycat.mp3",
     "title": "My Pussycat",
     "artist": "Dazie Mae",
     "album": "Velvet Dress and Stockings",
@@ -411,7 +411,7 @@
   },
   {
     "number": 41,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Dazie Mae - Paris To London And Back.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Dazie Mae - Paris To London And Back.mp3",
     "title": "Paris To London and Back",
     "artist": "Dazie Mae",
     "album": "Velvet Dress and Stockings",
@@ -421,7 +421,7 @@
   },
   {
     "number": 42,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Dazie Mae - Sofa.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Dazie Mae - Sofa.mp3",
     "title": "Sofa",
     "artist": "Dazie Mae",
     "album": "Velvet Dress and Stockings",
@@ -431,7 +431,7 @@
   },
   {
     "number": 43,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Dazie Mae - The Business Of Breaking Mens.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Dazie Mae - The Business Of Breaking Mens.mp3",
     "title": "The Business Of Breaking Men's",
     "artist": "Dazie Mae",
     "album": "Velvet Dress and Stockings",
@@ -441,7 +441,7 @@
   },
   {
     "number": 44,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Dazie Mae - The Very Opposite Of My Husban.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Dazie Mae - The Very Opposite Of My Husban.mp3",
     "title": "The Very Opposite Of My Husban",
     "artist": "Dazie Mae",
     "album": "Velvet Dress and Stockings",
@@ -451,7 +451,7 @@
   },
   {
     "number": 45,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Dazie Mae - Upside Down.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Dazie Mae - Upside Down.mp3",
     "title": "Upside Down",
     "artist": "Dazie Mae",
     "album": "Velvet Dress and Stockings",
@@ -461,7 +461,7 @@
   },
   {
     "number": 46,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Prefab Messiahs - Bobbs Psychedelic Car.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Prefab Messiahs - Bobbs Psychedelic Car.mp3",
     "title": "Bobb's Psychedelic Car",
     "artist": "Prefab Messiahs",
     "album": "Keep Your Stupid Dreams Alive",
@@ -471,7 +471,7 @@
   },
   {
     "number": 47,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Prefab Messiahs - Booshwa Sally.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Prefab Messiahs - Booshwa Sally.mp3",
     "title": "Booshwa Sally",
     "artist": "Prefab Messiahs",
     "album": "Keep Your Stupid Dreams Alive",
@@ -481,7 +481,7 @@
   },
   {
     "number": 48,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Prefab Messiahs - College Radio.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Prefab Messiahs - College Radio.mp3",
     "title": "College Radio",
     "artist": "Prefab Messiahs",
     "album": "Keep Your Stupid Dreams Alive",
@@ -491,7 +491,7 @@
   },
   {
     "number": 49,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Prefab Messiahs - Keep Your Stupid Dreams Alive.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Prefab Messiahs - Keep Your Stupid Dreams Alive.mp3",
     "title": "Keep Your Stupid Dreams Alive",
     "artist": "Prefab Messiahs",
     "album": "Keep Your Stupid Dreams Alive",
@@ -501,7 +501,7 @@
   },
   {
     "number": 50,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Prefab Messiahs - Orange Room.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Prefab Messiahs - Orange Room.mp3",
     "title": "Orange Room",
     "artist": "Prefab Messiahs",
     "album": "Keep Your Stupid Dreams Alive",
@@ -511,7 +511,7 @@
   },
   {
     "number": 51,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Prefab Messiahs - Ssydarthurr.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Prefab Messiahs - Ssydarthurr.mp3",
     "title": "Ssydarthurr",
     "artist": "Prefab Messiahs",
     "album": "Keep Your Stupid Dreams Alive",
@@ -521,7 +521,7 @@
   },
   {
     "number": 52,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Prefab Messiahs - Weirdoz Everywhere.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Prefab Messiahs - Weirdoz Everywhere.mp3",
     "title": "Weirdoz Everywhere",
     "artist": "Prefab Messiahs",
     "album": "Keep Your Stupid Dreams Alive",
@@ -531,7 +531,7 @@
   },
   {
     "number": 53,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Red Thread - 5.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Red Thread - 5.mp3",
     "title": "5",
     "artist": "Red Thread",
     "album": "After The Last",
@@ -541,7 +541,7 @@
   },
   {
     "number": 54,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Red Thread - After The Last.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Red Thread - After The Last.mp3",
     "title": "After The Last",
     "artist": "Red Thread",
     "album": "After The Last",
@@ -551,7 +551,7 @@
   },
   {
     "number": 55,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Red Thread - All In.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Red Thread - All In.mp3",
     "title": "All In",
     "artist": "Red Thread",
     "album": "After The Last",
@@ -561,7 +561,7 @@
   },
   {
     "number": 56,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Red Thread - Borrow And Spend.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Red Thread - Borrow And Spend.mp3",
     "title": "Borrow And Spend",
     "artist": "Red Thread",
     "album": "After The Last",
@@ -571,7 +571,7 @@
   },
   {
     "number": 57,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Red Thread - Details.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Red Thread - Details.mp3",
     "title": "Details",
     "artist": "Red Thread",
     "album": "After The Last",
@@ -581,7 +581,7 @@
   },
   {
     "number": 58,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Red Thread - Sailin On.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Red Thread - Sailin On.mp3",
     "title": "Sailin' On",
     "artist": "Red Thread",
     "album": "After The Last",
@@ -591,7 +591,7 @@
   },
   {
     "number": 59,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Red Thread - Spread Thin.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Red Thread - Spread Thin.mp3",
     "title": "Spread Thin",
     "artist": "Red Thread",
     "album": "After The Last",
@@ -601,7 +601,7 @@
   },
   {
     "number": 60,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Red Thread - Subject To Change.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Red Thread - Subject To Change.mp3",
     "title": "Subject To Change",
     "artist": "Red Thread",
     "album": "After The Last",
@@ -611,7 +611,7 @@
   },
   {
     "number": 61,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Red Thread - The Fly Out.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Red Thread - The Fly Out.mp3",
     "title": "The Fly Out",
     "artist": "Red Thread",
     "album": "After The Last",
@@ -621,7 +621,7 @@
   },
   {
     "number": 62,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Red Thread - The Loose Brick.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Red Thread - The Loose Brick.mp3",
     "title": "The Loose Brick",
     "artist": "Red Thread",
     "album": "After The Last",
@@ -631,7 +631,7 @@
   },
   {
     "number": 63,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Vivisectors - Beach Boogie.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Vivisectors - Beach Boogie.mp3",
     "title": "Beach Boogie",
     "artist": "Vivisectors",
     "album": "Happy Halloween",
@@ -641,7 +641,7 @@
   },
   {
     "number": 64,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Vivisectors - Black Angel.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Vivisectors - Black Angel.mp3",
     "title": "Black Angel",
     "artist": "Vivisectors",
     "album": "Happy Halloween",
@@ -651,7 +651,7 @@
   },
   {
     "number": 65,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Vivisectors - Blood On Pavement.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Vivisectors - Blood On Pavement.mp3",
     "title": "Blood On Pavement",
     "artist": "Vivisectors",
     "album": "Happy Halloween",
@@ -661,7 +661,7 @@
   },
   {
     "number": 66,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Vivisectors - Cemetery Dance.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Vivisectors - Cemetery Dance.mp3",
     "title": "Cemetery Dance",
     "artist": "Vivisectors",
     "album": "Happy Halloween",
@@ -671,7 +671,7 @@
   },
   {
     "number": 67,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Vivisectors - Cowboy Surfer.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Vivisectors - Cowboy Surfer.mp3",
     "title": "Cowboy Surfer",
     "artist": "Vivisectors",
     "album": "Happy Halloween",
@@ -681,7 +681,7 @@
   },
   {
     "number": 68,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Vivisectors - Duane Stomp.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Vivisectors - Duane Stomp.mp3",
     "title": "Duane Stomp",
     "artist": "Vivisectors",
     "album": "Happy Halloween",
@@ -691,7 +691,7 @@
   },
   {
     "number": 69,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Vivisectors - Happy Halloween.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Vivisectors - Happy Halloween.mp3",
     "title": "Happy Halloween",
     "artist": "Vivisectors",
     "album": "Happy Halloween",
@@ -701,7 +701,7 @@
   },
   {
     "number": 70,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Vivisectors - Loco Banana.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Vivisectors - Loco Banana.mp3",
     "title": "Loco Banana",
     "artist": "Vivisectors",
     "album": "Happy Halloween",
@@ -711,7 +711,7 @@
   },
   {
     "number": 71,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Vivisectors - One Is Always Right.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Vivisectors - One Is Always Right.mp3",
     "title": "One Is Always Right",
     "artist": "Vivisectors",
     "album": "Happy Halloween",
@@ -721,7 +721,7 @@
   },
   {
     "number": 72,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Vivisectors - Tsunamy.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Vivisectors - Tsunamy.mp3",
     "title": "Tsunamy",
     "artist": "Vivisectors",
     "album": "Happy Halloween",
@@ -731,7 +731,7 @@
   },
   {
     "number": 73,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Vivisectors - Vodka And Beer.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Vivisectors - Vodka And Beer.mp3",
     "title": "Vodka And Beer",
     "artist": "Vivisectors",
     "album": "Happy Halloween",
@@ -741,7 +741,7 @@
   },
   {
     "number": 74,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Willing - Everytime.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Willing - Everytime.mp3",
     "title": "Everytime",
     "artist": "Willing",
     "album": "Splendid Gifts",
@@ -751,7 +751,7 @@
   },
   {
     "number": 75,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Willing - Laurens A B.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Willing - Laurens A B.mp3",
     "title": "Laurens A B",
     "artist": "Willing",
     "album": "Splendid Gifts",
@@ -761,7 +761,7 @@
   },
   {
     "number": 76,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Willing - Slap Em In.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Willing - Slap Em In.mp3",
     "title": "Slap 'Em In",
     "artist": "Willing",
     "album": "Splendid Gifts",
@@ -771,7 +771,7 @@
   },
   {
     "number": 77,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Willing - Start Again.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Willing - Start Again.mp3",
     "title": "Start Again",
     "artist": "Willing",
     "album": "Splendid Gifts",
@@ -781,7 +781,7 @@
   },
   {
     "number": 78,
-    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_gui_renewal\\music\\Willing - Trains.mp3",
+    "location": "C:\\Users\\bradf\\OneDrive\\Desktop\\convergence-jukebox-2026\\convergence_jukebox_2026_player_renewal\\music\\Willing - Trains.mp3",
     "title": "Trains",
     "artist": "Willing",
     "album": "Splendid Gifts",
