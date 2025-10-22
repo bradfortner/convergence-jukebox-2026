@@ -17,8 +17,6 @@ import time
 import gc
 import uuid
 import threading
-import re
-from functools import lru_cache
 from typing import List, Optional, Union, Dict, Tuple, Any, Callable
 from pathlib import Path
 from dataclasses import dataclass, field
@@ -57,46 +55,6 @@ _vlc_cleanup_lock = threading.Lock()  # Thread-safe lock for concurrent access
 #
 # Impact: Significantly improved type safety, IDE support, and static analysis capability
 # Coverage: Increased from ~37.5% to ~85%+ of functions with complete type hints
-# ============================================================================
-
-
-# ============================================================================
-# ISSUE #15: CACHE EFFICIENCY - Performance Improvements
-# ============================================================================
-# This version (2.2) implements cache efficiency improvements
-#
-# Cache Improvements:
-# 1. Module-Level Regex Compilation (Line 125-128)
-#    - Patterns compiled once at startup instead of in each function
-#    - DURATION_PATTERN, YEAR_PATTERN, YEAR_EXTRACTION_PATTERN
-#    - Performance improvement: 10-20% faster validation
-#
-# 2. Frozenset File Extensions (Line 131-134)
-#    - AUDIO_EXTENSIONS as frozenset for O(1) membership testing
-#    - VALID_SONG_EXTENSIONS for consistent extension checking
-#    - Performance improvement: 5-10% faster file validation
-#
-# 3. String Constants (Line 137-142)
-#    - NULL_GENRE, UNKNOWN_TITLE, UNKNOWN_ARTIST, etc.
-#    - Avoids repeated string creation in loops
-#    - Performance improvement: 2-5% in metadata processing
-#
-# 4. Cached Helper Functions (Line 222-261)
-#    - @lru_cache on _cached_lower, _cached_strip
-#    - @lru_cache on _cached_is_unknown_value
-#    - @lru_cache on _cached_has_valid_audio_extension
-#    - Performance improvement: 20-30% in string operations
-#    - Cache hit rate: 40-80% for typical music libraries
-#
-# Overall Impact:
-# - Processing 1000-song library: ~20s → ~16-17s (15-20% improvement)
-# - Metadata extraction: ~12s → ~10s (15% improvement)
-# - Validation loops: ~5s → ~3-4s (20-30% improvement)
-#
-# Cache Management:
-# - @lru_cache maxsize tuned for typical music libraries (1024 for strings)
-# - Automatic LRU eviction prevents unbounded memory growth
-# - No manual cache invalidation needed
 # ============================================================================
 
 
@@ -153,33 +111,6 @@ class EngineConstants:
     COMPACT_SEPARATORS = (',', ':')
     PRETTY_SEPARATORS = (',', ': ')
 
-
-# ============================================================================
-# ISSUE #15: CACHE EFFICIENCY - Compiled Regex Patterns and File Extensions
-# ============================================================================
-# These patterns are compiled once at module load time and reused throughout
-# the codebase. This avoids recompilation on every function call, providing
-# significant performance improvement (10-20% in validation operations).
-
-# Compiled regex patterns for duration and year validation
-DURATION_PATTERN = re.compile(r'^\d{1,2}:\d{2}$')  # Matches MM:SS format
-DURATION_VALIDATION_PATTERN = re.compile(r'^\d{1,2}:\d{2}(:\d{2})?$')  # Matches MM:SS or MM:SS:SS
-YEAR_PATTERN = re.compile(r'^\d{4}$|^Unknown Year$')  # Matches YYYY or "Unknown Year"
-YEAR_EXTRACTION_PATTERN = re.compile(r'(\d{4})')  # Extracts first 4-digit year
-
-# Audio file extension set for O(1) membership tests instead of O(n)
-AUDIO_EXTENSIONS = frozenset({'.mp3', '.wav', '.flac', '.ogg', '.m4a', '.aac', '.wma'})
-
-# Valid file extensions for various operations
-VALID_SONG_EXTENSIONS = frozenset({'.mp3', '.wav', '.flac', '.ogg', '.m4a'})
-
-# String constants for null/unknown values to avoid repeated string creation
-NULL_GENRE = 'null'
-UNKNOWN_GENRE = 'Unknown'
-UNKNOWN_TITLE = 'Unknown Title'
-UNKNOWN_ARTIST = 'Unknown Artist'
-UNKNOWN_ALBUM = 'Unknown Album'
-UNKNOWN_YEAR = 'Unknown Year'
 
 # ============================================================================
 # LOGGING CONFIGURATION - Issue #9 Refactoring
@@ -251,54 +182,6 @@ def _configure_jukebox_logging(logger_name: str = 'jukebox',
 # Initialize module logger for Issue #9 consolidation
 _jukebox_logger = _configure_jukebox_logging()
 
-
-# ============================================================================
-# ISSUE #15: CACHED HELPER FUNCTIONS FOR PERFORMANCE
-# ============================================================================
-# These helper functions use @lru_cache to avoid recomputation of common
-# string operations. With proper cache sizing, this prevents 30-40% of
-# redundant computations during validation and metadata extraction.
-
-@lru_cache(maxsize=1024)
-def _cached_lower(value: str) -> str:
-    """Cached string lowercase conversion.
-
-    Used for case-insensitive comparisons of song fields.
-    With maxsize=1024, common song metadata values stay in cache.
-    """
-    return value.lower()
-
-@lru_cache(maxsize=1024)
-def _cached_strip(value: str) -> str:
-    """Cached string whitespace stripping.
-
-    Avoids reprocessing identical whitespace in validation loops.
-    """
-    return value.strip()
-
-@lru_cache(maxsize=512)
-def _cached_is_unknown_value(value: str) -> bool:
-    """Cached check for 'unknown' metadata values.
-
-    Common unknown values:
-    - '' (empty string)
-    - 'unknown'
-    - 'n/a'
-    - 'none'
-    - 'null'
-    """
-    lowered = value.lower().strip()
-    return lowered in ('', 'unknown', 'n/a', 'none', 'null', 'unknown year')
-
-@lru_cache(maxsize=256)
-def _cached_has_valid_audio_extension(file_path: str) -> bool:
-    """Cached check for valid audio file extension.
-
-    Uses AUDIO_EXTENSIONS frozenset for O(1) lookup.
-    Results cached to avoid Path operations and string operations.
-    """
-    suffix = Path(file_path).suffix.lower()
-    return suffix in AUDIO_EXTENSIONS
 
 # ============================================================================
 # EXCEPTION HANDLING PATTERN - Issue #4 Refactoring
