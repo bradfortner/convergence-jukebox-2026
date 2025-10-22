@@ -253,6 +253,34 @@ class SelectionScreen(BaseScreen):
             self.row_selector.handle_hover(mouse_pos)
 
         elif event.type == pygame.KEYDOWN:
+            # Arrow key navigation
+            if event.key == pygame.K_UP:
+                self.button_grid.move_focus_up()
+                return True
+            elif event.key == pygame.K_DOWN:
+                self.button_grid.move_focus_down()
+                return True
+            elif event.key == pygame.K_LEFT:
+                # Try to move left in grid, if at left edge go to prev page
+                current_col = self.button_grid.get_focused_index() % self.grid_cols
+                if current_col == 0:
+                    self.prev_button.handle_click((0, 0))
+                else:
+                    self.button_grid.move_focus_left()
+                return True
+            elif event.key == pygame.K_RIGHT:
+                # Try to move right in grid, if at right edge go to next page
+                current_col = self.button_grid.get_focused_index() % self.grid_cols
+                if current_col == self.grid_cols - 1:
+                    self.next_button.handle_click((0, 0))
+                else:
+                    self.button_grid.move_focus_right()
+                return True
+            elif event.key == pygame.K_RETURN or event.key == pygame.K_SPACE:
+                # Activate focused button
+                self.button_grid.activate_focused_button()
+                return True
+
             # Keyboard shortcuts
             if event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4,
                             pygame.K_5, pygame.K_6, pygame.K_7]:
@@ -271,13 +299,6 @@ class SelectionScreen(BaseScreen):
             elif event.key == pygame.K_c:
                 self.selected_column = "C"
                 self.col_buttons["C"].handle_click((0, 0))
-                return True
-
-            if event.key == pygame.K_LEFT:
-                self.prev_button.handle_click((0, 0))
-                return True
-            elif event.key == pygame.K_RIGHT:
-                self.next_button.handle_click((0, 0))
                 return True
 
         return False

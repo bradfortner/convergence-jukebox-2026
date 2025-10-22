@@ -46,6 +46,7 @@ class Button:
         self.enabled = True
         self.hovered = False
         self.pressed = False
+        self.focused = False
         self.font_cache = None
 
         if image_path:
@@ -68,7 +69,11 @@ class Button:
             screen.blit(self.image, self.rect)
         else:
             pygame.draw.rect(screen, current_color, self.rect)
-            pygame.draw.rect(screen, self.border_color, self.rect, self.border_width)
+            # Draw focus border if focused
+            if self.focused:
+                pygame.draw.rect(screen, (0, 255, 0), self.rect, 4)
+            else:
+                pygame.draw.rect(screen, self.border_color, self.rect, self.border_width)
 
         # Draw text if provided
         if self.text and font_getter:
@@ -129,6 +134,14 @@ class Button:
         """Check if button is currently pressed"""
         return self.pressed
 
+    def set_focused(self, focused: bool):
+        """Set button focused state"""
+        self.focused = focused
+
+    def is_focused(self) -> bool:
+        """Check if button is currently focused"""
+        return self.focused
+
 
 class ButtonGrid:
     """Grid of buttons for layout (e.g., song selection grid)"""
@@ -158,6 +171,7 @@ class ButtonGrid:
         self.text_color = text_color
         self.font_size = font_size
         self.buttons: List[Button] = []
+        self.focused_index = 0  # Track which button has focus
 
         # Create grid of buttons
         for row in range(rows):
@@ -171,6 +185,10 @@ class ButtonGrid:
                     font_size=font_size
                 )
                 self.buttons.append(button)
+
+        # Set initial focus on first enabled button
+        if self.buttons:
+            self.buttons[0].set_focused(True)
 
     def draw(self, screen: pygame.Surface, font_getter: Optional[Callable] = None):
         """Draw all buttons in grid"""
@@ -240,3 +258,92 @@ class ButtonGrid:
         max_y = max(btn.rect.bottom for btn in self.buttons)
 
         return pygame.Rect(min_x, min_y, max_x - min_x, max_y - min_y)
+
+    def move_focus_right(self):
+        """Move focus to the right"""
+        if not self.buttons:
+            return
+
+        current_row = self.focused_index // self.cols
+        current_col = self.focused_index % self.cols
+
+        # Try to move right
+        if current_col < self.cols - 1:
+            next_index = self.focused_index + 1
+            if next_index < len(self.buttons):
+                self._set_focused_index(next_index)
+
+    def move_focus_left(self):
+        """Move focus to the left"""
+        if not self.buttons:
+            return
+
+        current_col = self.focused_index % self.cols
+
+        # Try to move left
+        if current_col > 0:
+            next_index = self.focused_index - 1
+            self._set_focused_index(next_index)
+
+    def move_focus_down(self):
+        """Move focus down"""
+        if not self.buttons:
+            return
+
+        current_row = self.focused_index // self.cols
+        current_col = self.focused_index % self.cols
+
+        # Try to move down
+        if current_row < self.rows - 1:
+            next_index = self.focused_index + self.cols
+            if next_index < len(self.buttons):
+                self._set_focused_index(next_index)
+
+    def move_focus_up(self):
+        """Move focus up"""
+        if not self.buttons:
+            return
+
+        current_row = self.focused_index // self.cols
+        current_col = self.focused_index % self.cols
+
+        # Try to move up
+        if current_row > 0:
+            next_index = self.focused_index - self.cols
+            self._set_focused_index(next_index)
+
+    def _set_focused_index(self, index: int):
+        """Set focused button by index"""
+        if not self.buttons or index < 0 or index >= len(self.buttons):
+            return
+
+        # Clear old focus
+        if self.focused_index < len(self.buttons):
+            self.buttons[self.focused_index].set_focused(False)
+
+        # Set new focus
+        self.focused_index = index
+        self.buttons[self.focused_index].set_focused(True)
+
+    def set_focused_index(self, index: int):
+        """Publicly set focused button by index"""
+        self._set_focused_index(index)
+
+    def get_focused_button(self) -> Optional[Button]:
+        """Get the currently focused button"""
+        if 0 <= self.focused_index < len(self.buttons):
+            return self.buttons[self.focused_index]
+        return None
+
+    def get_focused_index(self) -> int:
+        """Get the index of the focused button"""
+        return self.focused_index
+
+    def activate_focused_button(self):
+        """Activate (click) the currently focused button"""
+        button = self.get_focused_button()
+        if button and button.enabled:
+            if button.callback:
+                button.callback(button)
+            return True
+        return False
