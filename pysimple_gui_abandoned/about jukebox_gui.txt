@@ -1,0 +1,307 @@
+ Based on my comprehensive analysis of the 1,865-line GUI file, here's a complete mapping of all the programming needed to
+  rewrite this application:
+
+  ---
+  CONVERGENCE JUKEBOX GUI - COMPLETE REWRITE BLUEPRINT
+
+  1. DATA STRUCTURES & STATE MANAGEMENT
+
+  Global Variables to Replace:
+  - selection_window_number - Current song index displayed (0-41 range for pagination)
+  - credit_amount - User credits (in 25-cent increments)
+  - UpcomingSongPlayList - Queue of 10 upcoming song selections
+  - all_songs_list - All available songs with metadata
+  - all_artists_list - Deduplicated artist names
+  - last_song_check - Track current playing song to detect changes
+  - selection_entry_letter - Buffer for user selection (A, B, or C)
+  - selection_entry_number - Buffer for user selection (1-7)
+  - MusicMasterSongList - Main data structure (list of dicts with keys: number, location, title, artist, album, year, comment,
+  duration)
+
+  File-based Data Persistence:
+  - MusicMasterSongList.txt - JSON file with all song metadata
+  - PaidMusicPlayList.txt - JSON queue of user-selected songs
+  - CurrentSongPlaying.txt - Currently playing song file path
+  - the_bands.txt - Band names requiring "The" prefix
+  - the_exempted_bands.txt - Band names exempted from "The" prefix
+  - GenreFlagsList.txt - Selected genres for random play filtering
+  - log.txt - Audit log of all plays
+  - MusicMasterSongListCheck.txt - File count for change detection
+
+  ---
+  2. WINDOW ARCHITECTURE (6 Separate Windows)
+
+  Window 1: Background Window
+
+  - Role: Fullscreen background with title bar
+  - Layout: Fixed background image with transparent overlay support
+  - Components: Title bar, background image element
+  - Properties: no_titlebar=True, margins=(0,0), right-click menu with Exit
+
+  Window 2: Info Screen
+
+  - Role: Now Playing display + Upcoming queue + Credits display
+  - Layout: 20+ text elements arranged in rows
+  - Key Elements:
+    - Song title (key: --song_title--)
+    - Song artist (key: --song_artist--)
+    - Mode display (Playing/Random/etc)
+    - Year and duration
+    - Album
+    - 10 upcoming song slots (--upcoming_one-- through --upcoming_ten--)
+    - Credits display (key: --credits--)
+    - Pricing info
+
+  Window 3: Jukebox Selection Screen
+
+  - Role: Main song selector with 21-song grid (3 columns × 7 rows)
+  - Layout: 42 button pairs (title/artist for each song)
+  - Buttons:
+    - Column A (7 rows): A1-A7 with --button0_top-- through --button6_top-- (titles) and bottoms (artists)
+    - Column B (7 rows): B1-B7 with --button7_top-- through --button13_top-- and bottoms
+    - Column C (7 rows): C1-C7 with --button14_top-- through --button20_top-- and bottoms
+  - Button Properties:
+    - Background images: button_id_bg.png, new_selection_top_bg.png, button_id_black_bg.png
+    - Dynamic font resizing (8pt, 10pt, 12pt based on text length)
+    - Disabled state management (hierarchical enable/disable)
+
+  Window 4: Left Arrow
+
+  - Role: Scroll selection list left
+  - Components: Single large button with arrow image (lg_arrow_left.png)
+  - Key: --selection_left--
+
+  Window 5: Right Arrow
+
+  - Role: Scroll selection list right
+  - Components: Single large button with arrow image (lg_arrow_right.png)
+  - Key: --selection_right--
+
+  Window 6: Control Buttons
+
+  - Role: Mode selection + Number pad + Navigation
+  - Layout: Multiple rows of buttons
+  - Components:
+    - Row 1: --A--, --B--, --C-- (mode selector buttons - disable all except current)
+    - Row 2: --1-- through --7-- (number pad for song selection)
+    - Control Buttons: --select-- (confirm), --correct-- (cancel)
+    - Search Button: Opens search window
+
+  Window 7: Search Window (Modal)
+
+  - Role: Title/Artist search interface
+  - Layout: Letter/number keypad + search results display
+  - Components:
+    - Keypad: A-Z, 0-9, space, dash, apostrophe, delete buttons
+    - Result display: Up to 5 search results (--result_one-- through --result_five--)
+    - Navigation: Previous/Next buttons, Clear, Exit
+
+  ---
+  3. CORE FUNCTIONS TO REWRITE
+
+  Function 1: disable_a_selection_buttons()
+  - Disables all song display buttons and A selection buttons (A1-A7)
+  - Disables B and C control buttons
+  - 21 buttons affected
+
+  Function 2: disable_b_selection_buttons() & disable_c_selection_buttons()
+  - Similar to A, but for B and C columns
+  - 14 buttons each
+
+  Function 3: disable_numbered_selection_buttons()
+  - Disables number pad (1-7) in control window
+
+  Function 4: enable_all_buttons()
+  - Re-enables all buttons for fresh selection cycle
+  - 42 song buttons + 21 select buttons + 21 column buttons + 7 numbers
+
+  Function 5: selection_buttons_update(selection_window_number)
+  - Updates all 42 song display buttons with new data (offset by selection_window_number)
+  - Handles boundary checking (can't scroll past end of list)
+  - Repetitive code: 42 separate button.update() calls
+  - Font sizing logic: Checks text length and adjusts font (8pt/10pt/12pt)
+  - Plays buzz.mp3 if user tries to scroll beyond bounds
+  - Calls the_bands_name_check()
+
+  Function 6: the_bands_name_check()
+  - Adds "The" prefix to band names (if in the_bands.txt and not in the_exempted_bands.txt)
+  - Updates 21 artist display buttons
+  - Platform-specific path handling (Linux vs Windows)
+
+  Function 7: selection_entry_complete(letter, number)
+  - Validates and processes selection code (e.g., "A1", "B7", "C3")
+  - Disables invalid buttons based on selection
+  - Enables only the selected song and its related buttons
+  - Enables the Select button
+  - 21 if statements for each valid selection code
+
+  Function 8: upcoming_selections_update()
+  - Updates display for upcoming song queue
+  - Loops through UpcomingSongPlayList[0] through [9]
+  - Handles index out of range errors gracefully
+  - 10 separate updates
+
+  Function 9: file_lookup_thread(window)
+  - Background thread that triggers --SONG_PLAYING_LOOKUP-- event every 3 seconds
+  - Monitors CurrentSongPlaying.txt for changes
+
+  Function 10: title_bar(title, text_color, bg_color)
+  - Creates title bar layout with columns
+
+  ---
+  4. EVENT LOOP STRUCTURE
+
+  Main Event Loop:
+  while True:
+      event, values = window.read()
+
+      if event is None or event == sg.WIN_CLOSED:
+          break
+
+      # Handler branches:
+      # 1. Navigation events (--selection_left--, --selection_right--)
+      # 2. Mode selection (--A--, --B--, --C--)
+      # 3. Number entry (--1-- through --7--)
+      # 4. Song button clicks (all 42 song buttons)
+      # 5. Control events (--select--, --correct--)
+      # 6. Search window events
+      # 7. Background monitoring (--SONG_PLAYING_LOOKUP--)
+
+  Event Handler Categories:
+
+  Category 1: Navigation (Left/Right Arrows)
+
+  - Increment/decrement selection_window_number
+  - Call selection_buttons_update()
+
+  Category 2: Mode Selection (A, B, C buttons)
+
+  - Disable all buttons first via disable_a_selection_buttons(), etc.
+  - Enable only buttons for selected column
+  - Set selection_entry_letter to "A", "B", or "C"
+  - Disable numbered buttons
+
+  Category 3: Number Entry (1-7 buttons)
+
+  - Set selection_entry_number to "1"-"7"
+  - Call selection_entry_complete() if letter already selected
+  - Enable only matching row buttons
+
+  Category 4: Song Button Clicks
+
+  - All 42 buttons: Each click stores the song data
+  - Search across MusicMasterSongList to find song index
+  - Update selection display to show selected song at position A1
+
+  Category 5: Control Events
+
+  - Select Button:
+    - Check if credit_amount > 0
+    - Add song to PaidMusicPlayList.txt
+    - Decrement credits
+    - Add to UpcomingSongPlayList
+    - Play success.mp3
+    - Generate 45 RPM record label image with song title/artist
+    - Display animated GIF popup (600 frames, 1ms each)
+    - Reset selection state
+  - Correct Button:
+    - Reset selection_entry_letter and selection_entry_number
+    - Re-enable all buttons
+
+  Category 6: Search Window
+
+  - Keyboard Input: Build search string character by character
+  - Delete: Remove last character
+  - Next/Previous: Paginate results
+  - Result Selection: Find song and jump to it
+  - Exit: Close search window and return to main
+
+  Category 7: Song Playing Lookup
+
+  - Read CurrentSongPlaying.txt
+  - Find matching song in MusicMasterSongList
+  - Update info screen with current song details
+  - Detect song change (compare with last_song_check)
+  - If changed:
+    - Pop first item from UpcomingSongPlayList
+    - Generate new 45 RPM record label with PIL
+    - Display animated popup
+
+  ---
+  5. IMAGE & GRAPHICS OPERATIONS
+
+  PIL/Pillow Usage:
+  - Load random 45 RPM record label from record_labels/final_black_bg/ folder
+  - Draw text on image:
+    - Title and artist names
+    - Font: fonts/OpenSans-ExtraBold.ttf
+    - Font sizing logic: Conditional size based on text length
+        - If title + artist > 37 chars: 15pt
+      - If title 21-28 chars: 10pt
+      - If title 17-21 chars or artist 13-26 chars: 20pt
+      - If title ≤ 17 or artist ≤ 13: 30pt
+    - Text wrapping with textwrap module (width=37 for title, 30 for artist)
+    - Center anchoring at position (680, 515-570)
+  - Save as JPEG and resize to GIF (680×394)
+  - Display with sg.PopupAnimated() for 600 frames
+
+  Background Image:
+  - Base64-encoded PNG embedded in code (~very large)
+  - Used as fullscreen background
+
+  ---
+  6. EXTERNAL INTEGRATIONS
+
+  VLC Media Player:
+  - Play alert sounds: buzz.mp3 (scroll limit), success.mp3 (selection)
+  - Direct integration: vlc.MediaPlayer(filename).play()
+
+  File System:
+  - Scan music/ directory for .mp3 files (platform-specific paths)
+  - Read/write JSON files for persistence
+  - Create/append to log file with timestamps
+
+  Threading:
+  - Background thread monitoring CurrentSongPlaying.txt
+  - Triggers GUI event every 3 seconds
+
+  ---
+  7. KEY BEHAVIORS TO REPLICATE
+
+  1. Song Pagination: Display 21 songs at a time from total list, scroll left/right
+  2. Selection Flow: A/B/C → 1-7 → Confirm
+  3. Font Scaling: Dynamic text sizing to fit button widths
+  4. Credit System: 25 cents per selection (manual updates)
+  5. State Machine: Strict button enable/disable hierarchy
+  6. Search: Real-time filtering by title/artist
+  7. Upcoming Queue: Visual display of next 10 songs
+  8. Band Name Handling: Conditional "The" prefix application
+  9. Record Label Animation: 600-frame popup display
+  10. Platform Support: Windows and Linux paths
+
+  ---
+  8. COMPLEXITY METRICS
+
+  | Category                 | Count | Notes                              |
+  |--------------------------|-------|------------------------------------|
+  | Total Lines              | 1,865 | Full application                   |
+  | Functions                | 10+   | Main logic functions               |
+  | Windows                  | 6-7   | Including modal search             |
+  | Buttons                  | 100+  | Including song, control, search    |
+  | Event Handlers           | 50+   | Main loop if statements            |
+  | File I/O Operations      | 15+   | Read/write JSON, txt files         |
+  | Hardcoded Button Updates | 500+  | Lines of repetitive button updates |
+  | Image Assets             | 100+  | Button backgrounds, labels, arrows |
+
+  ---
+  9. REFACTORING OPPORTUNITIES
+
+  The current code has significant repetition that can be eliminated:
+  - 42 song button .update() calls → Loop with list
+  - 21 selection validation if statements → Dictionary lookup
+  - Repeated button enable/disable → Generic function with button lists
+  - 10 upcoming slots → Loop and dynamic element creation
+
+  ---
+  This blueprint provides a complete inventory of what needs to be rewritten. A modern framework (Tkinter, PyQt6, or web-based)
+  would significantly reduce code volume and improve maintainability.
