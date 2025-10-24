@@ -154,3 +154,14 @@ find_list = all_artists_list
 # Print the master song list to console for debugging/verification
 print(MusicMasterSongList)
 print(all_artists_list)
+
+def file_lookup_thread(song_playing_lookup_window):
+    try:
+        while True:
+            time.sleep(3)
+            song_playing_lookup_window.write_event_value('--SONG_PLAYING_LOOKUP--', f'counter = {1}')
+    except KeyboardInterrupt:
+        pass
+#  Thread to look for file changes. Code developed from Python GUIs - "The Official
+#  PySimpleGUI Course" https://www.udemy.com/course/pysimplegui/learn/lecture/30070620
+#  Background image code modified from https://www.pysimplegui.org/en/latest/Demos/#demo_window_background_imagepy
