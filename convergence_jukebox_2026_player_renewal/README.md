@@ -6,7 +6,7 @@ A sophisticated Python-based jukebox engine with real-time playlist management, 
 
 The Convergence Jukebox is a feature-rich music player that combines random song selection with a priority-based paid request system. It monitors multiple playlist files in real-time, automatically transitions between song types, and maintains detailed playback statistics for analytics.
 
-**Current Version**: 0.91
+**Current Version**: main_jukebox_engine_2026.py (Based on version 0.91 with all improvements integrated)
 
 ## Features
 
@@ -65,7 +65,7 @@ The Convergence Jukebox is a feature-rich music player that combines random song
 
 5. **Run the jukebox**
    ```bash
-   python "0.91 - main_jukebox_engine.py"
+   python main_jukebox_engine_2026.py
    ```
 
 ## Configuration
@@ -311,6 +311,7 @@ Configure logging behavior in `jukebox_config.json` under the `logging` section.
 
 ## Version History
 
+- **main_jukebox_engine_2026.py**: Production release - Consolidated 0.91 as the latest stable version with all improvements integrated
 - **0.91**: Added input validation, testability refactoring, and song statistics
 - **0.9**: Memory optimization, threading support, enhanced docstrings
 - **0.8**: Console colors, logging configuration, config file support
@@ -322,6 +323,16 @@ Configure logging behavior in `jukebox_config.json` under the `logging` section.
 - **0.2**: Recursive call fixes
 - **0.1**: Eliminated global variables
 - **0.0**: Initial baseline
+
+### Version File Guide
+
+The repository contains multiple version files to track the development progression:
+
+- **main_jukebox_engine_2026.py**: Use this file for production/deployment. It contains all improvements from 0.1-0.91
+- **0.1 to 0.91**: Historical version files showing incremental improvements
+- Each version builds upon the previous, fixing issues and adding features
+
+For new users and deployment, use **main_jukebox_engine_2026.py**
 
 ## Troubleshooting
 
