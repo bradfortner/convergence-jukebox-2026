@@ -42,7 +42,7 @@ class JukeboxEngineException(Exception):
 class JukeboxEngine:
     """Main Convergence Jukebox Engine - Manages music playback and playlist management
 
-    Version 0.94: STABLE + FEATURES HYBRID
+    Version 0.9: STABLE + FEATURES HYBRID
     - Base: Version 0.8 (proven stable, no memory leaks)
     - Enhanced with: Validation, I/O refactoring, and Statistics from 0.91
 
