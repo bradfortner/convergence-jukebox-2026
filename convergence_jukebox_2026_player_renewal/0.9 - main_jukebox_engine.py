@@ -9,8 +9,7 @@ import random
 import time
 import gc
 import sys
-import threading
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
 
 # ANSI Color codes for cross-platform colored output
@@ -41,60 +40,40 @@ class JukeboxEngineException(Exception):
 
 
 class JukeboxEngine:
-    """Main Convergence Jukebox Engine - Manages music playback and playlist management.
+    """Main Convergence Jukebox Engine - Manages music playback and playlist management
 
-    This is the main orchestrator for the jukebox system. It handles:
-    - Loading and managing MP3 metadata from files
-    - Managing both random and paid song playlists
-    - Playing songs using VLC
-    - Logging all operations
-    - Providing colored console output
-    - Configurable through JSON config file
-    - Memory optimization for large music libraries
-    - Threading support for concurrent paid song checking
+    Version 0.94: STABLE + FEATURES HYBRID
+    - Base: Version 0.8 (proven stable, no memory leaks)
+    - Enhanced with: Validation, I/O refactoring, and Statistics from 0.91
 
     Improvements in this version:
-    - #4: Optimized Memory Usage with better garbage collection
-    - #5: Threading support for concurrent paid song checking
-    - #6: Comprehensive docstrings for all methods
+    - #1: Input Validation for data integrity
+    - #2: Refactored I/O Methods for testability
+    - #3: Song Statistics tracking and reporting
+    - Plus: Console colors, logging, config file support (from 0.8)
 
-    Attributes:
-        music_id3_metadata_list (List[tuple]): Raw ID3 metadata extracted from MP3 files
-        music_master_song_list (List[Dict[str, str]]): Main song database with metadata
-        random_music_playlist (List[int]): Indices of songs in random playback queue
-        paid_music_playlist (List[int]): Indices of songs in paid playback queue
-        final_genre_list (List[str]): All unique genres found in music library
-        config (Dict[str, Any]): Configuration from jukebox_config.json
-        paid_check_thread (Optional[threading.Thread]): Background thread for paid song checking
-        stop_paid_check (threading.Event): Signal to stop paid check thread
+    Key Feature: NO THREADING - Avoids the memory leak introduced in 0.9+
     """
 
     # Configuration constants
     SLEEP_TIME: float = 0.5
     TIMESTAMP_ROUNDING: float = 0.5
     CONFIG_FILE: str = 'jukebox_config.json'
-    GC_THRESHOLD: int = 500  # Collect garbage after processing N songs
-    MEMORY_WARNING_MB: int = 200  # Warn when memory usage exceeds this
+    STATISTICS_FILE: str = 'song_statistics.json'
+    GC_THRESHOLD: int = 100
 
     def __init__(self) -> None:
-        """Initialize Jukebox Engine with all required variables and file setup.
-
-        This method:
-        1. Initializes all data structures
-        2. Sets up file paths from configuration
-        3. Creates necessary files if they don't exist
-        4. Prepares threading infrastructure for paid song checking
-        5. Prints initialization message
-
-        Raises:
-            JukeboxEngineException: If critical initialization fails
-        """
+        """Initialize Jukebox Engine with all required variables and file setup"""
         # Initialize data structures
         self.music_id3_metadata_list: List[tuple] = []
         self.music_master_song_list: List[Dict[str, str]] = []
         self.random_music_playlist: List[int] = []
         self.paid_music_playlist: List[int] = []
         self.final_genre_list: List[str] = []
+        self.song_statistics: Dict[str, Dict[str, Any]] = {}  # Improvement #3: Statistics tracking
+
+        # Memory optimization counters
+        self.gc_counter: int = 0
 
         # Current song metadata
         self.artist_name: str = ""
@@ -110,15 +89,6 @@ class JukeboxEngine:
         self.genre2: str = "null"
         self.genre3: str = "null"
 
-        # Memory optimization
-        self.gc_counter: int = 0  # Track iterations for garbage collection
-        self.last_gc_time: datetime = datetime.now()
-
-        # Threading for paid song checking
-        self.paid_check_thread: Optional[threading.Thread] = None
-        self.stop_paid_check: threading.Event = threading.Event()
-        self.paid_check_lock: threading.Lock = threading.Lock()
-
         # Get directory path for cross-platform compatibility
         self.dir_path: str = os.path.dirname(os.path.realpath(__file__))
 
@@ -133,23 +103,18 @@ class JukeboxEngine:
         self.music_master_song_list_check_file: str = os.path.join(self.dir_path, self.config['paths']['music_master_song_list_check_file'])
         self.paid_music_playlist_file: str = os.path.join(self.dir_path, self.config['paths']['paid_music_playlist_file'])
         self.current_song_playing_file: str = os.path.join(self.dir_path, self.config['paths']['current_song_playing_file'])
+        self.statistics_file: str = os.path.join(self.dir_path, self.STATISTICS_FILE)
 
         # Initialize log file and required data files
         self._setup_files()
+        self._load_statistics()  # Improvement #3: Load song statistics
         self._print_header("Jukebox Engine Initialized")
 
     def _load_config(self) -> Dict[str, Any]:
-        """Load configuration from config file or create default config.
-
-        This method attempts to load the jukebox_config.json file. If it doesn't exist,
-        a default configuration is created. If loading fails, defaults are used.
+        """Load configuration from config file or create default config
 
         Returns:
-            Dict[str, Any]: Configuration dictionary with keys 'logging', 'paths', and 'console'
-
-        Example:
-            >>> config = engine._load_config()
-            >>> log_enabled = config['logging']['enabled']
+            Dict[str, Any]: Configuration dictionary
         """
         config_path: str = os.path.join(self.dir_path, self.CONFIG_FILE)
 
@@ -199,17 +164,14 @@ class JukeboxEngine:
             return default_config
 
     def _merge_configs(self, default: Dict[str, Any], loaded: Dict[str, Any]) -> Dict[str, Any]:
-        """Merge loaded config with default config, preserving defaults for missing keys.
-
-        This ensures that any new configuration keys added in future versions
-        will have sensible defaults if not present in user's config file.
+        """Merge loaded config with default config, preserving defaults for missing keys
 
         Args:
-            default (Dict[str, Any]): Default configuration dictionary
-            loaded (Dict[str, Any]): User-loaded configuration dictionary
+            default (Dict[str, Any]): Default configuration
+            loaded (Dict[str, Any]): Loaded configuration
 
         Returns:
-            Dict[str, Any]: Merged configuration with loaded values overriding defaults
+            Dict[str, Any]: Merged configuration
         """
         merged: Dict[str, Any] = default.copy()
         for key, value in loaded.items():
@@ -219,48 +181,328 @@ class JukeboxEngine:
                 merged[key] = value
         return merged
 
-    def _optimize_memory(self) -> None:
-        """Perform garbage collection and memory optimization when needed.
+    # ============================================================================
+    # IMPROVEMENT #1: INPUT VALIDATION METHODS
+    # ============================================================================
 
-        This method:
-        - Triggers garbage collection after processing a number of songs
-        - Checks system memory usage and warns if excessive
-        - Clears unnecessary caches
-        - Called periodically to prevent memory leaks in long-running sessions
-
-        Raises:
-            Implicitly handles all exceptions without propagating
-        """
-        try:
-            self.gc_counter += 1
-
-            # Run garbage collection periodically
-            if self.gc_counter >= self.GC_THRESHOLD:
-                collected: int = gc.collect()
-                if self.config['console']['verbose']:
-                    self._print_success(f"Garbage collection: freed {collected} objects")
-                self.gc_counter = 0
-                self.last_gc_time = datetime.now()
-
-            # Check memory usage periodically (every 5 GC cycles)
-            if self.gc_counter % 5 == 0:
-                memory_info = psutil.virtual_memory()
-                memory_used_mb: float = memory_info.used / (1024 * 1024)
-
-                if memory_used_mb > self.MEMORY_WARNING_MB:
-                    self._print_warning(f"High memory usage: {memory_used_mb:.1f}MB")
-
-        except Exception as e:
-            # Silently handle memory optimization errors
-            pass
-
-    def _print_header(self, message: str) -> None:
-        """Print a formatted header message to console.
-
-        Creates a visually distinct header with borders and optional colors.
+    def _validate_song_index(self, index: int, playlist_type: str = 'random') -> Tuple[bool, str]:
+        """Validate song index is within bounds.
 
         Args:
-            message (str): The message to display in the header
+            index (int): The song index to validate
+            playlist_type (str): Type of playlist ('random' or 'paid')
+
+        Returns:
+            Tuple[bool, str]: (is_valid, error_message)
+        """
+        if not isinstance(index, int):
+            return False, f"Song index must be integer, got {type(index).__name__}"
+
+        if index < 0:
+            return False, f"Song index cannot be negative: {index}"
+
+        if index >= len(self.music_master_song_list):
+            return False, f"Song index {index} out of range (max: {len(self.music_master_song_list) - 1})"
+
+        return True, ""
+
+    def _validate_file_path(self, file_path: str) -> Tuple[bool, str]:
+        """Validate file path exists and is accessible.
+
+        Args:
+            file_path (str): The file path to validate
+
+        Returns:
+            Tuple[bool, str]: (is_valid, error_message)
+        """
+        if not isinstance(file_path, str):
+            return False, f"File path must be string, got {type(file_path).__name__}"
+
+        if not file_path:
+            return False, "File path cannot be empty"
+
+        if not os.path.exists(file_path):
+            return False, f"File not found: {file_path}"
+
+        if not os.path.isfile(file_path):
+            return False, f"Path is not a file: {file_path}"
+
+        return True, ""
+
+    def _validate_json_data(self, data: Any, data_type: str) -> Tuple[bool, str]:
+        """Validate JSON data structure integrity.
+
+        Args:
+            data (Any): The data to validate
+            data_type (str): Type of data ('playlist', 'genres', 'statistics')
+
+        Returns:
+            Tuple[bool, str]: (is_valid, error_message)
+        """
+        if data is None:
+            return False, f"{data_type} data is None"
+
+        if data_type == 'playlist':
+            if not isinstance(data, list):
+                return False, f"Playlist must be list, got {type(data).__name__}"
+            for item in data:
+                if not isinstance(item, int):
+                    return False, f"Playlist items must be integers, got {type(item).__name__}"
+
+        elif data_type == 'genres':
+            if not isinstance(data, list):
+                return False, f"Genres must be list, got {type(data).__name__}"
+            if len(data) != 4:
+                return False, f"Genres list must have 4 items, got {len(data)}"
+            for item in data:
+                if not isinstance(item, str):
+                    return False, f"Genre items must be strings, got {type(item).__name__}"
+
+        elif data_type == 'statistics':
+            if not isinstance(data, dict):
+                return False, f"Statistics must be dict, got {type(data).__name__}"
+
+        return True, ""
+
+    def _validate_playlist_entry(self, song_index: int) -> bool:
+        """Validate a song index before adding to playlist.
+
+        Args:
+            song_index (int): The song index to validate
+
+        Returns:
+            bool: True if valid, False otherwise
+        """
+        is_valid, error_msg = self._validate_song_index(song_index)
+        if not is_valid:
+            self._log_error(f"Invalid playlist entry: {error_msg}")
+            return False
+        return True
+
+    # ============================================================================
+    # IMPROVEMENT #2: REFACTORED I/O METHODS FOR TESTABILITY
+    # ============================================================================
+
+    def _read_json_file(self, file_path: str) -> Tuple[bool, Any]:
+        """Read JSON file with validation.
+
+        Args:
+            file_path (str): Path to JSON file
+
+        Returns:
+            Tuple[bool, Any]: (success, data)
+        """
+        try:
+            is_valid, error_msg = self._validate_file_path(file_path)
+            if not is_valid:
+                self._log_error(f"Cannot read file: {error_msg}")
+                return False, None
+
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+            return True, data
+        except (IOError, json.JSONDecodeError) as e:
+            self._log_error(f"Failed to read JSON file {file_path}: {e}")
+            return False, None
+
+    def _write_json_file(self, file_path: str, data: Any) -> bool:
+        """Write JSON file with validation.
+
+        Args:
+            file_path (str): Path to JSON file
+            data (Any): Data to write
+
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            if not file_path:
+                self._log_error("Cannot write file: path is empty")
+                return False
+
+            with open(file_path, 'w') as f:
+                json.dump(data, f, indent=2)
+            return True
+        except (IOError, json.JSONDecodeError) as e:
+            self._log_error(f"Failed to write JSON file {file_path}: {e}")
+            return False
+
+    def _read_paid_playlist(self) -> Tuple[bool, List[int]]:
+        """Read paid playlist file with validation.
+
+        Returns:
+            Tuple[bool, List[int]]: (success, playlist)
+        """
+        success, data = self._read_json_file(self.paid_music_playlist_file)
+        if not success:
+            return False, []
+
+        is_valid, error_msg = self._validate_json_data(data, 'playlist')
+        if not is_valid:
+            self._log_error(f"Invalid paid playlist data: {error_msg}")
+            return False, []
+
+        return True, data
+
+    def _write_paid_playlist(self, playlist: List[int]) -> bool:
+        """Write paid playlist file with validation.
+
+        Args:
+            playlist (List[int]): Paid playlist to write
+
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        is_valid, error_msg = self._validate_json_data(playlist, 'playlist')
+        if not is_valid:
+            self._log_error(f"Cannot write playlist: {error_msg}")
+            return False
+
+        return self._write_json_file(self.paid_music_playlist_file, playlist)
+
+    def _read_genres(self) -> Tuple[bool, List[str]]:
+        """Read genre flags file with validation.
+
+        Returns:
+            Tuple[bool, List[str]]: (success, genres)
+        """
+        success, data = self._read_json_file(self.genre_flags_file)
+        if not success:
+            return False, ['null', 'null', 'null', 'null']
+
+        is_valid, error_msg = self._validate_json_data(data, 'genres')
+        if not is_valid:
+            self._log_error(f"Invalid genre data: {error_msg}")
+            return False, ['null', 'null', 'null', 'null']
+
+        return True, data
+
+    def _read_master_song_list(self) -> Tuple[bool, List[Dict[str, str]]]:
+        """Read master song list file with validation.
+
+        Returns:
+            Tuple[bool, List[Dict]]: (success, song_list)
+        """
+        success, data = self._read_json_file(self.music_master_song_list_file)
+        if not success:
+            return False, []
+
+        if not isinstance(data, list):
+            self._log_error(f"Master song list must be list, got {type(data).__name__}")
+            return False, []
+
+        return True, data
+
+    # ============================================================================
+    # IMPROVEMENT #3: SONG STATISTICS METHODS
+    # ============================================================================
+
+    def _load_statistics(self) -> None:
+        """Load song statistics from file."""
+        success, data = self._read_json_file(self.statistics_file)
+        if success and isinstance(data, dict):
+            self.song_statistics = data
+        else:
+            self.song_statistics = {}
+            self._print_success("Created new statistics file")
+
+    def _save_statistics(self) -> bool:
+        """Save song statistics to file.
+
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        return self._write_json_file(self.statistics_file, self.song_statistics)
+
+    def _record_song_play(self, song_index: int, play_type: str) -> None:
+        """Record a song play in statistics.
+
+        Args:
+            song_index (int): Index of played song
+            play_type (str): Type of play ('random' or 'paid')
+        """
+        if not self._validate_playlist_entry(song_index):
+            return
+
+        song_index_str = str(song_index)
+
+        # Initialize song stats if not exists
+        if song_index_str not in self.song_statistics:
+            song = self.music_master_song_list[song_index]
+            self.song_statistics[song_index_str] = {
+                'title': song.get('title', 'Unknown'),
+                'artist': song.get('artist', 'Unknown'),
+                'play_count': 0,
+                'last_played': None,
+                'play_history': []
+            }
+
+        # Update statistics
+        self.song_statistics[song_index_str]['play_count'] += 1
+        self.song_statistics[song_index_str]['last_played'] = str(self._get_rounded_timestamp())
+        self.song_statistics[song_index_str]['play_history'].append({
+            'timestamp': str(self._get_rounded_timestamp()),
+            'type': play_type
+        })
+
+        # Keep history to last 100 plays
+        if len(self.song_statistics[song_index_str]['play_history']) > 100:
+            self.song_statistics[song_index_str]['play_history'] = \
+                self.song_statistics[song_index_str]['play_history'][-100:]
+
+    def _get_top_songs(self, limit: int = 10) -> List[Dict[str, Any]]:
+        """Get top played songs.
+
+        Args:
+            limit (int): Number of top songs to return
+
+        Returns:
+            List[Dict[str, Any]]: List of top songs with stats
+        """
+        sorted_stats = sorted(
+            self.song_statistics.items(),
+            key=lambda x: x[1].get('play_count', 0),
+            reverse=True
+        )
+
+        top_songs = []
+        for song_index_str, stats in sorted_stats[:limit]:
+            top_songs.append({
+                'index': int(song_index_str),
+                'title': stats.get('title', 'Unknown'),
+                'artist': stats.get('artist', 'Unknown'),
+                'play_count': stats.get('play_count', 0),
+                'last_played': stats.get('last_played', 'Never')
+            })
+
+        return top_songs
+
+    def _display_statistics(self) -> None:
+        """Display song statistics in console."""
+        if not self.song_statistics:
+            self._print_warning("No song statistics available yet")
+            return
+
+        self._print_header("Song Statistics")
+
+        total_plays = sum(s.get('play_count', 0) for s in self.song_statistics.values())
+        self._print_success(f"Total plays: {total_plays}")
+        self._print_success(f"Unique songs played: {len(self.song_statistics)}")
+
+        print("\nTop 10 Most Played Songs:")
+        print("-" * 80)
+
+        top_songs = self._get_top_songs(10)
+        for i, song in enumerate(top_songs, 1):
+            print(f"{i:2}. {song['title']:<40} | {song['artist']:<20} | Plays: {song['play_count']:>3}")
+
+        print("-" * 80)
+
+    def _print_header(self, message: str) -> None:
+        """Print a formatted header message to console
+
+        Args:
+            message (str): The message to display
         """
         if self.config['console']['colors_enabled']:
             print(f"\n{Colors.HEADER}{Colors.BOLD}{'='*60}")
@@ -272,10 +514,10 @@ class JukeboxEngine:
             print(f"{'='*60}\n")
 
     def _print_section(self, message: str) -> None:
-        """Print a formatted section header.
+        """Print a formatted section header
 
         Args:
-            message (str): The section title to display
+            message (str): The section message
         """
         if self.config['console']['colors_enabled']:
             print(f"{Colors.CYAN}{Colors.BOLD}{message}{Colors.ENDC}")
@@ -283,10 +525,10 @@ class JukeboxEngine:
             print(message)
 
     def _print_success(self, message: str) -> None:
-        """Print a success message in green with checkmark.
+        """Print a success message in green
 
         Args:
-            message (str): The success message to display
+            message (str): The success message
         """
         if self.config['console']['colors_enabled']:
             print(f"{Colors.GREEN}✓ {message}{Colors.ENDC}")
@@ -294,10 +536,10 @@ class JukeboxEngine:
             print(f"✓ {message}")
 
     def _print_warning(self, message: str) -> None:
-        """Print a warning message in yellow with warning symbol.
+        """Print a warning message in yellow
 
         Args:
-            message (str): The warning message to display
+            message (str): The warning message
         """
         if self.config['console']['colors_enabled']:
             print(f"{Colors.YELLOW}⚠ {message}{Colors.ENDC}")
@@ -305,10 +547,10 @@ class JukeboxEngine:
             print(f"⚠ {message}")
 
     def _print_error_msg(self, message: str) -> None:
-        """Print an error message in red with X symbol.
+        """Print an error message in red
 
         Args:
-            message (str): The error message to display
+            message (str): The error message
         """
         if self.config['console']['colors_enabled']:
             print(f"{Colors.RED}✗ {message}{Colors.ENDC}")
@@ -316,7 +558,7 @@ class JukeboxEngine:
             print(f"✗ {message}")
 
     def _get_rounded_timestamp(self) -> datetime:
-        """Get current timestamp rounded to nearest second.
+        """Helper method to get current timestamp rounded to nearest second
 
         Returns:
             datetime: Current timestamp rounded to nearest second
@@ -330,7 +572,7 @@ class JukeboxEngine:
             return datetime.now()
 
     def _log_error(self, error_message: str) -> None:
-        """Log error message to both console and log file.
+        """Log error message to both console and log file
 
         Args:
             error_message (str): The error message to log
@@ -349,14 +591,7 @@ class JukeboxEngine:
         self._print_error_msg(error_message)
 
     def _setup_files(self) -> None:
-        """Check for required files on disk. Create them if they don't exist.
-
-        Creates the following files if missing:
-        - log.txt: Logging file for all operations
-        - GenreFlagsList.txt: Genre filter configuration
-        - MusicMasterSongListCheck.txt: Song count verification
-        - PaidMusicPlayList.txt: Paid song queue
-        """
+        """Check for files on disk. If they don't exist, create them"""
         # Create date and time stamp for log file
         now: datetime = self._get_rounded_timestamp()
 
@@ -401,24 +636,14 @@ class JukeboxEngine:
             self._log_error(f"Failed to setup PaidMusicPlayList.txt: {e}")
 
     def assign_song_data(self, playlist_type: str = 'random') -> bool:
-        """Assign song metadata from specified playlist to instance variables.
-
-        Retrieves metadata for the first song in either the random or paid playlist
-        and stores it in instance variables for use during display/playback.
+        """
+        Assign song metadata from specified playlist to instance variables
 
         Args:
-            playlist_type (str): Either 'random' or 'paid' to specify playlist source.
-                Defaults to 'random'.
+            playlist_type (str): Either 'random' or 'paid' to specify which playlist to use
 
         Returns:
-            bool: True if assignment successful, False if playlist empty or index invalid
-
-        Raises:
-            No exceptions are raised; errors are logged and False is returned.
-
-        Example:
-            >>> if engine.assign_song_data('random'):
-            ...     print(f"Now playing: {engine.song_name} by {engine.artist_name}")
+            bool: True if successful, False otherwise
         """
         try:
             # Determine which playlist to use and validate
@@ -454,16 +679,10 @@ class JukeboxEngine:
             return False
 
     def generate_mp3_metadata(self) -> bool:
-        """Generate MP3 metadata from all files in the music directory.
-
-        Scans the music directory for MP3 files and extracts ID3 metadata
-        (artist, title, album, duration, year, genre/comment) from each file.
+        """Generate MP3 metadata from music directory
 
         Returns:
-            bool: True if metadata extracted successfully, False if no files found or extraction fails
-
-        Raises:
-            No exceptions are raised; errors are logged and False is returned.
+            bool: True if successful, False otherwise
         """
         try:
             self._print_header("Generating MP3 Metadata")
@@ -511,10 +730,6 @@ class JukeboxEngine:
                     ))
                     self.music_id3_metadata_list.append(song_metadata)
                     counter += 1
-
-                    # Optimize memory periodically
-                    self._optimize_memory()
-
                 except Exception as e:
                     self._log_error(f"Failed to extract metadata from {file_path}: {e}")
                     continue
@@ -530,16 +745,10 @@ class JukeboxEngine:
             return False
 
     def generate_music_master_song_list_dictionary(self) -> bool:
-        """Generate master song list dictionary and save to file.
-
-        Converts raw ID3 metadata tuples into a structured dictionary format
-        with labeled fields, then saves to disk for fast loading on future runs.
+        """Generate master song list dictionary and save to file
 
         Returns:
-            bool: True if dictionary generated and saved successfully, False otherwise
-
-        Raises:
-            No exceptions are raised; errors are logged and False is returned.
+            bool: True if successful, False otherwise
         """
         try:
             self._print_section("Generating Master Song List Dictionary...")
@@ -569,27 +778,19 @@ class JukeboxEngine:
                 self._log_error(f"Failed to save MusicMasterSongListCheck.txt: {e}")
                 return False
 
-            # Optimize memory after generation
-            self._optimize_memory()
             return True
         except Exception as e:
             self._log_error(f"Unexpected error in generate_music_master_song_list_dictionary: {e}")
             return False
 
     def play_song(self, song_file_name: str) -> bool:
-        """Play a song using VLC media player and block until playback completes.
-
-        Displays system information, performs garbage collection, and plays the
-        specified song file using VLC. Blocks until song finishes playing.
+        """Play a song using VLC media player
 
         Args:
-            song_file_name (str): Full path to the MP3 file to play
+            song_file_name (str): The full path to the song file to play
 
         Returns:
-            bool: True if song played successfully, False if file not found or playback fails
-
-        Raises:
-            No exceptions are raised; errors are logged and False is returned.
+            bool: True if successful, False otherwise
         """
         try:
             if not os.path.exists(song_file_name):
@@ -618,9 +819,6 @@ class JukeboxEngine:
 
                 while p.is_playing():
                     time.sleep(self.SLEEP_TIME)  # sleep to use less CPU
-                    # Check for paid songs during playback (improvement #5)
-                    self._optimize_memory()
-
                 # VLC Song Playback Code End
                 return True
             except Exception as vlc_error:
@@ -631,16 +829,10 @@ class JukeboxEngine:
             return False
 
     def assign_genres_to_random_play(self) -> bool:
-        """Load and assign genres from GenreFlagsList file.
-
-        Reads the genre configuration file to determine which genres should be
-        included in random playback. Supports up to 4 genre filters.
+        """Load and assign genres from GenreFlagsList file
 
         Returns:
-            bool: True if genres loaded successfully, False otherwise
-
-        Raises:
-            No exceptions are raised; errors are logged and False is returned.
+            bool: True if successful, False otherwise
         """
         try:
             self._print_section("Loading Genre Configuration...")
@@ -697,16 +889,10 @@ class JukeboxEngine:
             return False
 
     def generate_random_song_list(self) -> bool:
-        """Generate random song playlist based on genre filters.
-
-        Creates a shuffled playlist of songs that match the configured genre filters.
-        If no genres are configured, includes all songs (except those marked 'norandom').
+        """Generate random song playlist based on genre filters
 
         Returns:
-            bool: True if playlist generated successfully, False otherwise
-
-        Raises:
-            No exceptions are raised; errors are logged and False is returned.
+            bool: True if successful, False otherwise
         """
         try:
             self._print_section("Generating Random Song Playlist...")
@@ -748,14 +934,12 @@ class JukeboxEngine:
             return False
 
     def _log_song_play(self, artist: str, title: str, play_type: str) -> None:
-        """Log a song play event to log file.
-
-        Records when a song is played along with metadata (artist, title, type).
+        """Log a song play event to log file
 
         Args:
             artist (str): The artist name
             title (str): The song title
-            play_type (str): Either 'Paid' or 'Random' indicating playlist source
+            play_type (str): Either 'Paid' or 'Random'
         """
         try:
             if self.config['logging']['enabled']:
@@ -766,13 +950,10 @@ class JukeboxEngine:
             self._log_error(f"Failed to log song play: {e}")
 
     def _write_current_song_playing(self, song_location: str) -> None:
-        """Write current playing song location to file.
-
-        Persists the currently playing song path to a file. Useful for
-        external programs to monitor what's currently playing.
+        """Write current playing song location to file
 
         Args:
-            song_location (str): The full file path of the currently playing song
+            song_location (str): The full path to the currently playing song
         """
         try:
             with open(self.current_song_playing_file, "w") as outfile:
@@ -780,59 +961,19 @@ class JukeboxEngine:
         except IOError as e:
             self._log_error(f"Failed to write CurrentSongPlaying.txt: {e}")
 
-    def _check_paid_songs_background(self) -> None:
-        """Background thread worker for checking paid songs periodically.
-
-        This method runs in a separate thread and monitors the paid playlist
-        file for new additions while a song is playing. This allows users to
-        queue paid songs in real-time without interrupting playback.
-
-        Runs until stop_paid_check event is set.
-        """
-        while not self.stop_paid_check.is_set():
-            try:
-                # Check every second for new paid songs
-                time.sleep(1)
-
-                with self.paid_check_lock:
-                    try:
-                        with open(self.paid_music_playlist_file, 'r') as paid_file:
-                            new_paid_list = json.load(paid_file)
-                            if len(new_paid_list) > len(self.paid_music_playlist):
-                                self._print_warning(f"New paid song request detected! ({len(new_paid_list)} queued)")
-                    except (IOError, json.JSONDecodeError):
-                        pass  # Silently handle file read errors
-
-            except Exception:
-                pass  # Silently handle all exceptions in background thread
-
     def jukebox_engine(self) -> bool:
-        """Main jukebox engine - plays paid songs first, then alternates with random songs.
+        """
+        Main jukebox engine - plays paid songs first, then alternates with random songs
 
-        This is the core playback loop. It:
-        1. Checks for paid songs and plays them immediately
-        2. Plays one random song
-        3. Repeats until no more songs available
-
-        The paid playlist file is checked after each random song, enabling
-        real-time addition of paid requests during playback (improvement #5).
-
-        Uses threading to check for paid songs in the background while playing
-        random songs, providing better responsiveness to paid requests.
+        IMPORTANT: This method uses while loops instead of recursion to prevent
+        stack overflow. The paid playlist file is checked after each random song,
+        enabling real-time additions of paid songs during playback.
 
         Returns:
-            bool: True if engine completed successfully, False if errors occurred
-
-        Raises:
-            No exceptions are raised; errors are logged and False is returned.
+            bool: True if successful, False otherwise
         """
         try:
             self._print_header("Jukebox Engine Starting")
-
-            # Start background thread for paid song checking (improvement #5)
-            self.stop_paid_check.clear()
-            self.paid_check_thread = threading.Thread(target=self._check_paid_songs_background, daemon=True)
-            self.paid_check_thread.start()
 
             # Main loop: continuously check for paid songs, play them, then play one random song
             while True:
@@ -840,9 +981,8 @@ class JukeboxEngine:
                 while True:
                     # Reload paid music playlist from file at each iteration to enable real-time additions
                     try:
-                        with self.paid_check_lock:
-                            with open(self.paid_music_playlist_file, 'r') as paid_list_file:
-                                self.paid_music_playlist = json.load(paid_list_file)
+                        with open(self.paid_music_playlist_file, 'r') as paid_list_file:
+                            self.paid_music_playlist = json.load(paid_list_file)
                     except (IOError, json.JSONDecodeError) as e:
                         self._log_error(f"Failed to load PaidMusicPlayList.txt: {e}")
                         break
@@ -883,9 +1023,8 @@ class JukeboxEngine:
                         # Delete song just played from paid playlist
                         try:
                             del self.paid_music_playlist[0]
-                            with self.paid_check_lock:
-                                with open(self.paid_music_playlist_file, 'w') as paid_list_file:
-                                    json.dump(self.paid_music_playlist, paid_list_file)
+                            with open(self.paid_music_playlist_file, 'w') as paid_list_file:
+                                json.dump(self.paid_music_playlist, paid_list_file)
                         except (IOError, json.JSONDecodeError) as e:
                             self._log_error(f"Failed to update PaidMusicPlayList.txt: {e}")
                             break
@@ -932,11 +1071,6 @@ class JukeboxEngine:
                     # If no random songs in playlist, exit the main loop
                     break
 
-            # Stop background thread
-            self.stop_paid_check.set()
-            if self.paid_check_thread:
-                self.paid_check_thread.join(timeout=2)
-
             self._print_section("Jukebox Engine Stopped")
             return True
         except Exception as e:
@@ -944,18 +1078,7 @@ class JukeboxEngine:
             return False
 
     def run(self) -> None:
-        """Main execution method - orchestrates the entire jukebox startup and operation.
-
-        This method:
-        1. Checks if music database exists and is current
-        2. If not current, regenerates metadata from MP3 files
-        3. Loads genre configuration
-        4. Generates random playlist
-        5. Starts the jukebox engine
-
-        Raises:
-            No exceptions are raised; all errors are logged to file.
-        """
+        """Main execution method"""
         try:
             # Check to see if MusicMasterSongList exists on disk
             if os.path.exists(self.music_master_song_list_file):

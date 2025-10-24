@@ -6,7 +6,7 @@ A sophisticated Python-based jukebox engine with real-time playlist management, 
 
 The Convergence Jukebox is a feature-rich music player that combines random song selection with a priority-based paid request system. It monitors multiple playlist files in real-time, automatically transitions between song types, and maintains detailed playback statistics for analytics.
 
-**Current Version**: main_jukebox_engine_2026.py (Version 0.90 - STABLE + FEATURES HYBRID)
+**Current Version**: main_jukebox_engine_2026.py (Version 0.9 - STABLE + FEATURES HYBRID)
 - Base: Proven stability from version 0.8 (no memory leaks)
 - Enhanced: Code quality features from version 0.91 (validation, testing, statistics)
 - Status: Production-ready and recommended for daily use
@@ -317,19 +317,15 @@ Configure logging behavior in `jukebox_config.json` under the `logging` section.
 
 ### Current Recommended Version
 
-- **main_jukebox_engine_2026.py** (Version 0.90): STABLE + FEATURES HYBRID
+- **main_jukebox_engine_2026.py** (Version 0.9): STABLE + FEATURES HYBRID
   - Base: Proven stability from 0.8 (no memory leaks)
   - Enhanced: Code quality features from 0.91 (validation, testing, statistics)
-  - Removed: Background threading from 0.9+ (root cause of memory leak)
+  - Removed: Previous threading issues (now using synchronous polling)
   - Status: Production-ready and recommended for daily use
 
 ### Complete Version History
 
-- **0.90**: STABLE HYBRID - Combined 0.8 stability with 0.91 features, removed problematic threading
-- **0.93**: Memory leak investigation (deep fix attempts, ultimately not needed)
-- **0.92**: CRITICAL: VLC cleanup attempts, identified threading as root cause
-- **0.91**: Added input validation, testability refactoring, and song statistics
-- **0.9**: ⚠️ DEPRECATED - Memory leak introduced: added threading + psutil memory monitoring
+- **0.9**: STABLE HYBRID - Combined 0.8 stability with 0.91 features (current production)
 - **0.8**: ✓ LAST STABLE - Console colors, logging configuration, config file support
 - **0.7**: Comprehensive type hints throughout codebase
 - **0.6**: Cross-platform path handling
@@ -343,18 +339,18 @@ Configure logging behavior in `jukebox_config.json` under the `logging` section.
 ### Version Strategy Notes
 
 **Memory Leak Investigation:**
-- 0.9+ experienced 5.3GB+ memory usage in long sessions
+- Early 0.9 versions experienced 5.3GB+ memory usage in long sessions
 - Root cause: Background threading with continuous file polling
-- Solution: Reverted to synchronous polling (0.8 approach) + added 0.91 features = 0.90
-- Result: Stable, feature-rich, no memory leaks
+- Solution: Reverted to synchronous polling (0.8 approach) + added 0.91 features
+- Result: Stable, feature-rich, no memory leaks (current 0.9)
 
-**Why 0.90 Works:**
+**Why Current 0.9 Works:**
 - No background threads (eliminates thread reference holding)
 - Synchronous polling between songs (simple and efficient)
 - Real-time detection still works (checks between each random song)
 - Paid song feature fully functional without threading complexity
 
-For new users and deployment, use **main_jukebox_engine_2026.py** (Version 0.90)
+For new users and deployment, use **main_jukebox_engine_2026.py** (Version 0.9)
 
 ## Troubleshooting
 
@@ -373,17 +369,16 @@ For new users and deployment, use **main_jukebox_engine_2026.py** (Version 0.90)
 - Verify JSON format is correct: `[0, 1, 2]` or `[0]`
 - Check console output for validation errors
 
-### Memory Issues (RESOLVED in 0.90)
-- Version 0.90 eliminates the memory leak from 0.9+
+### Memory Issues (RESOLVED in 0.9)
+- Current Version 0.9 eliminates the memory leak from early versions
 - Memory should remain stable even in extended sessions
-- If you were using 0.9-0.93, upgrade to 0.90 (based on stable 0.8)
 - No periodic restarts needed anymore
 
 ### High CPU Usage
 - Normal during playback and file scanning
-- Version 0.90 has no background thread (synchronous polling is lightweight)
+- Version 0.9 has no background thread (synchronous polling is lightweight)
 - Consider closing other applications for better performance
-- If you were experiencing CPU spikes in 0.9-0.93, this is resolved in 0.90
+- Resource usage is now minimal and stable
 
 ## Contributing
 
