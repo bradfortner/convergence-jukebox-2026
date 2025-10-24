@@ -254,63 +254,67 @@ class JukeboxEngine:
 
     def jukebox_engine(self):
         """
-        Main jukebox engine - plays paid songs first, then random songs
+        Main jukebox engine - plays paid songs first, then alternates with random songs
 
         IMPORTANT: This method uses while loops instead of recursion to prevent
-        stack overflow when processing long playlists. The original version had
-        recursive calls at the end of playback loops which could cause crashes
-        with large music libraries. The paid playlist file is reloaded at each
-        iteration to enable real-time additions of paid songs during playback.
+        stack overflow when processing long playlists. The paid playlist file is
+        checked after each random song, enabling real-time additions of paid songs.
         """
-        # Play all paid songs using while loop (not recursion)
+        # Main loop: continuously check for paid songs, play them, then play one random song
         while True:
-            # Reload paid music playlist from file at each iteration to enable real-time additions
-            with open('PaidMusicPlayList.txt', 'r') as paid_list_file:
-                self.paid_music_playlist = json.load(paid_list_file)
+            # Play all paid songs - reload file at each iteration to pick up new requests
+            while True:
+                # Reload paid music playlist from file at each iteration to enable real-time additions
+                with open('PaidMusicPlayList.txt', 'r') as paid_list_file:
+                    self.paid_music_playlist = json.load(paid_list_file)
 
-            # If no more paid songs, exit the loop
-            if not self.paid_music_playlist:
+                # If no more paid songs, exit the inner loop
+                if not self.paid_music_playlist:
+                    break
+                song_index = self.paid_music_playlist[0]
+                song = self.music_master_song_list[song_index]
+
+                print('Now Playing: ' + song['title'] + ' - ' + song['artist'] +
+                      '  Year:' + song['year'] + ' Length:' + song['duration'] +
+                      ' Album:' + song['album'] + '  Genre:' + song['comment'])
+
+                # Save current playing song to disk
+                self._write_current_song_playing(song['location'])
+
+                # Log paid song play
+                self._log_song_play(song['artist'], song['title'], 'Paid')
+
+                print('Playing Paid Song In Jukebox Engine')
+                self.play_song(song['location'])
+
+                # Delete song just played from paid playlist
+                del self.paid_music_playlist[0]
+                with open('PaidMusicPlayList.txt', 'w') as paid_list_file:
+                    json.dump(self.paid_music_playlist, paid_list_file)
+
+            # Play one random song, then loop back to check for paid songs again
+            if self.random_music_playlist:
+                self.assign_song_data_random()
+                print('Now Playing: ' + self.song_name + ' - ' + self.artist_name +
+                      '  Year:' + self.song_year + ' Length:' + self.song_duration +
+                      ' Album:' + self.album_name + '  Genre:' + self.song_genre)
+
+                # Save current playing song to disk
+                song_index = self.random_music_playlist[0]
+                self._write_current_song_playing(self.music_master_song_list[song_index]['location'])
+
+                # Log random song play
+                self._log_song_play(self.artist_name, self.song_name, 'Random')
+
+                self.play_song(self.music_master_song_list[song_index]['location'])
+
+                # Move song to end of RandomMusicPlaylist
+                move_first_list_element = self.random_music_playlist.pop(0)
+                self.random_music_playlist.append(move_first_list_element)
+                # Loop continues, goes back to check for paid songs again
+            else:
+                # If no random songs in playlist, exit the main loop
                 break
-            song_index = self.paid_music_playlist[0]
-            song = self.music_master_song_list[song_index]
-
-            print('Now Playing: ' + song['title'] + ' - ' + song['artist'] +
-                  '  Year:' + song['year'] + ' Length:' + song['duration'] +
-                  ' Album:' + song['album'] + '  Genre:' + song['comment'])
-
-            # Save current playing song to disk
-            self._write_current_song_playing(song['location'])
-
-            # Log paid song play
-            self._log_song_play(song['artist'], song['title'], 'Paid')
-
-            print('Playing Paid Song In Jukebox Engine')
-            self.play_song(song['location'])
-
-            # Delete song just played from paid playlist
-            del self.paid_music_playlist[0]
-            with open('PaidMusicPlayList.txt', 'w') as paid_list_file:
-                json.dump(self.paid_music_playlist, paid_list_file)
-
-        # Play all random songs using while loop (not recursion)
-        while self.random_music_playlist:
-            self.assign_song_data_random()
-            print('Now Playing: ' + self.song_name + ' - ' + self.artist_name +
-                  '  Year:' + self.song_year + ' Length:' + self.song_duration +
-                  ' Album:' + self.album_name + '  Genre:' + self.song_genre)
-
-            # Save current playing song to disk
-            song_index = self.random_music_playlist[0]
-            self._write_current_song_playing(self.music_master_song_list[song_index]['location'])
-
-            # Log random song play
-            self._log_song_play(self.artist_name, self.song_name, 'Random')
-
-            self.play_song(self.music_master_song_list[song_index]['location'])
-
-            # Move song to end of RandomMusicPlaylist
-            move_first_list_element = self.random_music_playlist.pop(0)
-            self.random_music_playlist.append(move_first_list_element)
 
     def run(self):
         """Main execution method"""
