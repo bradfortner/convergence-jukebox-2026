@@ -5,6 +5,8 @@ MusicMasterSongList.txt
 MusicMasterSongListCheck.txt
 PaidMusicPlayList.txt
 GenreFlagsList.txt
+song_statistics.json
+jukebox_config.json
 
 # Python runtime and cache files
 __pycache__/
