@@ -6,7 +6,7 @@ A sophisticated Python-based jukebox engine with real-time playlist management, 
 
 The Convergence Jukebox is a feature-rich music player that combines random song selection with a priority-based paid request system. It monitors multiple playlist files in real-time, automatically transitions between song types, and maintains detailed playback statistics for analytics.
 
-**Current Version**: main_jukebox_engine_2026.py (Version 0.94 - STABLE + FEATURES HYBRID)
+**Current Version**: main_jukebox_engine_2026.py (Version 0.90 - STABLE + FEATURES HYBRID)
 - Base: Proven stability from version 0.8 (no memory leaks)
 - Enhanced: Code quality features from version 0.91 (validation, testing, statistics)
 - Status: Production-ready and recommended for daily use
@@ -317,7 +317,7 @@ Configure logging behavior in `jukebox_config.json` under the `logging` section.
 
 ### Current Recommended Version
 
-- **main_jukebox_engine_2026.py** (Version 0.94): STABLE + FEATURES HYBRID
+- **main_jukebox_engine_2026.py** (Version 0.90): STABLE + FEATURES HYBRID
   - Base: Proven stability from 0.8 (no memory leaks)
   - Enhanced: Code quality features from 0.91 (validation, testing, statistics)
   - Removed: Background threading from 0.9+ (root cause of memory leak)
@@ -325,7 +325,7 @@ Configure logging behavior in `jukebox_config.json` under the `logging` section.
 
 ### Complete Version History
 
-- **0.94**: STABLE HYBRID - Combined 0.8 stability with 0.91 features, removed problematic threading
+- **0.90**: STABLE HYBRID - Combined 0.8 stability with 0.91 features, removed problematic threading
 - **0.93**: Memory leak investigation (deep fix attempts, ultimately not needed)
 - **0.92**: CRITICAL: VLC cleanup attempts, identified threading as root cause
 - **0.91**: Added input validation, testability refactoring, and song statistics
@@ -345,16 +345,16 @@ Configure logging behavior in `jukebox_config.json` under the `logging` section.
 **Memory Leak Investigation:**
 - 0.9+ experienced 5.3GB+ memory usage in long sessions
 - Root cause: Background threading with continuous file polling
-- Solution: Reverted to synchronous polling (0.8 approach) + added 0.91 features = 0.94
+- Solution: Reverted to synchronous polling (0.8 approach) + added 0.91 features = 0.90
 - Result: Stable, feature-rich, no memory leaks
 
-**Why 0.94 Works:**
+**Why 0.90 Works:**
 - No background threads (eliminates thread reference holding)
 - Synchronous polling between songs (simple and efficient)
 - Real-time detection still works (checks between each random song)
 - Paid song feature fully functional without threading complexity
 
-For new users and deployment, use **main_jukebox_engine_2026.py** (Version 0.94)
+For new users and deployment, use **main_jukebox_engine_2026.py** (Version 0.90)
 
 ## Troubleshooting
 
@@ -373,17 +373,17 @@ For new users and deployment, use **main_jukebox_engine_2026.py** (Version 0.94)
 - Verify JSON format is correct: `[0, 1, 2]` or `[0]`
 - Check console output for validation errors
 
-### Memory Issues (RESOLVED in 0.94)
-- Version 0.94 eliminates the memory leak from 0.9+
+### Memory Issues (RESOLVED in 0.90)
+- Version 0.90 eliminates the memory leak from 0.9+
 - Memory should remain stable even in extended sessions
-- If you were using 0.9-0.93, upgrade to 0.94 (based on stable 0.8)
+- If you were using 0.9-0.93, upgrade to 0.90 (based on stable 0.8)
 - No periodic restarts needed anymore
 
 ### High CPU Usage
 - Normal during playback and file scanning
-- Version 0.94 has no background thread (synchronous polling is lightweight)
+- Version 0.90 has no background thread (synchronous polling is lightweight)
 - Consider closing other applications for better performance
-- If you were experiencing CPU spikes in 0.9-0.93, this is resolved in 0.94
+- If you were experiencing CPU spikes in 0.9-0.93, this is resolved in 0.90
 
 ## Contributing
 
