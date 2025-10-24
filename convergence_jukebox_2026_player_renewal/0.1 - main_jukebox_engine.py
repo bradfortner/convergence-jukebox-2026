@@ -250,12 +250,16 @@ class JukeboxEngine:
 
     def jukebox_engine(self):
         """Main jukebox engine - plays paid songs first, then random songs"""
-        # Load paid music playlist
-        with open('PaidMusicPlayList.txt', 'r') as paid_list_file:
-            self.paid_music_playlist = json.load(paid_list_file)
+        # Play all paid songs - reload file at each iteration to pick up new requests
+        while True:
+            # Reload paid music playlist from file at each iteration to enable real-time additions
+            with open('PaidMusicPlayList.txt', 'r') as paid_list_file:
+                self.paid_music_playlist = json.load(paid_list_file)
 
-        # Play all paid songs
-        while self.paid_music_playlist:
+            # If no more paid songs, exit the loop
+            if not self.paid_music_playlist:
+                break
+
             song_index = self.paid_music_playlist[0]
             song = self.music_master_song_list[song_index]
 
