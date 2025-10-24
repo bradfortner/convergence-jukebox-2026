@@ -410,16 +410,19 @@ class JukeboxEngine:
         with large music libraries.
         """
         try:
-            # Load paid music playlist
-            try:
-                with open(self.paid_music_playlist_file, 'r') as paid_list_file:
-                    self.paid_music_playlist = json.load(paid_list_file)
-            except (IOError, json.JSONDecodeError) as e:
-                self._log_error(f"Failed to load PaidMusicPlayList.txt: {e}")
-                self.paid_music_playlist = []
-
             # Play all paid songs using while loop (not recursion)
-            while self.paid_music_playlist:
+            while True:
+                # Reload paid music playlist from file at each iteration to enable real-time additions
+                try:
+                    with open(self.paid_music_playlist_file, 'r') as paid_list_file:
+                        self.paid_music_playlist = json.load(paid_list_file)
+                except (IOError, json.JSONDecodeError) as e:
+                    self._log_error(f"Failed to load PaidMusicPlayList.txt: {e}")
+                    break
+
+                # If no more paid songs, exit the loop
+                if not self.paid_music_playlist:
+                    break
                 try:
                     song_index = self.paid_music_playlist[0]
 

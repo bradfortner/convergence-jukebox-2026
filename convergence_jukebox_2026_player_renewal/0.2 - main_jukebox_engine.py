@@ -259,14 +259,18 @@ class JukeboxEngine:
         IMPORTANT: This method uses while loops instead of recursion to prevent
         stack overflow when processing long playlists. The original version had
         recursive calls at the end of playback loops which could cause crashes
-        with large music libraries.
+        with large music libraries. The paid playlist file is reloaded at each
+        iteration to enable real-time additions of paid songs during playback.
         """
-        # Load paid music playlist
-        with open('PaidMusicPlayList.txt', 'r') as paid_list_file:
-            self.paid_music_playlist = json.load(paid_list_file)
-
         # Play all paid songs using while loop (not recursion)
-        while self.paid_music_playlist:
+        while True:
+            # Reload paid music playlist from file at each iteration to enable real-time additions
+            with open('PaidMusicPlayList.txt', 'r') as paid_list_file:
+                self.paid_music_playlist = json.load(paid_list_file)
+
+            # If no more paid songs, exit the loop
+            if not self.paid_music_playlist:
+                break
             song_index = self.paid_music_playlist[0]
             song = self.music_master_song_list[song_index]
 
