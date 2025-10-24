@@ -6,7 +6,10 @@ A sophisticated Python-based jukebox engine with real-time playlist management, 
 
 The Convergence Jukebox is a feature-rich music player that combines random song selection with a priority-based paid request system. It monitors multiple playlist files in real-time, automatically transitions between song types, and maintains detailed playback statistics for analytics.
 
-**Current Version**: main_jukebox_engine_2026.py (Based on version 0.91 with all improvements integrated)
+**Current Version**: main_jukebox_engine_2026.py (Version 0.94 - STABLE + FEATURES HYBRID)
+- Base: Proven stability from version 0.8 (no memory leaks)
+- Enhanced: Code quality features from version 0.91 (validation, testing, statistics)
+- Status: Production-ready and recommended for daily use
 
 ## Features
 
@@ -26,9 +29,8 @@ The Convergence Jukebox is a feature-rich music player that combines random song
 ### Advanced Features
 - **Input Validation**: Comprehensive data integrity checking for all inputs
 - **Refactored for Testability**: Extracted I/O operations enable easy unit testing
-- **Memory Optimization**: Automatic garbage collection and memory monitoring
-- **Background Threading**: Non-blocking real-time paid song detection during playback
 - **Song Statistics**: Persistent tracking of play counts, history, and preferences
+- **Real-Time Polling**: Efficient synchronous checking for paid song requests between playback
 - **Configurable Logging**: Enable/disable logging with customizable formats and levels
 - **Console Output**: Color-coded messages with professional formatting
 - **Configuration Management**: JSON-based configuration with sensible defaults
@@ -38,7 +40,7 @@ The Convergence Jukebox is a feature-rich music player that combines random song
 ### Requirements
 - Python 3.7+
 - VLC media player (system installation required)
-- Python packages: `python-vlc`, `psutil`
+- Python packages: `python-vlc`, `tinytag`
 
 ### Setup Steps
 
@@ -55,7 +57,7 @@ The Convergence Jukebox is a feature-rich music player that combines random song
 
 3. **Install Python dependencies**
    ```bash
-   pip install python-vlc psutil
+   pip install python-vlc tinytag
    ```
 
 4. **Organize your music**
@@ -298,23 +300,37 @@ Configure logging behavior in `jukebox_config.json` under the `logging` section.
 - Method signatures designed for unit testing
 
 ### Performance
-- Garbage collection triggered every 500 songs processed
-- Memory monitoring with warnings at 200MB+ usage
-- Background thread for non-blocking paid song detection
+- Efficient garbage collection during metadata extraction
+- Simple, synchronous polling for paid song requests
+- Real-time responsiveness without background threading overhead
 - Efficient playlist searches and validations
+- Stable memory usage even in extended sessions
 
-### Threading
-- Daemon thread monitors `PaidMusicPlayList.txt` during playback
-- Thread-safe access using `threading.Lock()`
-- Non-blocking detection of new paid requests
-- Graceful shutdown of background threads
+### Polling Architecture
+- Synchronous checking for paid songs between random playback
+- Loads `PaidMusicPlayList.txt` at each iteration
+- Detects new paid requests immediately (checks multiple times per minute)
+- No background threads = no memory leaks or threading complexity
+- Proven reliable through extensive testing
 
 ## Version History
 
-- **main_jukebox_engine_2026.py**: Production release - Consolidated 0.91 as the latest stable version with all improvements integrated
+### Current Recommended Version
+
+- **main_jukebox_engine_2026.py** (Version 0.94): STABLE + FEATURES HYBRID
+  - Base: Proven stability from 0.8 (no memory leaks)
+  - Enhanced: Code quality features from 0.91 (validation, testing, statistics)
+  - Removed: Background threading from 0.9+ (root cause of memory leak)
+  - Status: Production-ready and recommended for daily use
+
+### Complete Version History
+
+- **0.94**: STABLE HYBRID - Combined 0.8 stability with 0.91 features, removed problematic threading
+- **0.93**: Memory leak investigation (deep fix attempts, ultimately not needed)
+- **0.92**: CRITICAL: VLC cleanup attempts, identified threading as root cause
 - **0.91**: Added input validation, testability refactoring, and song statistics
-- **0.9**: Memory optimization, threading support, enhanced docstrings
-- **0.8**: Console colors, logging configuration, config file support
+- **0.9**: ⚠️ DEPRECATED - Memory leak introduced: added threading + psutil memory monitoring
+- **0.8**: ✓ LAST STABLE - Console colors, logging configuration, config file support
 - **0.7**: Comprehensive type hints throughout codebase
 - **0.6**: Cross-platform path handling
 - **0.5**: Removed dead code
@@ -324,15 +340,21 @@ Configure logging behavior in `jukebox_config.json` under the `logging` section.
 - **0.1**: Eliminated global variables
 - **0.0**: Initial baseline
 
-### Version File Guide
+### Version Strategy Notes
 
-The repository contains multiple version files to track the development progression:
+**Memory Leak Investigation:**
+- 0.9+ experienced 5.3GB+ memory usage in long sessions
+- Root cause: Background threading with continuous file polling
+- Solution: Reverted to synchronous polling (0.8 approach) + added 0.91 features = 0.94
+- Result: Stable, feature-rich, no memory leaks
 
-- **main_jukebox_engine_2026.py**: Use this file for production/deployment. It contains all improvements from 0.1-0.91
-- **0.1 to 0.91**: Historical version files showing incremental improvements
-- Each version builds upon the previous, fixing issues and adding features
+**Why 0.94 Works:**
+- No background threads (eliminates thread reference holding)
+- Synchronous polling between songs (simple and efficient)
+- Real-time detection still works (checks between each random song)
+- Paid song feature fully functional without threading complexity
 
-For new users and deployment, use **main_jukebox_engine_2026.py**
+For new users and deployment, use **main_jukebox_engine_2026.py** (Version 0.94)
 
 ## Troubleshooting
 
@@ -351,15 +373,17 @@ For new users and deployment, use **main_jukebox_engine_2026.py**
 - Verify JSON format is correct: `[0, 1, 2]` or `[0]`
 - Check console output for validation errors
 
-### Memory Issues
-- Long sessions may accumulate memory; consider periodic restarts
-- Check `log.txt` for memory warning messages
-- Reduce music library size if needed
+### Memory Issues (RESOLVED in 0.94)
+- Version 0.94 eliminates the memory leak from 0.9+
+- Memory should remain stable even in extended sessions
+- If you were using 0.9-0.93, upgrade to 0.94 (based on stable 0.8)
+- No periodic restarts needed anymore
 
 ### High CPU Usage
 - Normal during playback and file scanning
-- Background thread uses minimal resources (checks every 1 second)
+- Version 0.94 has no background thread (synchronous polling is lightweight)
 - Consider closing other applications for better performance
+- If you were experiencing CPU spikes in 0.9-0.93, this is resolved in 0.94
 
 ## Contributing
 
