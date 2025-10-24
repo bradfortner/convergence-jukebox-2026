@@ -17,6 +17,14 @@ venv/
 *.swp
 *.swo
 
+# Runtime and log files
+CurrentSongPlaying.txt
+GenreFlagsList.txt
+log.txt
+MusicMasterSongList.txt
+MusicMasterSongListCheck.txt
+PaidMusicPlayList.txt
+
 # OS
 .DS_Store
 Thumbs.db
