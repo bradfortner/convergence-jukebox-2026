@@ -52,8 +52,8 @@ class JukeboxEngine:
     TIMESTAMP_ROUNDING: float = 0.5
     CONFIG_FILE: str = 'jukebox_config.json'
     STATISTICS_FILE: str = 'song_statistics.json'
-    GC_THRESHOLD: int = 500
-    MEMORY_WARNING_MB: int = 200
+    GC_THRESHOLD: int = 100  # CRITICAL FIX: Reduced from 500 to 100 for more frequent garbage collection
+    MEMORY_WARNING_MB: int = 500  # CRITICAL FIX: Increased warning threshold from 200MB to 500MB (more realistic)
 
     def __init__(self) -> None:
         """Initialize Jukebox Engine with all required variables and file setup"""
@@ -485,7 +485,7 @@ class JukeboxEngine:
     # ============================================================================
 
     def _optimize_memory(self) -> None:
-        """Perform garbage collection and memory optimization when needed"""
+        """Perform aggressive garbage collection and memory optimization"""
         try:
             self.gc_counter += 1
             if self.gc_counter >= self.GC_THRESHOLD:
@@ -495,11 +495,24 @@ class JukeboxEngine:
                 self.gc_counter = 0
                 self.last_gc_time = datetime.now()
 
-            if self.gc_counter % 5 == 0:
+                # CRITICAL FIX: Force additional gc passes to clean up circularly referenced objects
+                gc.collect()
+                gc.collect()
+
+            if self.gc_counter % 2 == 0:  # Check memory more frequently (every 2 counter increments)
                 memory_info = psutil.virtual_memory()
                 memory_used_mb: float = memory_info.used / (1024 * 1024)
+                memory_percent: float = memory_info.percent
+
+                # Log memory status more detailed
+                if self.config['console']['verbose']:
+                    self._print_success(f"Memory: {memory_used_mb:.1f}MB ({memory_percent:.1f}%)")
+
                 if memory_used_mb > self.MEMORY_WARNING_MB:
-                    self._print_warning(f"High memory usage: {memory_used_mb:.1f}MB")
+                    self._print_warning(f"High memory usage: {memory_used_mb:.1f}MB ({memory_percent:.1f}%)")
+                    # Aggressive cleanup if memory is high
+                    gc.collect()
+                    gc.collect()
 
         except Exception:
             pass
@@ -741,7 +754,7 @@ class JukeboxEngine:
             return False
 
     def play_song(self, song_file_name: str) -> bool:
-        """Play a song using VLC media player"""
+        """Play a song using VLC media player with proper resource cleanup"""
         try:
             # Improvement #1: Validate file path
             is_valid, error_msg = self._validate_file_path(song_file_name)
@@ -751,15 +764,17 @@ class JukeboxEngine:
 
             if self.config['console']['show_system_info']:
                 print("\nSystem Info:")
-                print(psutil.virtual_memory())
+                mem_info = psutil.virtual_memory()
+                print(f"Memory - Total: {mem_info.total / (1024**3):.1f}GB | Used: {mem_info.used / (1024**3):.1f}GB | Available: {mem_info.available / (1024**3):.1f}GB | Percent: {mem_info.percent}%")
                 print("Garbage collection thresholds:", gc.get_threshold())
 
             collected: int = gc.collect()
             if self.config['console']['verbose']:
                 print(f"Garbage collector: collected {collected} objects.")
 
+            p = None
             try:
-                p: vlc.MediaPlayer = vlc.MediaPlayer(song_file_name)
+                p = vlc.MediaPlayer(song_file_name)
                 p.play()
                 if self.config['console']['verbose']:
                     print('is_playing:', p.is_playing())
@@ -775,6 +790,19 @@ class JukeboxEngine:
             except Exception as vlc_error:
                 self._log_error(f"VLC playback error for {song_file_name}: {vlc_error}")
                 return False
+            finally:
+                # CRITICAL FIX: Explicitly release VLC player instance to prevent memory leak
+                if p is not None:
+                    try:
+                        p.stop()
+                    except:
+                        pass
+                    try:
+                        del p
+                    except:
+                        pass
+                # Force immediate garbage collection after each song
+                gc.collect()
         except Exception as e:
             self._log_error(f"Unexpected error in play_song: {e}")
             return False
