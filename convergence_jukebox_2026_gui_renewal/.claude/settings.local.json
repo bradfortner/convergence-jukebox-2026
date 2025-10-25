@@ -9,7 +9,10 @@
       "Bash(cat:*)",
       "Bash(git rm:*)",
       "Bash(git mv:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(python -m py_compile:*)",
+      "Bash(python:*)",
+      "Read(//c/Users/bradf/Desktop/convergence-jukebox-2026/**)"
     ],
     "deny": [],
     "ask": []
