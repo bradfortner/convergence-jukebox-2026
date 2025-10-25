@@ -26,6 +26,7 @@ MusicMasterSongListCheck.txt
 PaidMusicPlayList.txt
 the_bands.txt
 the_exempted_bands.txt
+buzz.mp3
 
 # OS
 .DS_Store
