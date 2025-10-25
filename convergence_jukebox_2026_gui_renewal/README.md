@@ -1,10 +1,10 @@
-# Convergence Jukebox 2025 - GUI Renewal
+# Convergence Jukebox 2026 - GUI Renewal
 
-A modern, modular implementation of the Convergence Jukebox 2025 graphical user interface using **FreeSimpleGUI** (drop-in replacement for deprecated PySimpleGUI).
+A modern, modular implementation of the Convergence Jukebox 2026 graphical user interface using **FreeSimpleGUI** (drop-in replacement for deprecated PySimpleGUI).
 
 ## Overview
 
-The Convergence Jukebox 2025 is a comprehensive jukebox application that displays and plays music with an interactive GUI. This GUI renewal project implements a clean, modular architecture that separates concerns and improves maintainability.
+The Convergence Jukebox 2026 is a comprehensive jukebox application that displays and plays music with an interactive GUI. This GUI renewal project implements a clean, modular architecture that separates concerns and improves maintainability.
 
 **Current Version:** 0.2 - main_jukebox_GUI_2026.py
 
@@ -169,7 +169,7 @@ python "0.2 - main_jukebox_GUI_2026.py"
 ### Application Flow
 
 1. **Main Window Opens**
-   - Displays Convergence Jukebox 2025 logo
+   - Displays Convergence Jukebox 2026 logo
    - Shows background image
    - Ready for user interaction
 
@@ -362,5 +362,5 @@ For questions or issues, please open a GitHub issue or contact the maintainers.
 
 ---
 
-**Convergence Jukebox 2025 - GUI Renewal**
+**Convergence Jukebox 2026 - GUI Renewal**
 A modular, maintainable approach to jukebox software.
