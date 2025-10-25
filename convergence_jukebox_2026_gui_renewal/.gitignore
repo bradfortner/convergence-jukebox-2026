@@ -1,6 +1,7 @@
 # Music files
 ../convergence_jukebox_2026_player_renewal/music/
 */music/
+*/musicshort/
 
 # Python
 __pycache__/
