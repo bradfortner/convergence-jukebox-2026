@@ -1,23 +1,23 @@
 # ============================================================================
 # CONVERGENCE JUKEBOX 2026 - GUI LAYOUT FUNCTIONS MODULE
 # ============================================================================
-# This module contains all PySimpleGUI layout functions used by the GUI
+# This module contains all FreeSimpleGUI layout functions used by the GUI
 # Purpose: Separate layout logic from main initialization for modularity
 # ============================================================================
 
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 
 # ============================================================================
 # TITLE BAR LAYOUT FUNCTION
 # ============================================================================
-# Purpose: Creates a PySimpleGUI layout for a custom title bar with background
+# Purpose: Creates a FreeSimpleGUI layout for a custom title bar with background
 # ============================================================================
 
 def title_bar(title, text_color, background_color):
     """
     Creates a title bar layout row with expandable columns.
 
-    This function returns a list of PySimpleGUI Column elements that form a title bar.
+    This function returns a list of FreeSimpleGUI Column elements that form a title bar.
     The layout creates a spread-out design with empty space on the left and content
     on the right.
 

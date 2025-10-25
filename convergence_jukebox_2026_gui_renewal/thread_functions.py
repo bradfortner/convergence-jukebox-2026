@@ -15,6 +15,7 @@ import time
 #
 # Source: Code developed from Python GUIs - "The Official PySimpleGUI Course"
 #         https://www.udemy.com/course/pysimplegui/learn/lecture/30070620
+#         (Converted to FreeSimpleGUI - drop-in replacement for PySimpleGUI)
 #         Background image code modified from
 #         https://www.pysimplegui.org/en/latest/Demos/#demo_window_background_imagepy
 # ============================================================================
@@ -28,8 +29,8 @@ def file_lookup_thread(song_playing_lookup_window):
     information.
 
     Args:
-        song_playing_lookup_window (PySimpleGUI.Window): The main GUI window object
-                                                         that will receive update events
+        song_playing_lookup_window (FreeSimpleGUI.Window): The main GUI window object
+                                                           that will receive update events
 
     Returns:
         None (runs until interrupted)
