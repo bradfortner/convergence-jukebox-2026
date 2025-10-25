@@ -1,5 +1,5 @@
 import vlc
-from breakdown_the_bands_name_check import the_bands_name_check
+from the_bands_name_check import the_bands_name_check
 
 
 def selection_buttons_update(selection_window_number, jukebox_selection_window, right_arrow_selection_window,
