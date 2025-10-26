@@ -4,9 +4,9 @@ A modern, modular implementation of the Convergence Jukebox 2026 graphical user 
 
 ## Overview
 
-The Convergence Jukebox 2026 is a comprehensive jukebox application that displays and plays music with an interactive GUI. This GUI renewal project implements a clean, modular architecture that separates concerns and improves maintainability.
+The Convergence Jukebox 2026 is a comprehensive jukebox application that displays and plays music with an interactive GUI. This GUI renewal project implements a clean, modular architecture that separates concerns and improves maintainability by extracting functional components into independent modules.
 
-**Current Version:** 0.2 - main_jukebox_GUI_2026.py
+**Current Version:** 0.39 - main_jukebox_GUI_2026.py
 
 ## Features
 
@@ -15,9 +15,11 @@ The Convergence Jukebox 2026 is a comprehensive jukebox application that display
 - Cross-platform support (Windows & Linux)
 - Custom title bar and transparent windows
 - Background image support (embedded as base64)
+- Animated popup displays for visual feedback
 
 ✅ **Modular Architecture**
-- 10 separate, independent function modules
+- 15+ separate, independent function modules
+- Continuous refactoring to extract functionality
 - Clean separation of concerns
 - Easy to test and maintain
 - Parameter-based function design (no closure dependencies)
@@ -25,6 +27,7 @@ The Convergence Jukebox 2026 is a comprehensive jukebox application that display
 ✅ **Rich Media Support**
 - 200+ record label images with variants
 - Selection animations and UI icons
+- 45RPM record label generator with dynamic text
 - Embedded background image (623KB)
 - Custom fonts (OpenSans-ExtraBold)
 
@@ -35,6 +38,7 @@ The Convergence Jukebox 2026 is a comprehensive jukebox application that display
 - Upcoming songs queue display
 - VLC media player integration for audio playback
 - Background thread for real-time UI updates
+- Animated 45RPM record popup with customizable display duration
 
 ## Architecture
 
@@ -42,41 +46,46 @@ The Convergence Jukebox 2026 is a comprehensive jukebox application that display
 
 ```
 convergence_jukebox_2026_gui_renewal/
-├── 0.2 - main_jukebox_GUI_2026.py      # Production main file
-├── background_image_data.py             # Background image module (623KB)
-├── gui_layouts.py                       # GUI layout definitions
-├── thread_functions.py                  # Background thread functions
+├── 0.39 - main_jukebox_GUI_2026.py      # Production main file (current)
+├── 0.38 - main_jukebox_GUI_2026.py      # Previous version
+├── background_image_data.py              # Background image module (623KB)
 │
 ├── Modular Function Files:
-├── disable_a_selection_buttons.py       # Disable A window buttons
-├── disable_b_selection_buttons.py       # Disable B window buttons
-├── disable_c_selection_buttons.py       # Disable C window buttons
-├── disable_numbered_selection_buttons.py
-├── enable_numbered_selection_buttons.py
-├── enable_all_buttons.py                # Re-enable all buttons
-├── selection_buttons_update.py          # Update song buttons display
-├── selection_entry_complete.py          # Process song selection
-├── the_bands_name_check.py             # Add "The" to band names
-├── upcoming_selections_update.py        # Update queue display
+├── info_screen_layout.py                 # Info screen layout module
+├── jukebox_selection_screen_layout.py    # Selection screen layout
+├── control_button_screen_layout.py       # Control button layout
+├── search_window_button_layout.py        # Search window buttons
+├── font_size_window_updates.py           # Font sizing logic
+├── font_size_window_updates_1.py         # Extended font sizing
+├── upcoming_selections_update.py         # Queue display updates
+├── the_bands_name_check.py               # Band name "The" prefix
+├── disable_a_selection_buttons_1.py      # Disable A window buttons
+├── disable_b_selection_buttons_1.py      # Disable B window buttons
+├── disable_c_selection_buttons_1.py      # Disable C window buttons
+├── enable_all_buttons_1.py               # Re-enable all buttons
+├── 45rpm_pop_up_code.py                  # 45RPM popup display module (v0.39+)
 │
 ├── Media Assets:
-├── fonts/                               # Custom fonts
+├── fonts/                                # Custom fonts
 │   └── OpenSans-ExtraBold.ttf
-├── record_labels/                       # 200+ record label images
-│   ├── final_black/                     # Black background variants
+├── record_labels/                        # 200+ record label images
+│   ├── final_black/                      # Black background variants
 │   ├── final_black_bg/
 │   ├── final_black_sel/
-│   ├── final_white/                     # White background variants
+│   ├── final_white/                      # White background variants
 │   ├── final_white_bg/
 │   └── final_white_sel/
-├── jukebox_2025_logo.png                # Application logo
-├── magglass.png                         # Magnifying glass icon
-├── selection_45.gif                     # Selection animation
+├── jukebox_2025_logo.png                 # Application logo
+├── magglass.png                          # Magnifying glass icon
+├── selection_45.gif                      # Selection animation
 ├── selection_45.jpg
+├── success.mp3                           # Selection confirmation sound
 │
 ├── Configuration:
-├── .gitignore                           # Git ignore patterns
-└── README.md                            # This file
+├── CurrentSongPlaying.txt                # Currently playing track info
+├── log.txt                               # Application log file
+├── .gitignore                            # Git ignore patterns
+└── README.md                             # This file
 ```
 
 ### Modular Functions
@@ -85,16 +94,53 @@ Each function module is independent and self-contained:
 
 | Module | Purpose |
 |--------|---------|
-| `disable_a_selection_buttons.py` | Disables A window song buttons and controls |
-| `disable_b_selection_buttons.py` | Disables B window song buttons and controls |
-| `disable_c_selection_buttons.py` | Disables C window song buttons and controls |
-| `disable_numbered_selection_buttons.py` | Disables numbered control buttons (1-7) |
-| `enable_numbered_selection_buttons.py` | Enables numbered control buttons |
-| `enable_all_buttons.py` | Re-enables all 21 song buttons and controls |
-| `selection_buttons_update.py` | Updates display with current song selection |
-| `selection_entry_complete.py` | Processes A1-C7 song selection entry |
-| `the_bands_name_check.py` | Adds "The" prefix to band names |
-| `upcoming_selections_update.py` | Updates upcoming songs queue display |
+| `info_screen_layout.py` | Creates info display screen layout |
+| `jukebox_selection_screen_layout.py` | Creates song selection grid layout |
+| `control_button_screen_layout.py` | Creates control button layout |
+| `search_window_button_layout.py` | Creates search window buttons |
+| `font_size_window_updates.py` | Calculates and applies font sizes |
+| `font_size_window_updates_1.py` | Extended font sizing functionality |
+| `upcoming_selections_update.py` | Updates upcoming songs queue |
+| `the_bands_name_check.py` | Auto-adds "The" to band names |
+| `disable_a_selection_buttons_1.py` | Disables A window buttons |
+| `disable_b_selection_buttons_1.py` | Disables B window buttons |
+| `disable_c_selection_buttons_1.py` | Disables C window buttons |
+| `enable_all_buttons_1.py` | Enables all 21 song buttons |
+| `45rpm_pop_up_code.py` | **NEW** - Generates & displays 45RPM record popup |
+
+## 45RPM Popup Feature (v0.39+)
+
+The 45RPM popup display has been extracted into its own module for modularity and reusability.
+
+### `45rpm_pop_up_code.py` Module
+
+**Function:** `display_45rpm_popup(MusicMasterSongList, counter, jukebox_selection_window)`
+
+**Parameters:**
+- `MusicMasterSongList` (list): Song database with title and artist info
+- `counter` (int): Index of currently selected song
+- `jukebox_selection_window`: PySimpleGUI window object
+
+**Functionality:**
+1. Extracts song title and artist from song list
+2. Loads random 45RPM record label image from `record_labels/final_black_sel/`
+3. Generates text overlay with:
+   - Dynamic font sizing (15-30pt based on text length)
+   - Text wrapping for long titles/artists
+   - Centered positioning on record label
+4. Saves generated image as `selection_45.jpg` and `selection_45.gif`
+5. Plays success sound via VLC
+6. Displays animated 600-frame popup showing record label
+7. Maintains UI state (hides/unhides main window)
+
+### Example Usage
+
+```python
+from 45rpm_pop_up_code import display_45rpm_popup
+
+# When song is selected:
+display_45rpm_popup(MusicMasterSongList, selected_index, jukebox_selection_window)
+```
 
 ## Requirements
 
@@ -163,7 +209,7 @@ pip install python-vlc
 ### Running the Application
 
 ```bash
-python "0.2 - main_jukebox_GUI_2026.py"
+python "0.39 - main_jukebox_GUI_2026.py"
 ```
 
 ### Application Flow
@@ -181,13 +227,17 @@ python "0.2 - main_jukebox_GUI_2026.py"
 
 3. **Selection Confirmation**
    - Select grid position (A1-C7) using control buttons
-   - Selected song is disabled, next song queued
+   - Triggers 45RPM popup display
+   - Success sound plays
+   - Animated record label shown for ~10 seconds
+   - Song queued for playback
    - Upcoming songs display updated
 
 4. **Playback**
    - VLC plays selected song
    - Playback controls available in main window
    - Queue system for multiple song selection
+   - Real-time display of currently playing track
 
 ## Configuration
 
@@ -204,6 +254,16 @@ The application looks for music in these directories (excluded from git):
 Two configuration files control band name display:
 - `the_bands.txt` - List of bands that should have "The" prefix
 - `the_exempted_bands.txt` - Bands exempt from "The" prefix
+
+### 45RPM Popup Configuration
+
+The popup display duration is controlled in `45rpm_pop_up_code.py`:
+```python
+for i in range(600):  # 600 frames at ~60ms per frame ≈ 36 seconds
+    sg.PopupAnimated('selection_45.gif', ...)
+```
+
+Adjust the range value to control how long the popup displays.
 
 ## Technical Details
 
@@ -234,6 +294,11 @@ This project was migrated from deprecated PySimpleGUI to FreeSimpleGUI:
 - Real-time song information display
 - Smooth user experience
 
+**Continuous Refactoring**
+- Regular extraction of functionality to modules
+- Improves code organization
+- Reduces main file size and complexity
+
 ### Image Handling
 
 **Background Image**
@@ -249,6 +314,16 @@ This project was migrated from deprecated PySimpleGUI to FreeSimpleGUI:
   - Background (for buttons)
   - Selected state
 - Two color schemes: Black & White
+- Dynamically selected from `record_labels/final_black_sel/` during playback
+
+### Text Rendering
+
+The `45rpm_pop_up_code.py` module implements intelligent text rendering:
+- **Long Text Handling**: Wraps titles/artists > 37/30 characters using 15pt font
+- **Medium Text**: 17-37 character titles use 20pt font
+- **Short Text**: ≤17 character titles use 30pt font
+- **Text Positioning**: Center-anchored text at fixed Y coordinates
+- **Font**: OpenSans-ExtraBold for consistent, bold appearance
 
 ## Development
 
@@ -265,6 +340,15 @@ This project was migrated from deprecated PySimpleGUI to FreeSimpleGUI:
 2. Define function with clear parameters
 3. Import in main file
 4. Call from event loop or other functions
+5. Commit with descriptive message
+
+### Recent Refactoring (v0.39)
+
+**Extracted 45RPM Popup Code**
+- Lines 1050-1111 from v0.38 moved to `45rpm_pop_up_code.py`
+- Created `display_45rpm_popup()` function
+- Improved code organization and reusability
+- Maintains 100% backward compatibility
 
 ### Testing
 
@@ -299,13 +383,22 @@ pip install --upgrade FreeSimpleGUI
 2. Ensure X11 forwarding (if using SSH)
 3. Verify screen resolution supports window size
 
+### 45RPM Popup Not Showing
+
+1. Verify `record_labels/final_black_sel/` directory exists and contains images
+2. Check `success.mp3` file exists
+3. Ensure `45rpm_pop_up_code.py` is in project root
+4. Verify Pillow is installed: `pip install --upgrade Pillow`
+
 ## Git Workflow
 
 ### Version History
 
-- **0.2** - Production FreeSimpleGUI migration (current)
+- **0.39** - 45RPM popup code extracted to module (current)
+- **0.38** - Compacted search_window_button_layout extracted
+- **0.35-0.37** - Layout module extraction improvements
+- **0.2** - Production FreeSimpleGUI migration
 - **0.191** - Background image extracted to module
-- **0.19** - Initial FreeSimpleGUI migration
 - Earlier versions tracked in git history
 
 ### Excluded Directories
@@ -314,15 +407,30 @@ The following are excluded from version control (.gitignore):
 - `music/` - Large music files
 - `smusicshort/` - Short clips
 - `smusiclong/` - Long clips
+- `smusicshort/` - Short music clips (varied naming)
 - Python cache (`__pycache__/`)
 - IDE files (`.vscode/`, `.idea/`)
 
+### Commit Message Format
+
+Commits follow this format:
+```
+Create version X.XX with [feature description]
+
+[Detailed description of changes]
+
+🤖 Generated with Claude Code
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
 ## Performance Notes
 
-- **File Size:** Main file ~270KB (reduced from 609KB)
+- **File Size:** Main file refactored to improve modularity
 - **Memory:** Minimal footprint with modular architecture
 - **CPU:** Background thread uses ~1% CPU for updates
 - **Storage:** Total project ~500MB (including media assets)
+- **Popup Display:** Smooth 600-frame animation at 60ms intervals
 
 ## Known Issues
 
@@ -334,7 +442,7 @@ Contributions welcome! Please:
 
 1. Fork the repository
 2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
+3. Commit changes with descriptive messages
 4. Push to branch (`git push origin feature/amazing-feature`)
 5. Open Pull Request
 
@@ -351,16 +459,18 @@ For questions or issues, please open a GitHub issue or contact the maintainers.
 - FreeSimpleGUI community for maintaining the PySimpleGUI replacement
 - VLC for the powerful media player backend
 - OpenSans font by Google Fonts
+- Pillow library for image manipulation
 
 ## Version Information
 
+- **Current Version:** 0.39
 - **GUI Framework:** FreeSimpleGUI 4.60+
 - **Media Backend:** VLC (python-vlc 3.0+)
 - **Image Support:** Pillow 8.0+
 - **Python:** 3.7+
-- **Updated:** 2025-10-25
+- **Last Updated:** 2025-10-26
 
 ---
 
 **Convergence Jukebox 2026 - GUI Renewal**
-A modular, maintainable approach to jukebox software.
+A modular, maintainable approach to jukebox software with continuous refactoring for improved code organization.
