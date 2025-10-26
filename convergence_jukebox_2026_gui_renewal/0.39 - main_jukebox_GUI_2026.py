@@ -28,7 +28,7 @@ from enable_all_buttons_1 import enable_all_buttons as enable_all_buttons_module
 from jukebox_selection_screen_layout import create_jukebox_selection_screen_layout
 from control_button_screen_layout import create_control_button_screen_layout
 from search_window_button_layout import create_search_window_button_layout
-from 45rpm_pop_up_code import display_45rpm_popup
+from popup_45rpm_code import display_45rpm_popup
 
 global selection_window_number
 global jukebox_selection_window

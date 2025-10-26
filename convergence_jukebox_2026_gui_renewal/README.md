@@ -63,7 +63,7 @@ convergence_jukebox_2026_gui_renewal/
 ├── disable_b_selection_buttons_1.py      # Disable B window buttons
 ├── disable_c_selection_buttons_1.py      # Disable C window buttons
 ├── enable_all_buttons_1.py               # Re-enable all buttons
-├── 45rpm_pop_up_code.py                  # 45RPM popup display module (v0.39+)
+├── popup_45rpm_code.py                   # 45RPM popup display module (v0.39+)
 │
 ├── Media Assets:
 ├── fonts/                                # Custom fonts
@@ -106,13 +106,13 @@ Each function module is independent and self-contained:
 | `disable_b_selection_buttons_1.py` | Disables B window buttons |
 | `disable_c_selection_buttons_1.py` | Disables C window buttons |
 | `enable_all_buttons_1.py` | Enables all 21 song buttons |
-| `45rpm_pop_up_code.py` | **NEW** - Generates & displays 45RPM record popup |
+| `popup_45rpm_code.py` | **NEW** - Generates & displays 45RPM record popup |
 
 ## 45RPM Popup Feature (v0.39+)
 
 The 45RPM popup display has been extracted into its own module for modularity and reusability.
 
-### `45rpm_pop_up_code.py` Module
+### `popup_45rpm_code.py` Module
 
 **Function:** `display_45rpm_popup(MusicMasterSongList, counter, jukebox_selection_window)`
 
@@ -136,7 +136,7 @@ The 45RPM popup display has been extracted into its own module for modularity an
 ### Example Usage
 
 ```python
-from 45rpm_pop_up_code import display_45rpm_popup
+from popup_45rpm_code import display_45rpm_popup
 
 # When song is selected:
 display_45rpm_popup(MusicMasterSongList, selected_index, jukebox_selection_window)
@@ -318,7 +318,7 @@ This project was migrated from deprecated PySimpleGUI to FreeSimpleGUI:
 
 ### Text Rendering
 
-The `45rpm_pop_up_code.py` module implements intelligent text rendering:
+The `popup_45rpm_code.py` module implements intelligent text rendering:
 - **Long Text Handling**: Wraps titles/artists > 37/30 characters using 15pt font
 - **Medium Text**: 17-37 character titles use 20pt font
 - **Short Text**: ≤17 character titles use 30pt font
@@ -345,7 +345,7 @@ The `45rpm_pop_up_code.py` module implements intelligent text rendering:
 ### Recent Refactoring (v0.39)
 
 **Extracted 45RPM Popup Code**
-- Lines 1050-1111 from v0.38 moved to `45rpm_pop_up_code.py`
+- Lines 1050-1111 from v0.38 moved to `popup_45rpm_code.py`
 - Created `display_45rpm_popup()` function
 - Improved code organization and reusability
 - Maintains 100% backward compatibility
@@ -387,7 +387,7 @@ pip install --upgrade FreeSimpleGUI
 
 1. Verify `record_labels/final_black_sel/` directory exists and contains images
 2. Check `success.mp3` file exists
-3. Ensure `45rpm_pop_up_code.py` is in project root
+3. Ensure `popup_45rpm_code.py` is in project root
 4. Verify Pillow is installed: `pip install --upgrade Pillow`
 
 ## Git Workflow
