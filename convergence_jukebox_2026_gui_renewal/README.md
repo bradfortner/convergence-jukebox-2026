@@ -6,7 +6,7 @@ A modern, modular implementation of the Convergence Jukebox 2026 graphical user 
 
 The Convergence Jukebox 2026 is a comprehensive jukebox application that displays and plays music with an interactive GUI. This GUI renewal project implements a clean, modular architecture that separates concerns and improves maintainability by extracting functional components into independent modules.
 
-**Current Version:** 0.41 - main_jukebox_GUI_2026.py
+**Current Version:** 0.42 - main_jukebox_GUI_2026.py
 
 ## Features
 
@@ -46,8 +46,8 @@ The Convergence Jukebox 2026 is a comprehensive jukebox application that display
 
 ```
 convergence_jukebox_2026_gui_renewal/
-├── 0.41 - main_jukebox_GUI_2026.py      # Production main file (current)
-├── 0.40 - main_jukebox_GUI_2026.py      # Previous version
+├── 0.42 - main_jukebox_GUI_2026.py      # Production main file (current)
+├── 0.41 - main_jukebox_GUI_2026.py      # Previous version
 ├── background_image_data.py              # Background image module (623KB)
 │
 ├── Modular Function Files:
@@ -63,7 +63,7 @@ convergence_jukebox_2026_gui_renewal/
 ├── disable_b_selection_buttons_1.py      # Disable B window buttons
 ├── disable_c_selection_buttons_1.py      # Disable C window buttons
 ├── enable_all_buttons_1.py               # Re-enable all buttons
-├── popup_45rpm_selection_code.py         # 45RPM song selection popup (v0.41+)
+├── popup_45rpm_song_selection_code.py    # 45RPM song selection popup (v0.42+)
 ├── popup_45rpm_now_playing_code.py       # 45RPM now-playing popup (v0.40+)
 │
 ├── Media Assets:
@@ -107,14 +107,14 @@ Each function module is independent and self-contained:
 | `disable_b_selection_buttons_1.py` | Disables B window buttons |
 | `disable_c_selection_buttons_1.py` | Disables C window buttons |
 | `enable_all_buttons_1.py` | Enables all 21 song buttons |
-| `popup_45rpm_selection_code.py` | Generates & displays 45RPM song selection record popup |
+| `popup_45rpm_song_selection_code.py` | Generates & displays 45RPM song selection record popup |
 | `popup_45rpm_now_playing_code.py` | Generates & displays 45RPM now-playing record popup |
 
-## 45RPM Selection Popup Feature (v0.41+)
+## 45RPM Song Selection Popup Feature (v0.42+)
 
-The 45RPM selection popup display has been extracted into its own module for modularity and reusability.
+The 45RPM song selection popup display has been extracted into its own module for modularity and reusability.
 
-### `popup_45rpm_selection_code.py` Module
+### `popup_45rpm_song_selection_code.py` Module
 
 **Function:** `display_45rpm_popup(MusicMasterSongList, counter, jukebox_selection_window)`
 
@@ -138,7 +138,7 @@ The 45RPM selection popup display has been extracted into its own module for mod
 ### Example Usage
 
 ```python
-from popup_45rpm_selection_code import display_45rpm_popup
+from popup_45rpm_song_selection_code import display_45rpm_popup
 
 # When song is selected:
 display_45rpm_popup(MusicMasterSongList, selected_index, jukebox_selection_window)
@@ -383,7 +383,15 @@ The `popup_45rpm_code.py` module implements intelligent text rendering:
 4. Call from event loop or other functions
 5. Commit with descriptive message
 
-### Recent Refactoring (v0.41)
+### Recent Refactoring (v0.42)
+
+**Renamed Selection Popup Module for Clarity**
+- `popup_45rpm_selection_code.py` renamed to `popup_45rpm_song_selection_code.py`
+- Updated import in main file to reference new module name
+- Improved naming clarity: distinguishes "song selection" from general "selection"
+- Maintains 100% backward compatibility
+
+### Previous Refactoring (v0.41)
 
 **Renamed Selection Popup Module**
 - `popup_45rpm_code.py` renamed to `popup_45rpm_selection_code.py`
@@ -391,7 +399,7 @@ The `popup_45rpm_code.py` module implements intelligent text rendering:
 - Improved clarity by distinguishing selection popup from now-playing popup
 - Maintains 100% backward compatibility
 
-### Previous Refactoring (v0.40)
+### Earlier Refactoring (v0.40)
 
 **Extracted Now-Playing 45RPM Popup Code**
 - Lines 1094-1169 from v0.39 moved to `popup_45rpm_now_playing_code.py`
@@ -440,11 +448,11 @@ pip install --upgrade FreeSimpleGUI
 2. Ensure X11 forwarding (if using SSH)
 3. Verify screen resolution supports window size
 
-### 45RPM Selection Popup Not Showing
+### 45RPM Song Selection Popup Not Showing
 
 1. Verify `record_labels/final_black_sel/` directory exists and contains images
 2. Check `success.mp3` file exists
-3. Ensure `popup_45rpm_selection_code.py` is in project root
+3. Ensure `popup_45rpm_song_selection_code.py` is in project root
 4. Verify Pillow is installed: `pip install --upgrade Pillow`
 
 ### 45RPM Now-Playing Popup Not Showing
@@ -458,7 +466,8 @@ pip install --upgrade FreeSimpleGUI
 
 ### Version History
 
-- **0.41** - Renamed selection popup module to popup_45rpm_selection_code.py (current)
+- **0.42** - Renamed selection popup module to popup_45rpm_song_selection_code.py (current)
+- **0.41** - Renamed selection popup module to popup_45rpm_selection_code.py
 - **0.40** - Now-playing 45RPM popup code extracted to module
 - **0.39** - Selection 45RPM popup code extracted to module
 - **0.38** - Compacted search_window_button_layout extracted
@@ -529,7 +538,7 @@ For questions or issues, please open a GitHub issue or contact the maintainers.
 
 ## Version Information
 
-- **Current Version:** 0.41
+- **Current Version:** 0.42
 - **GUI Framework:** FreeSimpleGUI 4.60+
 - **Media Backend:** VLC (python-vlc 3.0+)
 - **Image Support:** Pillow 8.0+
