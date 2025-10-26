@@ -245,9 +245,6 @@ python "0.39 - main_jukebox_GUI_2026.py"
 
 The application looks for music in these directories (excluded from git):
 - `music/` - Main music collection
-- `musicshort/` - Short clip versions
-- `smusicshort/` - Short music clips
-- `smusiclong/` - Long music clips
 
 ### Band Name Configuration
 
