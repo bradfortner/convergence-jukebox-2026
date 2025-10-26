@@ -6,7 +6,7 @@ A modern, modular implementation of the Convergence Jukebox 2026 graphical user 
 
 The Convergence Jukebox 2026 is a comprehensive jukebox application that displays and plays music with an interactive GUI. This GUI renewal project implements a clean, modular architecture that separates concerns and improves maintainability by extracting functional components into independent modules.
 
-**Current Version:** 0.39 - main_jukebox_GUI_2026.py
+**Current Version:** 0.40 - main_jukebox_GUI_2026.py
 
 ## Features
 
@@ -46,8 +46,8 @@ The Convergence Jukebox 2026 is a comprehensive jukebox application that display
 
 ```
 convergence_jukebox_2026_gui_renewal/
-├── 0.39 - main_jukebox_GUI_2026.py      # Production main file (current)
-├── 0.38 - main_jukebox_GUI_2026.py      # Previous version
+├── 0.40 - main_jukebox_GUI_2026.py      # Production main file (current)
+├── 0.39 - main_jukebox_GUI_2026.py      # Previous version
 ├── background_image_data.py              # Background image module (623KB)
 │
 ├── Modular Function Files:
@@ -63,7 +63,8 @@ convergence_jukebox_2026_gui_renewal/
 ├── disable_b_selection_buttons_1.py      # Disable B window buttons
 ├── disable_c_selection_buttons_1.py      # Disable C window buttons
 ├── enable_all_buttons_1.py               # Re-enable all buttons
-├── popup_45rpm_code.py                   # 45RPM popup display module (v0.39+)
+├── popup_45rpm_code.py                   # 45RPM song selection popup (v0.39+)
+├── popup_45rpm_now_playing_code.py       # 45RPM now-playing popup (v0.40+)
 │
 ├── Media Assets:
 ├── fonts/                                # Custom fonts
@@ -106,7 +107,8 @@ Each function module is independent and self-contained:
 | `disable_b_selection_buttons_1.py` | Disables B window buttons |
 | `disable_c_selection_buttons_1.py` | Disables C window buttons |
 | `enable_all_buttons_1.py` | Enables all 21 song buttons |
-| `popup_45rpm_code.py` | **NEW** - Generates & displays 45RPM record popup |
+| `popup_45rpm_code.py` | Generates & displays 45RPM song selection record popup |
+| `popup_45rpm_now_playing_code.py` | **NEW (v0.40)** - Generates & displays 45RPM now-playing record popup |
 
 ## 45RPM Popup Feature (v0.39+)
 
@@ -140,6 +142,48 @@ from popup_45rpm_code import display_45rpm_popup
 
 # When song is selected:
 display_45rpm_popup(MusicMasterSongList, selected_index, jukebox_selection_window)
+```
+
+## 45RPM Now-Playing Popup Feature (v0.40+)
+
+The now-playing 45RPM popup display has been extracted into its own module for modularity and reusability.
+
+### `popup_45rpm_now_playing_code.py` Module
+
+**Function:** `display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_selection_window, upcoming_selections_update)`
+
+**Parameters:**
+- `MusicMasterSongList` (list): Song database with title and artist info
+- `counter` (int): Index of currently playing song
+- `jukebox_selection_window`: PySimpleGUI window object
+- `upcoming_selections_update` (function): Callback to update upcoming songs display
+
+**Functionality:**
+1. Extracts currently playing song title and artist from song list
+2. Loads random 45RPM record label image from `record_labels/final_black_bg/`
+3. Generates text overlay with dynamic font sizing (15-30pt based on text length)
+4. Saves generated image as `selection_45.jpg` and `selection_45.gif`
+5. Displays animated 600-frame popup showing record label
+6. Triggers on song change in the background playback thread
+7. Calls `upcoming_selections_update()` to refresh queue display
+8. Maintains UI state (hides/unhides main window)
+
+### Key Differences from Selection Popup
+
+| Feature | Selection Popup | Now-Playing Popup |
+|---------|-----------------|-------------------|
+| **Trigger** | Song selected by user | Currently playing song changes |
+| **Record Label** | `final_black_sel/` | `final_black_bg/` |
+| **Audio** | Plays success.mp3 | No audio (song already playing) |
+| **Event** | Immediate response | Background thread update |
+
+### Example Usage
+
+```python
+from popup_45rpm_now_playing_code import display_45rpm_now_playing_popup
+
+# When currently playing song changes:
+display_45rpm_now_playing_popup(MusicMasterSongList, current_index, jukebox_selection_window, upcoming_selections_update)
 ```
 
 ## Requirements
@@ -339,9 +383,17 @@ The `popup_45rpm_code.py` module implements intelligent text rendering:
 4. Call from event loop or other functions
 5. Commit with descriptive message
 
-### Recent Refactoring (v0.39)
+### Recent Refactoring (v0.40)
 
-**Extracted 45RPM Popup Code**
+**Extracted Now-Playing 45RPM Popup Code**
+- Lines 1094-1169 from v0.39 moved to `popup_45rpm_now_playing_code.py`
+- Created `display_45rpm_now_playing_popup()` function
+- Improved code organization and reusability
+- Maintains 100% backward compatibility
+
+### Previous Refactoring (v0.39)
+
+**Extracted Selection 45RPM Popup Code**
 - Lines 1050-1111 from v0.38 moved to `popup_45rpm_code.py`
 - Created `display_45rpm_popup()` function
 - Improved code organization and reusability
@@ -380,18 +432,26 @@ pip install --upgrade FreeSimpleGUI
 2. Ensure X11 forwarding (if using SSH)
 3. Verify screen resolution supports window size
 
-### 45RPM Popup Not Showing
+### 45RPM Selection Popup Not Showing
 
 1. Verify `record_labels/final_black_sel/` directory exists and contains images
 2. Check `success.mp3` file exists
 3. Ensure `popup_45rpm_code.py` is in project root
 4. Verify Pillow is installed: `pip install --upgrade Pillow`
 
+### 45RPM Now-Playing Popup Not Showing
+
+1. Verify `record_labels/final_black_bg/` directory exists and contains images
+2. Ensure `popup_45rpm_now_playing_code.py` is in project root
+3. Check song is actually playing (verify CurrentSongPlaying.txt updates)
+4. Verify Pillow is installed: `pip install --upgrade Pillow`
+
 ## Git Workflow
 
 ### Version History
 
-- **0.39** - 45RPM popup code extracted to module (current)
+- **0.40** - Now-playing 45RPM popup code extracted to module (current)
+- **0.39** - Selection 45RPM popup code extracted to module
 - **0.38** - Compacted search_window_button_layout extracted
 - **0.35-0.37** - Layout module extraction improvements
 - **0.2** - Production FreeSimpleGUI migration
@@ -460,7 +520,7 @@ For questions or issues, please open a GitHub issue or contact the maintainers.
 
 ## Version Information
 
-- **Current Version:** 0.39
+- **Current Version:** 0.40
 - **GUI Framework:** FreeSimpleGUI 4.60+
 - **Media Backend:** VLC (python-vlc 3.0+)
 - **Image Support:** Pillow 8.0+
