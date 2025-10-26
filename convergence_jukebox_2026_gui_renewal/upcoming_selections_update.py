@@ -1,69 +1,29 @@
-def upcoming_selections_update(info_screen_window, UpcomingSongPlayList):
+def update_upcoming_selections(info_screen_window, UpcomingSongPlayList):
     """
-    Update the upcoming song selections display on the info screen.
+    Update the upcoming selections display with songs from the queue.
+
+    Clears all 10 upcoming selection fields, then populates them with entries
+    from the UpcomingSongPlayList if they exist. Uses a mapping of indices to
+    field names to avoid repetitive code.
 
     Args:
-        info_screen_window: PySimpleGUI window for displaying song info
-        UpcomingSongPlayList: List of upcoming songs to display
+        info_screen_window: The info screen PySimpleGUI window object
+        UpcomingSongPlayList: List of upcoming songs to display (up to 10 items)
+
+    Returns:
+        None
     """
-    info_screen_window['--upcoming_one--'].Update(' ')
-    info_screen_window['--upcoming_two--'].Update(' ')
-    info_screen_window['--upcoming_three--'].Update(' ')
-    info_screen_window['--upcoming_four--'].Update(' ')
-    info_screen_window['--upcoming_five--'].Update(' ')
-    info_screen_window['--upcoming_six--'].Update(' ')
-    info_screen_window['--upcoming_seven--'].Update(' ')
-    info_screen_window['--upcoming_eight--'].Update(' ')
-    info_screen_window['--upcoming_nine--'].Update(' ')
-    info_screen_window['--upcoming_ten--'].Update(' ')
-    # update upcoming selections on jukebox screens
-    try:
-        if UpcomingSongPlayList[0] != []:
-            info_screen_window['--upcoming_one--'].Update('  ' + UpcomingSongPlayList[0])
-    except Exception:
-        info_screen_window['--upcoming_one--'].Update(' ')
-    try:
-        if UpcomingSongPlayList[1] != []:
-            info_screen_window['--upcoming_two--'].Update('  ' + UpcomingSongPlayList[1])
-    except Exception:
-        info_screen_window['--upcoming_two--'].Update(' ')
-    try:
-        if UpcomingSongPlayList[2] != []:
-            info_screen_window['--upcoming_three--'].Update('  ' + UpcomingSongPlayList[2])
-    except Exception:
-        info_screen_window['--upcoming_three--'].Update(' ')
-    try:
-        if UpcomingSongPlayList[3] != []:
-            info_screen_window['--upcoming_four--'].Update('  ' + UpcomingSongPlayList[3])
-    except Exception:
-        info_screen_window['--upcoming_four--'].Update(' ')
-    try:
-        if UpcomingSongPlayList[4] != []:
-            info_screen_window['--upcoming_five--'].Update('  ' + UpcomingSongPlayList[4])
-    except Exception:
-        info_screen_window['--upcoming_five--'].Update(' ')
-    try:
-        if UpcomingSongPlayList[5] != []:
-            info_screen_window['--upcoming_six--'].Update('  ' + UpcomingSongPlayList[5])
-    except Exception:
-        info_screen_window['--upcoming_six--'].Update(' ')
-    try:
-        if UpcomingSongPlayList[6] != []:
-            info_screen_window['--upcoming_seven--'].Update('  ' + UpcomingSongPlayList[6])
-    except Exception:
-        info_screen_window['--upcoming_seven--'].Update(' ')
-    try:
-        if UpcomingSongPlayList[7] != []:
-            info_screen_window['--upcoming_eight--'].Update('  ' + UpcomingSongPlayList[7])
-    except Exception:
-        info_screen_window['--upcoming_eight--'].Update(' ')
-    try:
-        if UpcomingSongPlayList[8] != []:
-            info_screen_window['--upcoming_nine--'].Update('  ' + UpcomingSongPlayList[8])
-    except Exception:
-        info_screen_window['--upcoming_nine--'].Update(' ')
-    try:
-        if UpcomingSongPlayList[9] != []:
-            info_screen_window['--upcoming_ten--'].Update('  ' + UpcomingSongPlayList[9])
-    except Exception:
-        info_screen_window['--upcoming_ten--'].Update(' ')
+    # Mapping of index (0-9) to field name (one, two, three, ... ten)
+    field_names = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten']
+
+    # Clear all upcoming selection fields
+    for field_name in field_names:
+        info_screen_window[f'--upcoming_{field_name}--'].Update(' ')
+
+    # Update upcoming selections from the playlist
+    for index, field_name in enumerate(field_names):
+        try:
+            if UpcomingSongPlayList[index] != []:
+                info_screen_window[f'--upcoming_{field_name}--'].Update('  ' + UpcomingSongPlayList[index])
+        except Exception:
+            info_screen_window[f'--upcoming_{field_name}--'].Update(' ')
