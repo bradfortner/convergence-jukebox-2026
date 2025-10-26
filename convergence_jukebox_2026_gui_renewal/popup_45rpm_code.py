@@ -8,7 +8,7 @@ import random
 import textwrap
 from PIL import Image, ImageDraw, ImageFont
 import vlc
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 
 
 def display_45rpm_popup(MusicMasterSongList, counter, jukebox_selection_window):
@@ -21,7 +21,7 @@ def display_45rpm_popup(MusicMasterSongList, counter, jukebox_selection_window):
     Args:
         MusicMasterSongList (list): List containing song information dictionaries
         counter (int): Index of the current song in MusicMasterSongList
-        jukebox_selection_window: The PySimpleGUI window object to hide/unhide
+        jukebox_selection_window: The FreeSimpleGUI window object to hide/unhide
 
     Returns:
         None
