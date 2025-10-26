@@ -453,73 +453,57 @@ def main():
                                   element_padding=(0, 0), right_click_menu=[[''], ['Exit', ]])
     window_background['--BG--'].expand(True, False,
                                     False)  # expand the titlebar's rightmost column so that it resizes correctly
-
-    # Helper functions for info_screen_layout modularization and threading
-    def create_text_element(text=' ', size=(28, 1), justification="left", text_color='SeaGreen3',
-                            font='Helvetica 12 bold', key=None, border_width=0, pad=(0, 0)):
-        """Factory function to create standardized Text elements with common parameters"""
-        return sg.Text(text=text, border_width=border_width, pad=pad, size=size,
-                       justification=justification, text_color=text_color, font=font, key=key)
-
-    def create_upcoming_selections_section():
-        """Generate upcoming selections section (10 entries) with minimal code duplication"""
-        layout = [
-            [sg.Text(text='Upcoming Selections', border_width=0, pad=(0, 0), size=(20, 1),
-                     justification="center", text_color='SeaGreen3', font='Helvetica 18 bold')],
-            [sg.Text(text='', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
-                     text_color='SeaGreen1', font='Helvetica 2 bold')],
-        ]
-
-        # Generate 10 upcoming selection rows with numbered keys
-        upcoming_names = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten']
-        for name in upcoming_names:
-            layout.append([create_text_element(key=f'--upcoming_{name}--')])
-
-        # Add separator
-        layout.append([sg.Text(text='', border_width=0, pad=(0, 0), size=(28, 1),
-                               justification="left", text_color='SeaGreen1', font='Helvetica 2 bold')])
-
-        return layout
-
-    def create_info_screen_layout():
-        """Assemble complete info screen layout using modular helper functions"""
-        layout = [
-            # Title section
-            [sg.Text(text="Now Playing", border_width=0, pad=(0, 0), size=(18, 1),
-                     justification="center", text_color='SeaGreen3', font='Helvetica 20 bold')],
-
-            # Song info section
-            [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(20, 1), justification="center",
-                     text_color='White', font='Helvetica 18 bold', key='--song_title--')],
-            [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(24, 1), justification="center",
-                     text_color='White', font='Helvetica 16 bold', key='--song_artist--')],
-            [sg.Text(text='  Mode: Playing Song', border_width=0, pad=(0, 0), size=(28, 1),
-                     justification="left", text_color='SeaGreen3', font='Helvetica 12 bold')],
-
-            # Info details section - using helper function
-            [create_text_element(key='--mini_song_title--')],
-            [create_text_element(key='--mini_song_artist--')],
-            [sg.Text(text='  Year:        Length:     ', border_width=0, pad=(0, 0), size=(28, 1),
-                     justification="left", text_color='SeaGreen3', font='Helvetica 12 bold', key='--year--')],
-            [create_text_element(key='--album--')],
-
-            # Upcoming selections section - using helper function
-            *create_upcoming_selections_section(),
-
-            # Credits section
-            [sg.Text(text='CREDITS 0', border_width=0, pad=(0, 0), size=(19, 1), justification="center",
-                     text_color='White', font='Helvetica 20 bold', key='--credits--')],
-            [sg.Text(text='Twenty-Five Cents Per Selection', border_width=0, pad=(0, 0), size=(30, 1),
-                     justification="center", text_color='SeaGreen3', font='Helvetica 12 bold')],
-            [sg.Text(text=str(master_songlist_number) + ' Song Selections Available', border_width=0,
-                     pad=(0, 0), size=(30, 1), justification="center", text_color='SeaGreen3',
-                     font='Helvetica 12 bold')]
-        ]
-
-        return layout
-
     song_playing_lookup_layout = [[sg.Text()]]
-    info_screen_layout = create_info_screen_layout()
+    info_screen_layout = [
+        [sg.Text(text="Now Playing", border_width=0, pad=(0, 0), size=(18, 1), justification="center",
+             text_color='SeaGreen3', font='Helvetica 20 bold')],
+        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(20, 1), justification="center",
+                 text_color='White', font='Helvetica 18 bold', key='--song_title--')],
+        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(24, 1), justification="center",
+                 text_color='White', font='Helvetica 16 bold', key='--song_artist--')],
+        [sg.Text(text='  Mode: Playing Song', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
+                 text_color='SeaGreen3', font='Helvetica 12 bold')],
+        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
+                 text_color='SeaGreen3', font='Helvetica 12 bold', key='--mini_song_title--')],
+        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
+                 text_color='SeaGreen3', font='Helvetica 12 bold', key='--mini_song_artist--')],
+        [sg.Text(text='  Year:        Length:     ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
+                 text_color='SeaGreen3', font='Helvetica 12 bold', key='--year--')],
+        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1),
+             justification="left", text_color='SeaGreen3', font='Helvetica 12 bold', key='--album--')],
+        [sg.Text(text='Upcoming Selections', border_width=0, pad=(0, 0), size=(20, 1), justification="center",
+                 text_color='SeaGreen3', font='Helvetica 18 bold')],
+        [sg.Text(text='', border_width=0, pad=(0, 0), size=(28, 1), justification="left", text_color='SeaGreen1',
+                  font='Helvetica 2 bold')],
+        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
+                 text_color='SeaGreen3',  font='Helvetica 12 bold', key='--upcoming_one--')],
+        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
+                 text_color='SeaGreen3',  font='Helvetica 12 bold', key='--upcoming_two--')],
+        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
+                 text_color='SeaGreen3',  font='Helvetica 12 bold',key='--upcoming_three--')],
+        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1),
+                 justification="left", text_color='SeaGreen3', font='Helvetica 12 bold', key='--upcoming_four--')],
+        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
+                 text_color='SeaGreen3',  font='Helvetica 12 bold', key='--upcoming_five--')],
+        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1),
+                 justification="left", text_color='SeaGreen3', font='Helvetica 12 bold', key='--upcoming_six--')],
+        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
+                 text_color='SeaGreen3',  font='Helvetica 12 bold', key='--upcoming_seven--')],
+        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
+                 text_color='SeaGreen3',  font='Helvetica 12 bold', key='--upcoming_eight--')],
+        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
+                 text_color='SeaGreen3',  font='Helvetica 12 bold', key='--upcoming_nine--')],
+        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1),
+                 justification="left", text_color='SeaGreen3', font='Helvetica 12 bold', key='--upcoming_ten--')],
+        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left", text_color='SeaGreen1',
+                  font='Helvetica 2 bold')],
+        [sg.Text(text='CREDITS 0', border_width=0, pad=(0, 0), size=(19, 1), justification="center", text_color='White',
+                  font='Helvetica 20 bold', key='--credits--')],
+        [sg.Text(text='Twenty-Five Cents Per Selection', border_width=0, pad=(0, 0), size=(30, 1),
+                 justification="center", text_color='SeaGreen3', font='Helvetica 12 bold')],
+        [sg.Text(text=str(master_songlist_number) + ' Song Selections Available', border_width=0, pad=(0, 0), size=(30, 1),
+                 justification="center", text_color='SeaGreen3', font='Helvetica 12 bold')]
+                     ]
     jukebox_selection_screen_layout = [
         [sg.Button(button_text="A1", key='--A1--', size=(30, 26), image_size=(30, 26),
                    image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0), font='Helvetica 16 bold'),
@@ -1613,7 +1597,6 @@ def main():
                 # add selection to paid song list
                 counter = 0
                 #  find library number of selected song
-                song_found = False
                 for i in MusicMasterSongList:
                     # search for match of song in MusicMasterSongList
                     if str(paid_song_selected_title) == MusicMasterSongList[counter]['title'][:22] and str(paid_song_selected_artist) == MusicMasterSongList[counter]['artist'][:22]:
@@ -1621,136 +1604,121 @@ def main():
                         # UpcomingSongPlayList
                         UpcomingSongPlayList.append(str(MusicMasterSongList[counter]['title'][:22]) + ' - ' + str(MusicMasterSongList[counter]['artist'][:22]))
                         #  add matched song number to variable
-                        song_to_add = (MusicMasterSongList[counter]['number'])
+                        song_to_add = (MusicMasterSongList[counter]['number']) 
                         #  open PaidMusicPlaylist text file and append song number to list
+                        paid_music_file_path = os.path.join(dir_path, 'PaidMusicPlayList.txt')
+
+                        # Initialize PaidMusicPlayList with existing data or empty list
                         try:
-                            with open('PaidMusicPlayList.txt', 'r') as PaidMusicPlayListOpen:
+                            with open(paid_music_file_path, 'r') as PaidMusicPlayListOpen:
                                 PaidMusicPlayList = json.load(PaidMusicPlayListOpen)
-                                PaidMusicPlayList.append(int(song_to_add))
-                                # Check for duplicate song numbers in PaidMusicPlayList
-                                # Remove duplicate song numbers from PaidMusicPlayList
-                                test_set = set(PaidMusicPlayList)
-                                if len(PaidMusicPlayList) != len(test_set):
-                                    PaidMusicPlayList = list(set(PaidMusicPlayList)) # https://bit.ly/4cZ7A6R
-                                    UpcomingSongPlayList.pop(-1)
-                                    print('Duplicate Song Found')
-                                    #VLC Song Playback Code Begin
-                                    p = vlc.MediaPlayer('buzz.mp3')
-                                    p.play()
-                                    enable_all_buttons()
-                                    selection_entry_letter = ""  # Used for selection entry
-                                    selection_entry_number = ""  # Used for selection entry
-                                    selection_entry = ""  # Used for selection entry
-                                    control_button_window['--select--'].update(disabled=True)
-                                    enable_all_buttons()
-                                    song_found = True
-                                    break
-                            # write updated PaidMusicPlayList.txt back to disk (only if no duplicate)
-                            with open('PaidMusicPlayList.txt', 'w') as PaidMusicPlayListOpen:
-                                json.dump(PaidMusicPlayList, PaidMusicPlayListOpen)
-                            print(f'Selection added to PaidMusicPlayList.txt: {paid_song_selected_title} - {paid_song_selected_artist}')
-                            #  end search - CRITICAL: must break after successful write
-                            song_found = True
-                            break
-                        except FileNotFoundError as e:
-                            print(f'ERROR: PaidMusicPlayList.txt not found: {e}')
+                        except (FileNotFoundError, json.JSONDecodeError):
+                            # Create new list if file doesn't exist or is invalid
+                            PaidMusicPlayList = []
+                            print(f'Initializing new PaidMusicPlayList at {paid_music_file_path}')
+
+                        PaidMusicPlayList.append(int(song_to_add))
+
+                        # Check for duplicate song numbers in PaidMusicPlayList
+                        # Remove duplicate song numbers from PaidMusicPlayList
+                        test_set = set(PaidMusicPlayList)
+                        if len(PaidMusicPlayList) != len(test_set):
+                            PaidMusicPlayList = list(set(PaidMusicPlayList)) # https://bit.ly/4cZ7A6R
                             UpcomingSongPlayList.pop(-1)
+                            print('Duplicate Song Found')
+                            #VLC Song Playback Code Begin
+                            p = vlc.MediaPlayer('buzz.mp3')
+                            p.play()
                             enable_all_buttons()
-                            song_found = True
-                            break
-                        except json.JSONDecodeError as e:
-                            print(f'ERROR: PaidMusicPlayList.txt is corrupted (invalid JSON): {e}')
-                            UpcomingSongPlayList.pop(-1)
+                            selection_entry_letter = ""  # Used for selection entry
+                            selection_entry_number = ""  # Used for selection entry
+                            selection_entry = ""  # Used for selection entry
+                            control_button_window['--select--'].update(disabled=True)
                             enable_all_buttons()
-                            song_found = True
-                            break
-                        except Exception as e:
-                            print(f'ERROR: Unexpected error writing to PaidMusicPlayList.txt: {e}')
-                            UpcomingSongPlayList.pop(-1)
-                            enable_all_buttons()
-                            song_found = True
                             break
 
-                # Handle case where song was not found in MusicMasterSongList
-                if not song_found:
-                    print(f'ERROR: Song not found in MusicMasterSongList: {paid_song_selected_title} - {paid_song_selected_artist}')
-                    UpcomingSongPlayList.pop(-1)
-                    enable_all_buttons()
-                else:
-                    enable_all_buttons()
-                    credit_amount -= 1
-                    info_screen_window['--credits--'].Update('CREDITS ' + str(credit_amount))
-                    # Add selection to log file
-                    now = datetime.now()
-                    current_time = now.strftime("%H:%M:%S")
-                    with open('log.txt', 'a') as log:
-                        log.write('\n' + str(current_time) + ' ' + (str(MusicMasterSongList[counter]['artist'])
-                                        + ' - ' + str(MusicMasterSongList[counter]['title'] + ' Selected For Play,'))) # Add song selected to log file
-                    # 45 rpm image popup code goes here
-                    # https://www.tutorialspoint.com/how-to-add-text-on-an-image-using-pillow-in-python
-                    # Center Anchor Lable Position https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
-                    center_position = 684
-                    # Record Title Name
-                    record_title_name = str(MusicMasterSongList[counter]['title'])
-                    record_title_name_length = len(record_title_name)
-                    # Record Artist Name
-                    record_artist_name = str(MusicMasterSongList[counter]['artist'])
-                    record_artist_name_length = len(record_artist_name)
-                    # Open the desired Image you want to add text on
-                    # Create the list of all black print 45rpm record labels
-                    path = "record_labels/final_black_sel/"
-                    black_print_label_list = os.listdir(path)
-                    # Selects a random 45rpm record label requiring black print
-                    record_label = Image.open('record_labels/final_black_sel/' + str(random.choice(black_print_label_list)))
-                    draw_on_45rpm_image = ImageDraw.Draw(record_label)
-                    # Record Display Generation
-                    if record_title_name_length > 37 or record_artist_name_length >= 30:
-                        font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 15)
-                        wrapper = textwrap.TextWrapper(width=37) # https://www.geeksforgeeks.org/textwrap-text-wrapping-filling-python/
-                        record_title_name_wrap = wrapper.wrap(text=record_title_name)
-                        draw_on_45rpm_image.text((center_position, 520), record_title_name_wrap[0], fill="black", anchor="mb", font=font)
+                        # write updated PaidMusicPlayList.txt back to disk
                         try:
-                            draw_on_45rpm_image.text((center_position, 535), record_title_name_wrap[1], fill="black", anchor="mb", font=font)
-                        except Exception:
-                            pass
-                        wrapper = textwrap.TextWrapper(width=30)
-                        record_artist_name_wrap = wrapper.wrap(text=record_artist_name)
-                        draw_on_45rpm_image.text((center_position, 555), record_artist_name_wrap[0], fill="black", anchor="mb", font=font)
-                        try:
-                            draw_on_45rpm_image.text((center_position, 570), record_artist_name_wrap[1], fill="black", anchor="mb", font=font)
-                        except Exception:
-                            pass
-                    elif record_title_name_length < 37 and record_title_name_length > 17:
-                        font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 20)
-                        draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
-                        draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)
-                    elif record_artist_name_length < 26 and record_artist_name_length > 13:
-                        font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 20)
-                        draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
-                        draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)
-                    elif record_title_name_length <= 17:
-                        font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 30)
-                        draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
-                        draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)
-                    elif record_artist_name_length <= 13:
-                        font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 30)
-                        draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
-                        draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)
-                    # Save the image on which we have added the text
-                    record_label.save("selection_45.jpg")
-                    # Save and resize the image on which we have added the text
-                    record_label.resize((680,394)).save('selection_45.gif')
-                    #VLC Song Playback Code Begin
-                    p = vlc.MediaPlayer('success.mp3')
-                    p.play()
-                    # Display the image as popup
-                    jukebox_selection_window.Hide()
-                    for i in range(600): # adjust the range to control the time the image runs
-                        sg.PopupAnimated('selection_45.gif', relative_location = (167,45), time_between_frames = 1, no_titlebar = True, keep_on_top = True)
-                    sg.PopupAnimated(None) # close all Animated Popups
-                    jukebox_selection_window.UnHide()
-                    break
-                counter += 1
+                            with open(paid_music_file_path, 'w') as PaidMusicPlayListOpen:
+                                json.dump(PaidMusicPlayList, PaidMusicPlayListOpen)
+                                print(f'Successfully wrote PaidMusicPlayList with {len(PaidMusicPlayList)} songs to {paid_music_file_path}')
+                        except IOError as e:
+                            print(f'Error writing to PaidMusicPlayList.txt: {e}')
+                        #  end search
+                        enable_all_buttons()
+                        credit_amount -= 1
+                        info_screen_window['--credits--'].Update('CREDITS ' + str(credit_amount))
+                        # Add selection to log file
+                        now = datetime.now()
+                        current_time = now.strftime("%H:%M:%S")
+                        with open('log.txt', 'a') as log:
+                            log.write('\n' + str(current_time) + ' ' + (str(MusicMasterSongList[counter]['artist'])
+                                            + ' - ' + str(MusicMasterSongList[counter]['title'] + ' Selected For Play,'))) # Add song selected to log file
+                        # 45 rpm image popup code goes here                        
+                        # https://www.tutorialspoint.com/how-to-add-text-on-an-image-using-pillow-in-python
+                        # Center Anchor Lable Position https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+                        center_position = 684
+                        # Record Title Name
+                        record_title_name = str(MusicMasterSongList[counter]['title'])
+                        record_title_name_length = len(record_title_name)
+                        # Record Artist Name
+                        record_artist_name = str(MusicMasterSongList[counter]['artist'])
+                        record_artist_name_length = len(record_artist_name)
+                        # Open the desired Image you want to add text on
+                        # Create the list of all black print 45rpm record labels
+                        path = "record_labels/final_black_sel/"
+                        black_print_label_list = os.listdir(path)
+                        # Selects a random 45rpm record label requiring black print
+                        record_label = Image.open('record_labels/final_black_sel/' + str(random.choice(black_print_label_list)))
+                        draw_on_45rpm_image = ImageDraw.Draw(record_label) 
+                        # Record Display Generation
+                        if record_title_name_length > 37 or record_artist_name_length >= 30:
+                            font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 15)
+                            wrapper = textwrap.TextWrapper(width=37) # https://www.geeksforgeeks.org/textwrap-text-wrapping-filling-python/
+                            record_title_name_wrap = wrapper.wrap(text=record_title_name)
+                            draw_on_45rpm_image.text((center_position, 520), record_title_name_wrap[0], fill="black", anchor="mb", font=font)
+                            try:
+                                draw_on_45rpm_image.text((center_position, 535), record_title_name_wrap[1], fill="black", anchor="mb", font=font)
+                            except Exception:
+                                pass   
+                            wrapper = textwrap.TextWrapper(width=30)  
+                            record_artist_name_wrap = wrapper.wrap(text=record_artist_name)
+                            draw_on_45rpm_image.text((center_position, 555), record_artist_name_wrap[0], fill="black", anchor="mb", font=font)
+                            try:
+                                draw_on_45rpm_image.text((center_position, 570), record_artist_name_wrap[1], fill="black", anchor="mb", font=font)
+                            except Exception:
+                                pass
+                        elif record_title_name_length < 37 and record_title_name_length > 17:
+                            font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 20)
+                            draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
+                            draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)
+                        elif record_artist_name_length < 26 and record_artist_name_length > 13:
+                            font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 20)
+                            draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
+                            draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)
+                        elif record_title_name_length <= 17:
+                            font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 30)
+                            draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
+                            draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)    
+                        elif record_artist_name_length <= 13:
+                            font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 30)
+                            draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
+                            draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)                        
+                        # Save the image on which we have added the text
+                        record_label.save("selection_45.jpg")
+                        # Save and resize the image on which we have added the text
+                        record_label.resize((680,394)).save('selection_45.gif')
+                        #VLC Song Playback Code Begin
+                        p = vlc.MediaPlayer('success.mp3')
+                        p.play()
+                        # Display the image as popup
+                        jukebox_selection_window.Hide()
+                        for i in range(600): # adjust the range to control the time the image runs
+                            sg.PopupAnimated('selection_45.gif', relative_location = (167,45), time_between_frames = 1, no_titlebar = True, keep_on_top = True)
+                        sg.PopupAnimated(None) # close all Animated Popups
+                        jukebox_selection_window.UnHide() 
+                        break
+                    counter += 1
         if event is None or event == 'Cancel' or event == 'Exit':
             print(f'closing window = {window.Title}')
             break
