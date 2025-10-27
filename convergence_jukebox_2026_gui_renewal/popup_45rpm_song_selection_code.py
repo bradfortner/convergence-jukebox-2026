@@ -89,7 +89,7 @@ def display_45rpm_popup(MusicMasterSongList, counter, jukebox_selection_window):
     record_label.resize((680, 394)).save('selection_45.gif')
 
     # VLC Song Playback Code Begin
-    p = vlc.MediaPlayer('success.mp3')
+    p = vlc.MediaPlayer('jukebox_required_audio_files/success.mp3')
     p.play()
 
     # Display the image as popup
