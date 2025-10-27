@@ -92,13 +92,13 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
         draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)
 
     # Save the image on which we have added the text
-    record_label.save("selection_45.jpg")
+    record_label.save("images/selection_45.jpg")
     # Save and resize the image on which we have added the text
-    record_label.resize((680,394)).save('selection_45.gif')
+    record_label.resize((680,394)).save('images/selection_45.gif')
     # Display the image as popup
     jukebox_selection_window.Hide()
     for i in range(600): # adjust the range to control the time the image runs
-        sg.PopupAnimated('selection_45.gif', relative_location = (167,45), time_between_frames = 1, no_titlebar = True, keep_on_top = True)
+        sg.PopupAnimated('images/selection_45.gif', relative_location = (167,45), time_between_frames = 1, no_titlebar = True, keep_on_top = True)
     sg.PopupAnimated(None) # close all Animated Popups
     jukebox_selection_window.UnHide()
     # update upcoming selections on jukebox screens
