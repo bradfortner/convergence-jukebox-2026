@@ -6,7 +6,7 @@ A modern, modular implementation of the Convergence Jukebox 2026 graphical user 
 
 The Convergence Jukebox 2026 is a comprehensive jukebox application that displays and plays music with an interactive GUI. This GUI renewal project implements a clean, modular architecture that separates concerns and improves maintainability by extracting functional components into independent modules.
 
-**Current Version:** 0.42 - main_jukebox_GUI_2026.py
+**Current Version:** 0.43 - main_jukebox_GUI_2026.py
 
 ## Features
 
@@ -46,9 +46,8 @@ The Convergence Jukebox 2026 is a comprehensive jukebox application that display
 
 ```
 convergence_jukebox_2026_gui_renewal/
-├── 0.42 - main_jukebox_GUI_2026.py      # Production main file (current)
-├── 0.41 - main_jukebox_GUI_2026.py      # Previous version
-├── background_image_data.py              # Background image module (623KB)
+├── 0.43 - main_jukebox_GUI_2026.py      # Production main file (current)
+├── 0.42 - main_jukebox_GUI_2026.py      # Previous version
 │
 ├── Modular Function Files:
 ├── info_screen_layout.py                 # Info screen layout module
@@ -76,11 +75,20 @@ convergence_jukebox_2026_gui_renewal/
 │   ├── final_white/                      # White background variants
 │   ├── final_white_bg/
 │   └── final_white_sel/
-├── jukebox_2025_logo.png                 # Application logo
-├── magglass.png                          # Magnifying glass icon
+├── images/                               # Centralized image assets (v0.43+)
+│   ├── jukebox_2025_logo.png             # Application logo
+│   ├── magglass.png                      # Magnifying glass icon
+│   └── [other image files]
 ├── selection_45.gif                      # Selection animation
-├── selection_45.jpg
+├── selection_45.jpg                      # Selection animation
 ├── success.mp3                           # Selection confirmation sound
+│
+├── depreciated_code/                     # Archived modules (v0.43+)
+│   ├── 0.0-0.39/                         # Old version files
+│   ├── thread_functions.py
+│   ├── main_jukebox_GUI.py
+│   ├── background_image_data.py
+│   └── [other deprecated modules]
 │
 ├── Configuration:
 ├── CurrentSongPlaying.txt                # Currently playing track info
@@ -253,7 +261,7 @@ pip install python-vlc
 ### Running the Application
 
 ```bash
-python "0.39 - main_jukebox_GUI_2026.py"
+python "0.43 - main_jukebox_GUI_2026.py"
 ```
 
 ### Application Flow
@@ -466,7 +474,8 @@ pip install --upgrade FreeSimpleGUI
 
 ### Version History
 
-- **0.42** - Renamed selection popup module to popup_45rpm_song_selection_code.py (current)
+- **0.43** - Codebase reorganization with `depreciated_code/` folder for archived versions; image files moved to `images/` directory (current)
+- **0.42** - Renamed selection popup module to popup_45rpm_song_selection_code.py
 - **0.41** - Renamed selection popup module to popup_45rpm_selection_code.py
 - **0.40** - Now-playing 45RPM popup code extracted to module
 - **0.39** - Selection 45RPM popup code extracted to module
@@ -474,7 +483,23 @@ pip install --upgrade FreeSimpleGUI
 - **0.35-0.37** - Layout module extraction improvements
 - **0.2** - Production FreeSimpleGUI migration
 - **0.191** - Background image extracted to module
+- **0.0-0.39** - Original development versions (archived in `depreciated_code/`)
 - Earlier versions tracked in git history
+
+### Deprecated Code Archive (v0.43+)
+
+Starting with version 0.43, older versions and unused modules have been archived in the `depreciated_code/` folder:
+
+**Contents:**
+- Versions 0.0-0.39 - Earlier development versions
+- Unused modules:
+  - `thread_functions.py` - Duplicated in main file
+  - `main_jukebox_GUI.py` - Older GUI implementation
+  - `background_image_data.py` - Large data module
+  - `gui_layouts.py` - Replaced by modular layout files
+  - `selection_*.py` modules - Replaced by newer versions
+
+**Why archived?** To keep the main directory clean and focused on current production code while preserving history in case it's needed for reference.
 
 ### Excluded Directories
 
@@ -482,7 +507,6 @@ The following are excluded from version control (.gitignore):
 - `music/` - Large music files
 - `smusicshort/` - Short clips
 - `smusiclong/` - Long clips
-- `smusicshort/` - Short music clips (varied naming)
 - Python cache (`__pycache__/`)
 - IDE files (`.vscode/`, `.idea/`)
 
@@ -538,12 +562,12 @@ For questions or issues, please open a GitHub issue or contact the maintainers.
 
 ## Version Information
 
-- **Current Version:** 0.42
+- **Current Version:** 0.43
 - **GUI Framework:** FreeSimpleGUI 4.60+
 - **Media Backend:** VLC (python-vlc 3.0+)
 - **Image Support:** Pillow 8.0+
 - **Python:** 3.7+
-- **Last Updated:** 2025-10-26
+- **Last Updated:** 2025-10-27
 
 ---
 
