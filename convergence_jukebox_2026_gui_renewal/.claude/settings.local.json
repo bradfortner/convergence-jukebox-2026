@@ -12,7 +12,20 @@
       "Bash(rm:*)",
       "Bash(python -m py_compile:*)",
       "Bash(python:*)",
-      "Read(//c/Users/bradf/Desktop/convergence-jukebox-2026/**)"
+      "Read(//c/Users/bradf/Desktop/convergence-jukebox-2026/**)",
+      "Bash(git checkout:*)",
+      "Bash(sed:*)",
+      "Bash(for file in background_image_data.py disable_a_selection_buttons.py disable_b_selection_buttons.py disable_c_selection_buttons.py disable_numbered_selection_buttons.py enable_all_buttons.py enable_numbered_selection_buttons.py gui_layouts.py main_jukebox_engine_2026.py main_jukebox_GUI.py selection_buttons_update.py selection_entry_complete.py thread_functions.py)",
+      "Bash(do:*)",
+      "Bash(if [ -f \"$file\" ])",
+      "Bash(then)",
+      "Bash(if grep -q \"threading\\|Thread\" \"$file\")",
+      "Bash(echo:*)",
+      "Bash(else)",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)"
     ],
     "deny": [],
     "ask": []

@@ -30,7 +30,7 @@ def create_search_window_button_layout():
     row1 = [
         _create_spacer_text(55),
         sg.Button("", s=(1, 1), disabled=True, image_size=(439, 226),
-                  image_filename="jukebox_2025_logo.png",
+                  image_filename="images/jukebox_2025_logo.png",
                   button_color=["black", "white"], font="Helvetica 16 bold"),
     ]
 
@@ -43,7 +43,7 @@ def create_search_window_button_layout():
         sg.Text("Search For Title", p=None, font="Helvetica 16 bold",
                 background_color="white", text_color="black", k="--search_type--"),
         sg.Button("", s=(1, 1), disabled=True, image_size=(25, 25),
-                  image_filename="magglass.png",
+                  image_filename="images/magglass.png",
                   button_color=["black", "white"], font="Helvetica 16 bold"),
         sg.Text("", font="Helvetica 16 bold", k="--letter_entry--", s=(35, 1),
                 background_color="white", text_color="black"),
