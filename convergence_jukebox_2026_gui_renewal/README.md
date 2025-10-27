@@ -6,7 +6,7 @@ A modern, modular implementation of the Convergence Jukebox 2026 graphical user 
 
 The Convergence Jukebox 2026 is a comprehensive jukebox application that displays and plays music with an interactive GUI. This GUI renewal project implements a clean, modular architecture that separates concerns and improves maintainability by extracting functional components into independent modules.
 
-**Current Version:** 0.43 - main_jukebox_GUI_2026.py
+**Current Version:** 0.48 - main_jukebox_GUI_2026.py
 
 ## Features
 
@@ -261,7 +261,7 @@ pip install python-vlc
 ### Running the Application
 
 ```bash
-python "0.43 - main_jukebox_GUI_2026.py"
+python "0.48 - main_jukebox_GUI_2026.py"
 ```
 
 ### Application Flow
@@ -474,7 +474,11 @@ pip install --upgrade FreeSimpleGUI
 
 ### Version History
 
-- **0.43** - Codebase reorganization with `depreciated_code/` folder for archived versions; image files moved to `images/` directory (current)
+- **0.48** - Suppressed VLC plugin cache error messages using OS-level file descriptor redirection (current)
+- **0.47** - Fixed song selection freeze when adding credits by moving file I/O to background thread
+- **0.46** - Bug discovery version (freezing issue identified)
+- **0.45** - Previous stable version
+- **0.43** - Codebase reorganization with `depreciated_code/` folder for archived versions; image files moved to `images/` directory
 - **0.42** - Renamed selection popup module to popup_45rpm_song_selection_code.py
 - **0.41** - Renamed selection popup module to popup_45rpm_selection_code.py
 - **0.40** - Now-playing 45RPM popup code extracted to module
@@ -562,12 +566,23 @@ For questions or issues, please open a GitHub issue or contact the maintainers.
 
 ## Version Information
 
-- **Current Version:** 0.43
+- **Current Version:** 0.48
 - **GUI Framework:** FreeSimpleGUI 4.60+
 - **Media Backend:** VLC (python-vlc 3.0+)
 - **Image Support:** Pillow 8.0+
 - **Python:** 3.7+
 - **Last Updated:** 2025-10-27
+
+## Recent Bug Fixes (v0.47-0.48)
+
+### v0.48 - VLC Error Message Suppression
+**Issue:** VLC was printing hundreds of error messages about stale plugins cache when the screen advance arrow hit the end of available songs, slowing down I/O performance.
+**Solution:** Implemented OS-level file descriptor redirection using `os.dup()` and `os.dup2()` to suppress C-level library output during VLC MediaPlayer instantiation.
+
+### v0.47 - Song Selection Freeze Fix
+**Issue:** Selecting a song after adding credits caused the GUI to freeze completely.
+**Root Cause:** Blocking file I/O operations (reading/writing PaidMusicPlayList.txt and logging) were executing synchronously in the main event loop.
+**Solution:** Moved all file I/O operations to a background worker thread using Python's `Queue` module for thread-safe communication.
 
 ---
 
