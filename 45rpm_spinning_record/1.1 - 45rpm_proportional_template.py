@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw
 import os
 
-def create_vinyl_45_template(output_filename='45rpm_proportional_template.png', dpi=300, background_color=(0, 0, 0, 0)):
+def create_vinyl_45_template(output_filename='45rpm_proportional_template.png', dpi=300, background_color=(0, 0, 0, 0), output_size=None):
     """
     Create a proportionally correct RIAA 45rpm vinyl record template.
 
@@ -16,6 +16,7 @@ def create_vinyl_45_template(output_filename='45rpm_proportional_template.png', 
         output_filename: Output PNG file name
         dpi: Dots per inch for quality (higher = larger file)
         background_color: Canvas background color
+        output_size: Optional output image size in pixels (resizes final image if specified)
     """
 
     # Check if the PNG file already exists
@@ -99,6 +100,12 @@ def create_vinyl_45_template(output_filename='45rpm_proportional_template.png', 
         fill=(0, 0, 0, 0)
     )
 
+    # Resize if output_size is specified
+    if output_size is not None:
+        print(f"Resizing from {canvas_size}x{canvas_size} to {output_size}x{output_size}...")
+        image = image.resize((output_size, output_size), Image.Resampling.LANCZOS)
+        canvas_size = output_size
+
     # Save as PNG
     image.save(output_filename)
 
@@ -147,14 +154,14 @@ def create_label_width_view(vinyl_image, center_x, center_y, label_diameter_px, 
 # Run the function
 if __name__ == '__main__':
     # Create 540 x 540 pixel version
-    dpi_for_540 = 540 / 6.875  # Calculate DPI needed for 540 pixel diameter
     image_540, center_x_540, center_y_540 = create_vinyl_45_template(
         output_filename='45rpm_proportional_template_540.png',
-        dpi=int(dpi_for_540)
+        dpi=300,
+        output_size=540
     )
 
     # Create label width view for 540 version (only if image was created)
     if image_540 is not None:
-        label_diameter_px_540 = int(3.6 * dpi_for_540)
+        label_diameter_px_540 = int(540 * (3.6 / 6.875))  # Scale label size to match 540px output
         create_label_width_view(image_540, center_x_540, center_y_540, label_diameter_px_540,
                                output_filename='label_width_540.png')
