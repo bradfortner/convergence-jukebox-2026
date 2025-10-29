@@ -1,23 +1,24 @@
 """
-centre_hole_fill_and_recut.py - Version 3.3
-Fill and recut the transparent center hole in vinyl record label.
+centre_hole_fill_and_recut.py - Version 3.4
+Fill, recut center hole, and trim vinyl record body.
 
 This module provides a function that:
 1. Opens a vinyl record label with transparent center hole
 2. Detects the color around the center hole perimeter using ring sampling
 3. Uses PIL's floodfill to fill the transparent hole with that color
 4. Recuts a new 117-pixel diameter transparent center hole (proportional to 1.5" on 6.875" record)
-5. Saves the result with transparent background
+5. Recuts the vinyl record body: trims all area outside 540x540 circular record edge
+6. Saves the result with transparent background
 
-Sampling improvements in 3.3:
-- Samples a ring of pixels around the hole edge
-- Collects all non-transparent colors in the ring
-- Selects the BRIGHTEST color (avoids dark edges/shadows)
-- Uses 360-degree sampling for comprehensive coverage
-- More accurate color detection for proper fill
+New in 3.4:
+- Adds vinyl record body trimming (circular mask)
+- Creates 270-pixel radius circle (540x540 record body)
+- Makes everything outside the vinyl circle transparent
+- Maintains center hole transparency
+- Perfect for compositing onto backgrounds
 
-This creates a complete, filled record label with a properly proportioned
-transparent center spindle hole for use in vinyl record graphics.
+This creates a complete vinyl record with proper circular edge,
+filled label, and transparent center spindle hole.
 """
 
 from PIL import Image, ImageDraw
@@ -73,7 +74,7 @@ def fill_and_recut_center_hole(
 
     try:
         print("=" * 60)
-        print("FILL AND RECUT CENTER HOLE - VERSION 3.3")
+        print("FILL AND RECUT CENTER HOLE AND VINYL BODY - VERSION 3.4")
         print("=" * 60)
 
         # STEP 1: Load image
@@ -189,11 +190,53 @@ def fill_and_recut_center_hole(
         # Apply alpha channel to image
         img_rgba.putalpha(alpha_channel)
 
+        # STEP 5: Recut vinyl record body edge (circular mask)
+        print("\nSTEP 5: Recuting vinyl record body edge")
+        print("-" * 60)
+
+        # Create circular vinyl record mask (540x540 = 270 pixel radius)
+        # This trims everything outside the circular record body
+        vinyl_record_diameter = 540
+        vinyl_record_radius = vinyl_record_diameter / 2.0
+
+        # Create vinyl body mask (opaque for circle, transparent outside)
+        vinyl_body_alpha = Image.new('L', (width, height), 0)  # Start fully transparent
+        vinyl_draw = ImageDraw.Draw(vinyl_body_alpha)
+
+        print(f"Vinyl record body specifications:")
+        print(f"  Diameter: {vinyl_record_diameter} pixels")
+        print(f"  Radius: {vinyl_record_radius} pixels")
+        print(f"  Center: ({center_x}, {center_y})")
+
+        # Draw opaque circle for the vinyl record (inside the circle = opaque)
+        vinyl_draw.ellipse(
+            [center_x - vinyl_record_radius, center_y - vinyl_record_radius,
+             center_x + vinyl_record_radius, center_y + vinyl_record_radius],
+            fill=255  # 255 = fully opaque
+        )
+
+        # Combine with existing alpha channel: keep the smaller value
+        # This preserves the center hole transparency while adding record edge trim
+        current_alpha = img_rgba.split()[3]  # Get current alpha channel
+        combined_alpha = Image.new('L', (width, height), 0)
+
+        for y in range(height):
+            for x in range(width):
+                current_a = current_alpha.getpixel((x, y))
+                vinyl_a = vinyl_body_alpha.getpixel((x, y))
+                # Keep the pixel only if it's opaque in BOTH masks
+                combined_alpha.putpixel((x, y), min(current_a, vinyl_a))
+
+        img_rgba.putalpha(combined_alpha)
+
+        print(f"Vinyl record body edge recut: {vinyl_record_diameter}px diameter circular edge")
+        print(f"Area outside circle is now transparent")
+
         output_width, output_height = img_rgba.size
         result['output_dimensions'] = (output_width, output_height)
 
-        # STEP 5: Save result
-        print("\nSTEP 5: Saving result")
+        # STEP 6: Save result
+        print("\nSTEP 6: Saving result")
         print("-" * 60)
 
         img_rgba.save(output_path, 'PNG')
@@ -207,18 +250,18 @@ def fill_and_recut_center_hole(
 
         # Print summary
         print("\n" + "=" * 60)
-        print("FILL AND RECUT SUMMARY")
+        print("FILL, RECUT CENTER HOLE, AND TRIM VINYL BODY SUMMARY")
         print("=" * 60)
         print(f"Input file:         {input_path}")
         print(f"Input size:         {width}x{height} pixels")
         print(f"Center point:       ({center_x}, {center_y})")
         print(f"Edge color found:   {edge_color}")
         print(f"Fill operation:     Floodfill from center")
-        print(f"Hole diameter:      {hole_diameter_px} pixels (1.5\" on 6.875\" record)")
-        print(f"Hole radius:        {int(hole_radius)} pixels")
+        print(f"Center hole:        {hole_diameter_px}px diameter (1.5\" on 6.875\" record)")
+        print(f"Vinyl record body:  {vinyl_record_diameter}px diameter circular edge")
         print(f"Output file:        {output_path}")
         print(f"Output size:        {output_width}x{output_height} pixels")
-        print(f"Format:             PNG RGBA (background preserved, hole transparent)")
+        print(f"Format:             PNG RGBA (circular record, filled label, transparent hole)")
         print("=" * 60)
 
         return result
@@ -238,7 +281,7 @@ def fill_and_recut_center_hole(
 # Main execution
 if __name__ == '__main__':
     print("\n" + "=" * 60)
-    print("VINYL RECORD CENTER HOLE FILL AND RECUT - VERSION 3.3")
+    print("VINYL RECORD CENTER HOLE FILL AND RECUT - VERSION 3.4")
     print("=" * 60)
 
     result = fill_and_recut_center_hole(
