@@ -4,7 +4,7 @@ import math
 
 def display_record_playing(image_path):
     """
-    Rotate an image 8 times per second in real-time using pygame.
+    Rotate an image 15 times per second in real-time using pygame.
     Simulates a record player spinning with dark grey background.
 
     Args:
@@ -54,11 +54,11 @@ def display_record_playing(image_path):
         screen.blit(rotated_surface, rotated_rect)
         pygame.display.flip()
 
-        # Increment angle: 360° per second at 8 fps = 45° per frame
-        angle = (angle + 45) % 360
+        # Increment angle: 360° per second at 15 fps = 24° per frame
+        angle = (angle + 24) % 360
 
-        # 8 fps = 1000ms / 8 = 125ms per frame
-        clock.tick(8)
+        # 15 fps = 1000ms / 15 = ~66.67ms per frame
+        clock.tick(15)
 
     pygame.quit()
 
