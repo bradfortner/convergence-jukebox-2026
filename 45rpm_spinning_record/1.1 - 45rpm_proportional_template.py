@@ -155,7 +155,7 @@ def create_label_width_view(vinyl_image, center_x, center_y, label_diameter_px, 
 if __name__ == '__main__':
     # Create 540 x 540 pixel version
     image_540, center_x_540, center_y_540 = create_vinyl_45_template(
-        output_filename='45rpm_proportional_template_540.png',
+        output_filename='45rpm_proportional_template.png',
         dpi=300,
         output_size=540
     )
