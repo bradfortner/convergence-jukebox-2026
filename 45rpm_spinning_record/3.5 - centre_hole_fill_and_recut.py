@@ -109,8 +109,9 @@ def fill_and_recut_center_hole(
         print("\nSTEP 2: Detecting edge color using ring sampling")
         print("-" * 60)
 
-        center_x = width // 2
-        center_y = height // 2
+        # Calculate center with subpixel precision, then round to nearest integer
+        center_x = round((width - 1) / 2.0)
+        center_y = round((height - 1) / 2.0)
         result['center'] = (center_x, center_y)
 
         print(f"Image center: ({center_x}, {center_y})")
@@ -201,10 +202,11 @@ def fill_and_recut_center_hole(
         print(f"  Center: ({center_x}, {center_y})")
 
         # Draw transparent center hole in alpha channel (0 = transparent)
+        # Use round() instead of int() for better centering precision
         cv2.circle(
             new_alpha,
             (center_x, center_y),
-            int(hole_radius),
+            round(hole_radius),
             0,  # 0 = fully transparent
             thickness=-1  # -1 means filled circle
         )
@@ -229,10 +231,11 @@ def fill_and_recut_center_hole(
         print(f"  Center: ({center_x}, {center_y})")
 
         # Draw opaque circle for the vinyl record (inside the circle = opaque)
+        # Use round() for consistent centering with hole
         cv2.circle(
             vinyl_body_alpha,
             (center_x, center_y),
-            int(vinyl_record_radius),
+            round(vinyl_record_radius),
             255,  # 255 = fully opaque
             thickness=-1  # -1 means filled circle
         )
