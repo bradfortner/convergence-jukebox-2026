@@ -1,18 +1,20 @@
 """
-centre_hole_fill_and_recut.py - Version 3.2
+centre_hole_fill_and_recut.py - Version 3.3
 Fill and recut the transparent center hole in vinyl record label.
 
 This module provides a function that:
 1. Opens a vinyl record label with transparent center hole
-2. Detects the color around the center hole perimeter using 8-direction sampling
+2. Detects the color around the center hole perimeter using ring sampling
 3. Uses PIL's floodfill to fill the transparent hole with that color
 4. Recuts a new 117-pixel diameter transparent center hole (proportional to 1.5" on 6.875" record)
 5. Saves the result with transparent background
 
-Sampling improvements in 3.2:
-- Uses 8 directions (cardinal + diagonal) instead of 4 cardinal directions
-- More thorough edge detection for better color accuracy
-- Samples at: up, down, left, right, and all four diagonals
+Sampling improvements in 3.3:
+- Samples a ring of pixels around the hole edge
+- Collects all non-transparent colors in the ring
+- Selects the BRIGHTEST color (avoids dark edges/shadows)
+- Uses 360-degree sampling for comprehensive coverage
+- More accurate color detection for proper fill
 
 This creates a complete, filled record label with a properly proportioned
 transparent center spindle hole for use in vinyl record graphics.
@@ -71,7 +73,7 @@ def fill_and_recut_center_hole(
 
     try:
         print("=" * 60)
-        print("FILL AND RECUT CENTER HOLE - VERSION 3.2")
+        print("FILL AND RECUT CENTER HOLE - VERSION 3.3")
         print("=" * 60)
 
         # STEP 1: Load image
@@ -87,7 +89,7 @@ def fill_and_recut_center_hole(
         print(f"Format: RGBA (with transparency)")
 
         # STEP 2: Find center and detect edge color
-        print("\nSTEP 2: Detecting edge color")
+        print("\nSTEP 2: Detecting edge color using ring sampling")
         print("-" * 60)
 
         center_x = width // 2
@@ -95,43 +97,48 @@ def fill_and_recut_center_hole(
         result['center'] = (center_x, center_y)
 
         print(f"Image center: ({center_x}, {center_y})")
-        print(f"Searching outward from center for edge color...")
+        print(f"Sampling ring around hole edge to find brightest color...")
 
         edge_color = None
 
-        # Search outward from center in concentric circles
-        max_search_radius = min(center_x, center_y)
-        for radius in range(1, max_search_radius):
-            # Sample 8 points around center at this radius (cardinal + diagonal directions)
-            sample_points = [
-                (center_x + radius, center_y),              # Right
-                (center_x - radius, center_y),              # Left
-                (center_x, center_y + radius),              # Down
-                (center_x, center_y - radius),              # Up
-                (center_x + radius, center_y + radius),     # Down-right
-                (center_x - radius, center_y + radius),     # Down-left
-                (center_x + radius, center_y - radius),     # Up-right
-                (center_x - radius, center_y - radius),     # Up-left
-            ]
+        # Sample a ring of pixels around the hole edge
+        # Hole diameter is 117, so radius is ~58.5
+        # Sample at radius ~70 pixels (just beyond the hole edge)
+        sample_radius = 70
 
-            for x, y in sample_points:
-                # Ensure point is within bounds
-                if 0 <= x < width and 0 <= y < height:
-                    pixel = img.getpixel((x, y))
-                    # Check if pixel is not transparent (alpha > 0)
-                    if pixel[3] > 0:
-                        edge_color = pixel[:3]  # Extract RGB only
-                        print(f"Found edge color at distance {radius} pixels")
-                        print(f"Edge color (RGB): {edge_color}")
-                        break
+        ring_colors = []
 
-            if edge_color:
-                break
+        # Sample 360 points around the ring (every degree)
+        for angle_deg in range(0, 360):
+            angle_rad = math.radians(angle_deg)
 
-        if not edge_color:
-            result['message'] = "ERROR: Could not find edge color around center hole"
+            # Calculate point on ring at this angle
+            x = center_x + int(sample_radius * math.cos(angle_rad))
+            y = center_y + int(sample_radius * math.sin(angle_rad))
+
+            # Ensure point is within bounds
+            if 0 <= x < width and 0 <= y < height:
+                pixel = img.getpixel((x, y))
+                # Collect non-transparent colors
+                if pixel[3] > 0:  # Not transparent
+                    rgb = pixel[:3]
+                    ring_colors.append(rgb)
+
+        if not ring_colors:
+            result['message'] = "ERROR: Could not find any colors in ring around center hole"
             print(result['message'])
             return result
+
+        # Find brightest color (highest combined RGB value)
+        # Brightness = (R + G + B) / 3
+        brightest_color = max(ring_colors, key=lambda c: (c[0] + c[1] + c[2]) / 3)
+        edge_color = brightest_color
+
+        brightness = (edge_color[0] + edge_color[1] + edge_color[2]) / 3
+
+        print(f"Ring sampling complete: {len(ring_colors)} colors found")
+        print(f"Selected brightest color (RGB): {edge_color}")
+        print(f"Brightness value: {brightness:.1f}/255")
 
         result['edge_color'] = edge_color
 
@@ -231,7 +238,7 @@ def fill_and_recut_center_hole(
 # Main execution
 if __name__ == '__main__':
     print("\n" + "=" * 60)
-    print("VINYL RECORD CENTER HOLE FILL AND RECUT - VERSION 3.2")
+    print("VINYL RECORD CENTER HOLE FILL AND RECUT - VERSION 3.3")
     print("=" * 60)
 
     result = fill_and_recut_center_hole(
