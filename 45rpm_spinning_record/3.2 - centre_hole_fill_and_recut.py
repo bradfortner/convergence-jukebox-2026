@@ -1,13 +1,18 @@
 """
-centre_hole_fill_and_recut.py - Version 3.1
+centre_hole_fill_and_recut.py - Version 3.2
 Fill and recut the transparent center hole in vinyl record label.
 
 This module provides a function that:
 1. Opens a vinyl record label with transparent center hole
-2. Detects the color around the center hole perimeter
+2. Detects the color around the center hole perimeter using 8-direction sampling
 3. Uses PIL's floodfill to fill the transparent hole with that color
 4. Recuts a new 117-pixel diameter transparent center hole (proportional to 1.5" on 6.875" record)
 5. Saves the result with transparent background
+
+Sampling improvements in 3.2:
+- Uses 8 directions (cardinal + diagonal) instead of 4 cardinal directions
+- More thorough edge detection for better color accuracy
+- Samples at: up, down, left, right, and all four diagonals
 
 This creates a complete, filled record label with a properly proportioned
 transparent center spindle hole for use in vinyl record graphics.
@@ -66,7 +71,7 @@ def fill_and_recut_center_hole(
 
     try:
         print("=" * 60)
-        print("FILL AND RECUT CENTER HOLE - VERSION 3.1")
+        print("FILL AND RECUT CENTER HOLE - VERSION 3.2")
         print("=" * 60)
 
         # STEP 1: Load image
@@ -97,12 +102,16 @@ def fill_and_recut_center_hole(
         # Search outward from center in concentric circles
         max_search_radius = min(center_x, center_y)
         for radius in range(1, max_search_radius):
-            # Sample 4 points around center at this radius (cardinal directions)
+            # Sample 8 points around center at this radius (cardinal + diagonal directions)
             sample_points = [
-                (center_x + radius, center_y),      # Right
-                (center_x - radius, center_y),      # Left
-                (center_x, center_y + radius),      # Down
-                (center_x, center_y - radius),      # Up
+                (center_x + radius, center_y),              # Right
+                (center_x - radius, center_y),              # Left
+                (center_x, center_y + radius),              # Down
+                (center_x, center_y - radius),              # Up
+                (center_x + radius, center_y + radius),     # Down-right
+                (center_x - radius, center_y + radius),     # Down-left
+                (center_x + radius, center_y - radius),     # Up-right
+                (center_x - radius, center_y - radius),     # Up-left
             ]
 
             for x, y in sample_points:
@@ -222,7 +231,7 @@ def fill_and_recut_center_hole(
 # Main execution
 if __name__ == '__main__':
     print("\n" + "=" * 60)
-    print("VINYL RECORD CENTER HOLE FILL AND RECUT - VERSION 3.1")
+    print("VINYL RECORD CENTER HOLE FILL AND RECUT - VERSION 3.2")
     print("=" * 60)
 
     result = fill_and_recut_center_hole(
