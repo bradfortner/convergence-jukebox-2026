@@ -384,4 +384,4 @@ def extract_record_label(input_image_path, output_path="transparent_45rpm_record
 
 # Main execution
 if __name__ == "__main__":
-    result = extract_record_label("record.jpg", output_path="transparent_45rpm_record_label_282.png", debug=True, output_size=282)
+    result = extract_record_label("record.jpg", output_path="transparent_45rpm_record_label.png", debug=True, output_size=282)
