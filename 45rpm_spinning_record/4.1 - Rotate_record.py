@@ -4,7 +4,7 @@ import math
 
 def display_record_playing(image_path):
     """
-    Rotate an image 40 times per second in real-time using pygame.
+    Rotate an image 25 times per second in real-time using pygame.
     Simulates a record player spinning with dark grey background.
 
     Args:
@@ -54,11 +54,11 @@ def display_record_playing(image_path):
         screen.blit(rotated_surface, rotated_rect)
         pygame.display.flip()
 
-        # Increment angle: 360° per second at 40 fps = 9° per frame
-        angle = (angle + 9) % 360
+        # Increment angle: 360° per second at 25 fps = 14.4° per frame
+        angle = (angle + 14.4) % 360
 
-        # 40 fps = 1000ms / 40 = 25ms per frame
-        clock.tick(40)
+        # 25 fps = 1000ms / 25 = 40ms per frame
+        clock.tick(25)
 
     pygame.quit()
 
