@@ -13,26 +13,71 @@ This directory contains a series of interconnected scripts that work together to
 
 The project demonstrates iterative development from PIL/Pillow-based image processing to modern OpenCV implementations.
 
+## Master Pipeline Script ⭐
+
+### 0.0 - 45rpm_record_animation_from_real_label.py
+
+A unified threaded pipeline that orchestrates all five processing stages into a single coherent workflow.
+
+**Features:**
+- **Single execution point**: Runs all stages sequentially with proper data flow
+- **Threaded modules**: Each processing stage includes `_module` suffix on function names
+- **Complete pipeline**: Automatically processes from raw image to spinning animation
+- **Error handling**: Comprehensive error messages and state tracking
+- **Progress reporting**: Status updates at each pipeline stage
+
+**Quick Start:**
+```bash
+python "0.0 - 45rpm_record_animation_from_real_label.py" record.jpg
+```
+
+**What it does:**
+1. **create_vinyl_45_template_module()** - Creates 540x540 pixel vinyl template
+2. **extract_record_label_module()** - Extracts label from photo (282x282 pixels)
+3. **fill_and_recut_center_hole_module()** - Fills transparent hole and trims edges
+4. **final_record_pressing_module()** - Composites label onto template
+5. **display_record_playing_module()** - Displays rotating animation
+
+**Example:**
+```python
+from RecordAnimationPipeline import RecordAnimationPipeline
+
+# Create pipeline with input image
+pipeline = RecordAnimationPipeline(input_image_path="record.jpg")
+
+# Execute complete pipeline
+pipeline.run_pipeline()
+```
+
+The master script uses the most stable versions of each component:
+- v1.1 for template creation
+- v2.1 for label extraction
+- v3.6 (OpenCV) for center hole processing
+- v4.1 for final composition
+- v5.1 for animation
+
 ## Directory Structure
 
 ```
 45rpm_spinning_record/
-├── 1.0 - 45rpm_proportional_template.py          # Original vinyl template generator
-├── 1.1 - 45rpm_proportional_template.py          # Updated: 540x540 pixel output
-├── 2.0 - Extract_record_transparent.py           # Original label extraction
-├── 2.1 - Extract_record_transparent.py           # Updated: 282x282 pixel output
-├── 3.0 - centre_hole_fill_and_recut.py           # PIL: Fill center hole (Option 1)
-├── 3.1 - centre_hole_fill_and_recut.py           # PIL: Fill + recut center hole
-├── 3.2 - centre_hole_fill_and_recut.py           # PIL: Improved edge sampling (8 directions)
-├── 3.3 - centre_hole_fill_and_recut.py           # PIL: Ring sampling + brightest color
-├── 3.4 - centre_hole_fill_and_recut.py           # PIL: Add vinyl body circular edge trim
-├── 3.5 - centre_hole_fill_and_recut.py           # OpenCV: Initial conversion (with centering fixes)
-├── 3.6 - centre_hole_fill_and_recut.py           # OpenCV: FloodFill error fixes + robustness
-├── 4.0 Rotate_record.py                          # Original record rotation
-├── 4.1 - Final_record_pressing.py                # Final pressing/composition
-├── 5.1 - Rotate_record.py                        # Optimized spinning animation
-├── requirements.txt                              # Python dependencies
-└── README.md                                     # This file
+├── 0.0 - 45rpm_record_animation_from_real_label.py  # ⭐ MASTER SCRIPT - Threaded pipeline
+├── 1.0 - 45rpm_proportional_template.py             # Original vinyl template generator
+├── 1.1 - 45rpm_proportional_template.py             # Updated: 540x540 pixel output
+├── 2.0 - Extract_record_transparent.py              # Original label extraction
+├── 2.1 - Extract_record_transparent.py              # Updated: 282x282 pixel output
+├── 3.0 - centre_hole_fill_and_recut.py              # PIL: Fill center hole (Option 1)
+├── 3.1 - centre_hole_fill_and_recut.py              # PIL: Fill + recut center hole
+├── 3.2 - centre_hole_fill_and_recut.py              # PIL: Improved edge sampling (8 directions)
+├── 3.3 - centre_hole_fill_and_recut.py              # PIL: Ring sampling + brightest color
+├── 3.4 - centre_hole_fill_and_recut.py              # PIL: Add vinyl body circular edge trim
+├── 3.5 - centre_hole_fill_and_recut.py              # OpenCV: Initial conversion (with centering fixes)
+├── 3.6 - centre_hole_fill_and_recut.py              # OpenCV: FloodFill error fixes + robustness
+├── 4.0 Rotate_record.py                             # Original record rotation
+├── 4.1 - Final_record_pressing.py                   # Final pressing/composition
+├── 5.1 - Rotate_record.py                           # Optimized spinning animation
+├── depreciated_code/                                # Archived older versions
+├── requirements.txt                                 # Python dependencies
+└── README.md                                        # This file
 ```
 
 ## Script Versions Overview
@@ -150,8 +195,15 @@ else:
     print(f"Error: {result['message']}")
 ```
 
-### Complete Pipeline
+### Complete Pipeline - Recommended Method ⭐
 
+**Using the Master Script (Single command):**
+```bash
+# Run the complete pipeline from raw image to animation
+python "0.0 - 45rpm_record_animation_from_real_label.py" record.jpg
+```
+
+**Manual Step-by-Step (if needed):**
 ```bash
 # 1. Generate vinyl template
 python "1.1 - 45rpm_proportional_template.py"
@@ -175,12 +227,21 @@ python "5.1 - Rotate_record.py"
 Pillow (PIL)      - For image processing (versions 1.0-4.1)
 opencv-python     - For advanced processing (versions 3.5-3.6)
 numpy             - For array operations
+scikit-image      - For image I/O operations
+pygame            - For animation display (v5.1 and master script)
 ```
 
 Install requirements:
 ```bash
 pip install -r requirements.txt
 ```
+
+**For Master Script (v0.0)**, you need:
+- Pillow
+- opencv-python
+- numpy
+- scikit-image
+- pygame
 
 ## Technical Details
 
@@ -282,12 +343,13 @@ Part of the Convergence Jukebox 2026 project.
 
 ## History
 
+- **v0.0**: Master pipeline script - unified threaded orchestration ⭐ **START HERE**
 - **v1.0-2.1**: Initial PIL-based template and extraction
 - **v3.0-3.1**: PIL center hole fill and recut
 - **v3.2-3.3**: Enhanced edge detection with ring sampling
 - **v3.4**: Vinyl body circular edge trimming
 - **v3.5**: OpenCV conversion (initial)
-- **v3.6**: OpenCV with robust error handling ⭐ **RECOMMENDED**
+- **v3.6**: OpenCV with robust error handling ⭐ **RECOMMENDED FOR INDIVIDUAL STAGES**
 - **v4.0-5.1**: Post-processing and animation
 
 ## Contact
