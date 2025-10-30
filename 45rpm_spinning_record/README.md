@@ -50,11 +50,13 @@ pipeline.run_pipeline()
 ```
 
 The master script uses the most stable versions of each component:
-- v1.1 for template creation
-- v2.1 for label extraction
-- v3.6 (OpenCV) for center hole processing
-- v4.1 for final composition
-- v5.1 for animation
+- v1.1 for template creation (moved to depreciated_code/)
+- v2.1 for label extraction (moved to depreciated_code/)
+- v3.6 (OpenCV) for center hole processing (moved to depreciated_code/)
+- v4.1 for final composition (moved to depreciated_code/)
+- v5.1 for animation (moved to depreciated_code/)
+
+**Note**: The individual processed versions (1.1, 2.1, 3.6, 4.1, 5.1) have been archived in the `depreciated_code/` folder. Use the master script (0.0) for complete pipeline execution instead of running individual scripts.
 
 ## Directory Structure
 
@@ -62,20 +64,15 @@ The master script uses the most stable versions of each component:
 45rpm_spinning_record/
 ├── 0.0 - 45rpm_record_animation_from_real_label.py  # ⭐ MASTER SCRIPT - Threaded pipeline
 ├── 1.0 - 45rpm_proportional_template.py             # Original vinyl template generator
-├── 1.1 - 45rpm_proportional_template.py             # Updated: 540x540 pixel output
 ├── 2.0 - Extract_record_transparent.py              # Original label extraction
-├── 2.1 - Extract_record_transparent.py              # Updated: 282x282 pixel output
 ├── 3.0 - centre_hole_fill_and_recut.py              # PIL: Fill center hole (Option 1)
 ├── 3.1 - centre_hole_fill_and_recut.py              # PIL: Fill + recut center hole
 ├── 3.2 - centre_hole_fill_and_recut.py              # PIL: Improved edge sampling (8 directions)
 ├── 3.3 - centre_hole_fill_and_recut.py              # PIL: Ring sampling + brightest color
 ├── 3.4 - centre_hole_fill_and_recut.py              # PIL: Add vinyl body circular edge trim
 ├── 3.5 - centre_hole_fill_and_recut.py              # OpenCV: Initial conversion (with centering fixes)
-├── 3.6 - centre_hole_fill_and_recut.py              # OpenCV: FloodFill error fixes + robustness
 ├── 4.0 Rotate_record.py                             # Original record rotation
-├── 4.1 - Final_record_pressing.py                   # Final pressing/composition
-├── 5.1 - Rotate_record.py                           # Optimized spinning animation
-├── depreciated_code/                                # Archived older versions
+├── depreciated_code/                                # Archived processed versions (1.1, 2.1, 3.6, 4.1, 5.1)
 ├── requirements.txt                                 # Python dependencies
 └── README.md                                        # This file
 ```
@@ -90,6 +87,7 @@ Creates a vinyl record template with proper proportions for a 45 RPM record.
 - **Output**: `45rpm_proportional_template.png` (540x540 pixels)
 - **Key Features**: Draws vinyl record grooves, label area, center hole
 - **1.1 Updates**: Precise 540x540 pixel output
+- **Status**: v1.1 moved to `depreciated_code/` - use master script instead
 
 #### 2.0 / 2.1 - Extract_record_transparent.py
 Extracts a transparent record label from the composite image.
@@ -97,6 +95,7 @@ Extracts a transparent record label from the composite image.
 - **Output**: `transparent_45rpm_record_label.png` (282x282 pixels with transparency)
 - **Key Features**: Uses color detection to isolate record label, preserves transparency
 - **2.1 Updates**: Optimized for 282x282 pixel output
+- **Status**: v2.1 moved to `depreciated_code/` - use master script instead
 
 ### Center Hole Filling & Vinyl Body Processing (Versions 3.0-3.6)
 
@@ -148,7 +147,7 @@ This is the core module with iterative improvements:
 - **Library**: OpenCV (cv2)
 - **Fixes in version**: Better center calculation and rounding
 
-#### 3.6 - centre_hole_fill_and_recut.py (OpenCV) ⭐ **CURRENT STABLE VERSION**
+#### 3.6 - centre_hole_fill_and_recut.py (OpenCV) ⭐ **STABLE VERSION**
 **OpenCV implementation with error handling & robustness**
 - **Bug Fixes**:
   - Fixed `cv2.floodFill()` return value handling (returns int, not tuple)
@@ -160,7 +159,7 @@ This is the core module with iterative improvements:
   - Try-catch for floodFill operations
   - Memory optimization with explicit copies
   - Pixel fill count in output
-- **Status**: Production-ready
+- **Status**: Moved to `depreciated_code/` - functionality integrated into master script
 
 ### Post-Processing (Versions 4.0-5.1)
 
@@ -168,11 +167,13 @@ This is the core module with iterative improvements:
 Final record pressing and composition.
 - **Purpose**: Composite record onto background
 - **Features**: Proper layering and sizing
+- **Status**: v4.1 moved to `depreciated_code/` - use master script instead
 
 #### 5.1 - Rotate_record.py
 Spinning record animation.
 - **Purpose**: Create rotating vinyl animation
 - **Features**: Multiple rotation speeds, frame generation
+- **Status**: v5.1 moved to `depreciated_code/` - use master script instead
 
 ## Usage
 
@@ -203,23 +204,25 @@ else:
 python "0.0 - 45rpm_record_animation_from_real_label.py" record.jpg
 ```
 
-**Manual Step-by-Step (if needed):**
+**Manual Step-by-Step (if needed - scripts are now in depreciated_code/):**
 ```bash
 # 1. Generate vinyl template
-python "1.1 - 45rpm_proportional_template.py"
+python "depreciated_code/1.1 - 45rpm_proportional_template.py"
 
 # 2. Extract transparent label
-python "2.1 - Extract_record_transparent.py"
+python "depreciated_code/2.1 - Extract_record_transparent.py"
 
 # 3. Fill hole and trim edges (using OpenCV v3.6)
-python "3.6 - centre_hole_fill_and_recut.py"
+python "depreciated_code/3.6 - centre_hole_fill_and_recut.py"
 
 # 4. Final pressing
-python "4.1 - Final_record_pressing.py"
+python "depreciated_code/4.1 - Final_record_pressing.py"
 
 # 5. Spinning animation
-python "5.1 - Rotate_record.py"
+python "depreciated_code/5.1 - Rotate_record.py"
 ```
+
+**Recommended**: Use the master script instead (v0.0)
 
 ## Requirements
 
