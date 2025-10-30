@@ -1,4 +1,4 @@
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 import vlc
 from datetime import datetime, timedelta # required for logging timestamp
 from tinytag import TinyTag  # https://pypi.org/project/tinytag/

@@ -6,7 +6,7 @@ A modern, modular implementation of the Convergence Jukebox 2026 graphical user 
 
 The Convergence Jukebox 2026 is a comprehensive jukebox application that displays and plays music with an interactive GUI. This GUI renewal project implements a clean, modular architecture that separates concerns and improves maintainability by extracting functional components into independent modules.
 
-**Current Version:** 0.48 - main_jukebox_GUI_2026.py
+**Current Version:** 0.61 - main_jukebox_GUI_2026.py
 
 ## Features
 
@@ -46,24 +46,28 @@ The Convergence Jukebox 2026 is a comprehensive jukebox application that display
 
 ```
 convergence_jukebox_2026_gui_renewal/
-├── 0.43 - main_jukebox_GUI_2026.py      # Production main file (current)
-├── 0.42 - main_jukebox_GUI_2026.py      # Previous version
+├── 0.61 - main_jukebox_GUI_2026.py      # Production main file (current) - the_bands_name_check & upcoming_selections_update module rename
+├── 0.60 - main_jukebox_GUI_2026.py      # Previous version - search_window_button_layout module rename
 │
 ├── Modular Function Files:
-├── info_screen_layout.py                 # Info screen layout module
-├── jukebox_selection_screen_layout.py    # Selection screen layout
-├── control_button_screen_layout.py       # Control button layout
-├── search_window_button_layout.py        # Search window buttons
-├── font_size_window_updates.py           # Font sizing logic
-├── font_size_window_updates_1.py         # Extended font sizing
-├── upcoming_selections_update.py         # Queue display updates
-├── the_bands_name_check.py               # Band name "The" prefix
-├── disable_a_selection_buttons_1.py      # Disable A window buttons
-├── disable_b_selection_buttons_1.py      # Disable B window buttons
-├── disable_c_selection_buttons_1.py      # Disable C window buttons
-├── enable_all_buttons_1.py               # Re-enable all buttons
-├── popup_45rpm_song_selection_code.py    # 45RPM song selection popup (v0.42+)
-├── popup_45rpm_now_playing_code.py       # 45RPM now-playing popup (v0.40+)
+├── info_screen_layout_module.py          # Info screen layout module
+├── jukebox_selection_screen_layout_module.py # Selection screen layout
+├── control_button_screen_layout_module.py # Control button layout
+├── search_window_button_layout_module.py # Search window buttons
+├── font_size_window_updates_module.py    # Font sizing logic
+├── font_size_window_updates_1.py         # Extended font sizing (archived)
+├── upcoming_selections_update_module.py  # Queue display updates
+├── the_bands_name_check_module.py        # Band name "The" prefix
+├── disable_a_selection_buttons_module.py # Disable A window buttons
+├── disable_a_selection_buttons_1.py      # Disable A window buttons (archived)
+├── disable_b_selection_buttons_module.py # Disable B window buttons
+├── disable_b_selection_buttons_1.py      # Disable B window buttons (archived)
+├── disable_c_selection_buttons_module.py # Disable C window buttons
+├── disable_c_selection_buttons_1.py      # Disable C window buttons (archived)
+├── enable_all_buttons_module.py          # Re-enable all buttons
+├── enable_all_buttons_1.py               # Re-enable all buttons (archived)
+├── popup_45rpm_song_selection_code_module.py # 45RPM song selection popup (v0.42+)
+├── popup_45rpm_now_playing_code_module.py # 45RPM now-playing popup (v0.40+)
 │
 ├── Media Assets:
 ├── fonts/                                # Custom fonts
@@ -103,26 +107,26 @@ Each function module is independent and self-contained:
 
 | Module | Purpose |
 |--------|---------|
-| `info_screen_layout.py` | Creates info display screen layout |
-| `jukebox_selection_screen_layout.py` | Creates song selection grid layout |
-| `control_button_screen_layout.py` | Creates control button layout |
-| `search_window_button_layout.py` | Creates search window buttons |
-| `font_size_window_updates.py` | Calculates and applies font sizes |
+| `info_screen_layout_module.py` | Creates info display screen layout |
+| `jukebox_selection_screen_layout_module.py` | Creates song selection grid layout |
+| `control_button_screen_layout_module.py` | Creates control button layout |
+| `search_window_button_layout_module.py` | Creates search window buttons |
+| `font_size_window_updates_module.py` | Calculates and applies font sizes |
 | `font_size_window_updates_1.py` | Extended font sizing functionality |
-| `upcoming_selections_update.py` | Updates upcoming songs queue |
-| `the_bands_name_check.py` | Auto-adds "The" to band names |
-| `disable_a_selection_buttons_1.py` | Disables A window buttons |
-| `disable_b_selection_buttons_1.py` | Disables B window buttons |
-| `disable_c_selection_buttons_1.py` | Disables C window buttons |
-| `enable_all_buttons_1.py` | Enables all 21 song buttons |
-| `popup_45rpm_song_selection_code.py` | Generates & displays 45RPM song selection record popup |
-| `popup_45rpm_now_playing_code.py` | Generates & displays 45RPM now-playing record popup |
+| `upcoming_selections_update_module.py` | Updates upcoming songs queue |
+| `the_bands_name_check_module.py` | Auto-adds "The" to band names |
+| `disable_a_selection_buttons_module.py` | Disables A window buttons |
+| `disable_b_selection_buttons_module.py` | Disables B window buttons |
+| `disable_c_selection_buttons_module.py` | Disables C window buttons |
+| `enable_all_buttons_module.py` | Enables all 21 song buttons |
+| `popup_45rpm_song_selection_code_module.py` | Generates & displays 45RPM song selection record popup |
+| `popup_45rpm_now_playing_code_module.py` | Generates & displays 45RPM now-playing record popup |
 
 ## 45RPM Song Selection Popup Feature (v0.42+)
 
 The 45RPM song selection popup display has been extracted into its own module for modularity and reusability.
 
-### `popup_45rpm_song_selection_code.py` Module
+### `popup_45rpm_song_selection_code_module.py` Module
 
 **Function:** `display_45rpm_popup(MusicMasterSongList, counter, jukebox_selection_window)`
 
@@ -146,7 +150,7 @@ The 45RPM song selection popup display has been extracted into its own module fo
 ### Example Usage
 
 ```python
-from popup_45rpm_song_selection_code import display_45rpm_popup
+from popup_45rpm_song_selection_code_module import display_45rpm_popup
 
 # When song is selected:
 display_45rpm_popup(MusicMasterSongList, selected_index, jukebox_selection_window)
@@ -571,7 +575,7 @@ For questions or issues, please open a GitHub issue or contact the maintainers.
 - **Media Backend:** VLC (python-vlc 3.0+)
 - **Image Support:** Pillow 8.0+
 - **Python:** 3.7+
-- **Last Updated:** 2025-10-27
+- **Last Updated:** 2025-10-28
 
 ## Recent Bug Fixes (v0.47-0.48)
 

@@ -4,11 +4,11 @@ from operator import itemgetter
 import json
 import os
 from token import NUMBER
-#from PySimpleGUI.PySimpleGUI import _FindElementWithFocusInSubForm
 import random
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 import threading
 import time
+from queue import Queue
 from gc import disable
 from operator import itemgetter
 from PIL import Image
@@ -17,6 +17,46 @@ from PIL import ImageFont
 import textwrap
 import sys
 import vlc
+from info_screen_layout import create_info_screen_layout
+from font_size_window_updates import reset_button_fonts, update_selection_button_text, adjust_button_fonts_by_length, create_font_size_window_updates
+from upcoming_selections_update import update_upcoming_selections
+from the_bands_name_check import the_bands_name_check as check_bands_module
+from disable_a_selection_buttons import disable_a_selection_buttons as disable_a_buttons_module
+from disable_b_selection_buttons import disable_b_selection_buttons as disable_b_buttons_module
+from disable_c_selection_buttons import disable_c_selection_buttons as disable_c_buttons_module
+from enable_all_buttons import enable_all_buttons as enable_all_buttons_module
+from jukebox_selection_screen_layout import create_jukebox_selection_screen_layout
+from control_button_screen_layout_module import create_control_button_screen_layout
+from search_window_button_layout import create_search_window_button_layout
+from popup_45rpm_song_selection_code import display_45rpm_popup
+from popup_45rpm_now_playing_code import display_45rpm_now_playing_popup
+
+# Helper function to create VLC MediaPlayer with suppressed error messages
+def create_vlc_player_silent(file_path):
+    """Create VLC MediaPlayer while suppressing VLC's C-level error/warning messages.
+
+    VLC prints errors at the C library level (not Python level), so we need to redirect
+    file descriptors 2 (stderr) and 1 (stdout) at the OS level to suppress the messages.
+    """
+    # Save original file descriptors
+    old_stdout = os.dup(1)  # stdout file descriptor
+    old_stderr = os.dup(2)  # stderr file descriptor
+
+    try:
+        # Redirect stdout and stderr to /dev/null using file descriptors
+        with open(os.devnull, 'w') as devnull:
+            os.dup2(devnull.fileno(), 1)  # Redirect stdout
+            os.dup2(devnull.fileno(), 2)  # Redirect stderr
+            # Create VLC player (this will now produce no output)
+            player = vlc.MediaPlayer(file_path)
+    finally:
+        # Always restore original file descriptors
+        os.dup2(old_stdout, 1)
+        os.dup2(old_stderr, 2)
+        os.close(old_stdout)
+        os.close(old_stderr)
+
+    return player
 
 global selection_window_number
 global jukebox_selection_window
@@ -77,6 +117,47 @@ all_artists_list = list(set(all_artists_list)) # https://bit.ly/4cZ7A6R
 # Sort all_artists_list
 all_artists_list = sorted(all_artists_list)
 find_list = all_artists_list
+
+# Queue and thread for handling file I/O operations to prevent event loop freezing
+file_io_queue = Queue()
+
+def file_io_worker_thread():
+    """Background thread to handle non-blocking file I/O operations"""
+    while True:
+        try:
+            task = file_io_queue.get(timeout=1)
+            if task is None:  # Signal to exit thread
+                break
+
+            operation = task.get('operation')
+
+            if operation == 'save_song_selection':
+                paid_music_file_path = task.get('paid_music_file_path')
+                PaidMusicPlayList = task.get('PaidMusicPlayList')
+                song_info = task.get('song_info')  # tuple of (artist, title)
+
+                try:
+                    # Write updated PaidMusicPlayList to disk
+                    with open(paid_music_file_path, 'w') as f:
+                        json.dump(PaidMusicPlayList, f)
+
+                    # Write to log file
+                    now = datetime.now()
+                    current_time = now.strftime("%H:%M:%S")
+                    with open('log.txt', 'a') as log:
+                        log.write('\n' + str(current_time) + ' ' + (str(song_info[0]) + ' - ' + str(song_info[1] + ' Selected For Play,')))
+
+                    print(f'Background thread: Successfully saved song selection to {paid_music_file_path}')
+                except IOError as e:
+                    print(f'Background thread error writing files: {e}')
+
+        except Exception as e:
+            print(f'File I/O worker thread error: {e}')
+
+# Start the background file I/O worker thread
+file_io_worker = threading.Thread(target=file_io_worker_thread, daemon=True)
+file_io_worker.start()
+
 def file_lookup_thread(song_playing_lookup_window):
     try:
         while True:
@@ -94,50 +175,14 @@ def main():
     selection_window_number = 0  # Used to frame initial selection buttons
     selection_entry = ""  # Used for selection entry
     def disable_a_selection_buttons():
-        #  Identify all buttons to be disabled in the A selection window
-        buttons_to_disable = ['--button0_top--', '--button0_bottom--', '--button1_top--', '--button1_bottom--',
-                              '--button2_top--', '--button2_bottom--', '--button3_top--', '--button3_bottom--',
-                              '--button4_top--', '--button4_bottom--', '--button5_top--', '--button5_bottom--',
-                              '--button6_top--', '--button6_bottom--']
-        control_buttons_to_disable = ['--B--', '--C--']
-        selection_windows_to_disable = ['--A1--', '--A2--', '--A3--', '--A4--', '--A5--', '--A6--', '--A7--']
-        #  Loop through all buttons to disable them in the A selection window
-        for buttons in buttons_to_disable:
-            jukebox_selection_window[buttons].update(disabled=True)
-        for control_buttons in control_buttons_to_disable:
-            control_button_window[control_buttons].update(disabled=True)
-        for selection_windows in selection_windows_to_disable:            
-            jukebox_selection_window[selection_windows].update(disabled=True)
+        # Call the compacted disable_a_selection_buttons function from external module
+        disable_a_buttons_module(jukebox_selection_window, control_button_window)
     def disable_b_selection_buttons():
-        #  Identify all buttons to be disabled in the B selection window
-        buttons_to_disable = ['--button7_top--', '--button7_bottom--', '--button8_top--', '--button8_bottom--',
-                              '--button9_top--', '--button9_bottom--', '--button10_top--', '--button10_bottom--',
-                              '--button11_top--', '--button11_bottom--', '--button12_top--', '--button12_bottom--',
-                              '--button13_top--', '--button13_bottom--']
-        control_buttons_to_disable = ['--A--', '--C--']
-        selection_windows_to_disable = ['--B1--', '--B2--', '--B3--', '--B4--', '--B5--', '--B6--', '--B7--']
-        #  Loop through all buttons to disable them in the B selection window
-        for buttons in buttons_to_disable:
-            jukebox_selection_window[buttons].update(disabled=True)
-        for control_buttons in control_buttons_to_disable:
-            control_button_window[control_buttons].update(disabled=True)
-        for selection_windows in selection_windows_to_disable:
-            jukebox_selection_window[selection_windows].update(disabled=True)
+        # Call the compacted disable_b_selection_buttons function from external module
+        disable_b_buttons_module(jukebox_selection_window, control_button_window)
     def disable_c_selection_buttons():
-        #  Identify all buttons to be disabled in the C selection window
-        buttons_to_disable = ['--button14_top--', '--button14_bottom--', '--button15_top--', '--button15_bottom--',
-                                '--button16_top--', '--button16_bottom--', '--button17_top--', '--button17_bottom--',
-                                '--button18_top--', '--button18_bottom--', '--button19_top--', '--button19_bottom--',
-                                '--button20_top--', '--button20_bottom--']
-        control_buttons_to_disable = ['--A--', '--B--']
-        selection_windows_to_disable = ['--C1--', '--C2--', '--C3--', '--C4--', '--C5--', '--C6--', '--C7--']
-        #  Loop through all buttons to disable them in the C selection window
-        for buttons in buttons_to_disable:
-            jukebox_selection_window[buttons].update(disabled=True)
-        for control_buttons in control_buttons_to_disable:
-            control_button_window[control_buttons].update(disabled=True)
-        for selection_windows in selection_windows_to_disable:
-            jukebox_selection_window[selection_windows].update(disabled=True)
+        # Call the compacted disable_c_selection_buttons function from external module
+        disable_c_buttons_module(jukebox_selection_window, control_button_window)
     def disable_numbered_selection_buttons():
         #  Identify all buttons to be disabled in the numbered selection window
         control_buttons_to_disable = ['--1--', '--2--', '--3--', '--4--', '--5--', '--6--', '--7--']
@@ -150,7 +195,7 @@ def main():
             selection_window_number = len(MusicMasterSongList)-21
             right_arrow_selection_window['--selection_right--'].update(disabled=True)
             #VLC Song Playback Code Begin
-            p = vlc.MediaPlayer('buzz.mp3')
+            p = create_vlc_player_silent('jukebox_required_audio_files/buzz.mp3')
             p.play()
         else:
             right_arrow_selection_window['--selection_right--'].update(disabled=False)
@@ -159,165 +204,34 @@ def main():
             selection_window_number = 0
             left_arrow_selection_window['--selection_left--'].update(disabled=True)
             #VLC Song Playback Code Begin
-            p = vlc.MediaPlayer('buzz.mp3')
+            p = create_vlc_player_silent('jukebox_required_audio_files/buzz.mp3')
             p.play()
         else:
             left_arrow_selection_window['--selection_left--'].update(disabled=False)
         #  update window buttons        
-        font_size_window_updates = ['--button0_top--', '--button0_bottom--', '--button1_top--', '--button1_bottom--',
-                                            '--button2_top--', '--button2_bottom--', '--button3_top--', '--button3_bottom--',
-                                            '--button4_top--', '--button4_bottom--', '--button5_top--', '--button5_bottom--',
-                                            '--button6_top--', '--button6_bottom--', '--button7_top--', '--button7_bottom--',
-                                            '--button8_top--', '--button8_bottom--', '--button9_top--', '--button9_bottom--',
-                                            '--button10_top--', '--button10_bottom--', '--button11_top--', '--button11_bottom--',
-                                            '--button12_top--', '--button12_bottom--', '--button13_top--', '--button13_bottom--',
-                                            '--button14_top--', '--button14_bottom--', '--button15_top--', '--button15_bottom--',
-                                            '--button16_top--', '--button16_bottom--', '--button17_top--', '--button17_bottom--',
-                                            '--button18_top--', '--button18_bottom--', '--button19_top--', '--button19_bottom--',
-                                            '--button20_top--', '--button20_bottom--']        
-        #  Loop through all buttons to update and restore them to standard font size in the selection window
-        for font_size_window in font_size_window_updates:
-            jukebox_selection_window[font_size_window].Widget.config(font='Helvetica 12 bold')
-        # Cant figure out a way to make this code more pythonic    
-        jukebox_selection_window['--button0_top--'].update(text=MusicMasterSongList[selection_window_number]['title'])
-        jukebox_selection_window['--button0_bottom--'].update(text=MusicMasterSongList[selection_window_number]['artist'])
-        jukebox_selection_window['--button1_top--'].update(text=MusicMasterSongList[selection_window_number + 1]['title'])
-        jukebox_selection_window['--button1_bottom--'].update(text=MusicMasterSongList[selection_window_number + 1]['artist'])
-        jukebox_selection_window['--button2_top--'].update(text=MusicMasterSongList[selection_window_number + 2]['title'])
-        jukebox_selection_window['--button2_bottom--'].update(text=MusicMasterSongList[selection_window_number + 2]['artist'])
-        jukebox_selection_window['--button3_top--'].update(text=MusicMasterSongList[selection_window_number + 3]['title'])
-        jukebox_selection_window['--button3_bottom--'].update(text=MusicMasterSongList[selection_window_number + 3]['artist'])
-        jukebox_selection_window['--button4_top--'].update(text=MusicMasterSongList[selection_window_number + 4]['title'])
-        jukebox_selection_window['--button4_bottom--'].update(text=MusicMasterSongList[selection_window_number + 4]['artist'])
-        jukebox_selection_window['--button5_top--'].update(text=MusicMasterSongList[selection_window_number + 5]['title'])
-        jukebox_selection_window['--button5_bottom--'].update(text=MusicMasterSongList[selection_window_number + 5]['artist'])
-        jukebox_selection_window['--button6_top--'].update(text=MusicMasterSongList[selection_window_number + 6]['title'])
-        jukebox_selection_window['--button6_bottom--'].update(text=MusicMasterSongList[selection_window_number + 6]['artist'])
-        jukebox_selection_window['--button7_top--'].update(text=MusicMasterSongList[selection_window_number + 7]['title'])
-        jukebox_selection_window['--button7_bottom--'].update(text=MusicMasterSongList[selection_window_number + 7]['artist'])
-        jukebox_selection_window['--button8_top--'].update(text=MusicMasterSongList[selection_window_number + 8]['title'])
-        jukebox_selection_window['--button8_bottom--'].update(text=MusicMasterSongList[selection_window_number + 8]['artist'])
-        jukebox_selection_window['--button9_top--'].update(text=MusicMasterSongList[selection_window_number + 9]['title'])
-        jukebox_selection_window['--button9_bottom--'].update(text=MusicMasterSongList[selection_window_number + 9]['artist'])
-        jukebox_selection_window['--button10_top--'].update(text=MusicMasterSongList[selection_window_number + 10]['title'])
-        jukebox_selection_window['--button10_bottom--'].update(text=MusicMasterSongList[selection_window_number + 10]['artist'])
-        jukebox_selection_window['--button11_top--'].update(text=MusicMasterSongList[selection_window_number + 11]['title'])
-        jukebox_selection_window['--button11_bottom--'].update(text=MusicMasterSongList[selection_window_number + 11]['artist'])
-        jukebox_selection_window['--button12_top--'].update(text=MusicMasterSongList[selection_window_number + 12]['title'])
-        jukebox_selection_window['--button12_bottom--'].update(text=MusicMasterSongList[selection_window_number + 12]['artist'])
-        jukebox_selection_window['--button13_top--'].update(text=MusicMasterSongList[selection_window_number + 13]['title'])
-        jukebox_selection_window['--button13_bottom--'].update(text=MusicMasterSongList[selection_window_number + 13]['artist'])
-        jukebox_selection_window['--button14_top--'].update(text=MusicMasterSongList[selection_window_number + 14]['title'])
-        jukebox_selection_window['--button14_bottom--'].update(text=MusicMasterSongList[selection_window_number + 14]['artist'])
-        jukebox_selection_window['--button15_top--'].update(text=MusicMasterSongList[selection_window_number + 15]['title'])
-        jukebox_selection_window['--button15_bottom--'].update(text=MusicMasterSongList[selection_window_number + 15]['artist'])
-        jukebox_selection_window['--button16_top--'].update(text=MusicMasterSongList[selection_window_number + 16]['title'])
-        jukebox_selection_window['--button16_bottom--'].update(text=MusicMasterSongList[selection_window_number + 16]['artist'])
-        jukebox_selection_window['--button17_top--'].update(text=MusicMasterSongList[selection_window_number + 17]['title'])
-        jukebox_selection_window['--button17_bottom--'].update(text=MusicMasterSongList[selection_window_number + 17]['artist'])
-        jukebox_selection_window['--button18_top--'].update(text=MusicMasterSongList[selection_window_number + 18]['title'])
-        jukebox_selection_window['--button18_bottom--'].update(text=MusicMasterSongList[selection_window_number + 18]['artist'])
-        jukebox_selection_window['--button19_top--'].update(text=MusicMasterSongList[selection_window_number + 19]['title'])
-        jukebox_selection_window['--button19_bottom--'].update(text=MusicMasterSongList[selection_window_number + 19]['artist'])
-        jukebox_selection_window['--button20_top--'].update(text=MusicMasterSongList[selection_window_number + 20]['title'])
-        jukebox_selection_window['--button20_bottom--'].update(text=MusicMasterSongList[selection_window_number + 20]['artist'])
-        for font_size_window in font_size_window_updates:
-            font_length_string = jukebox_selection_window[font_size_window].get_text()
-            if len(font_length_string) >= 28:
-                jukebox_selection_window[font_size_window].Widget.config(font='Helvetica 8 bold')
-            if len(font_length_string) > 21 and len(font_length_string) < 28:
-                jukebox_selection_window[font_size_window].Widget.config(font='Helvetica 10 bold')
+        font_size_window_updates = create_font_size_window_updates()        
+        #  Update and restore selection window buttons to standard font size, then update with song data
+        reset_button_fonts(jukebox_selection_window, font_size_window_updates)
+        update_selection_button_text(jukebox_selection_window, MusicMasterSongList, selection_window_number)
+        adjust_button_fonts_by_length(jukebox_selection_window, font_size_window_updates)
         the_bands_name_check()
+    def band_names_exemptions(the_band_to_update, exempted_bands, band_to_check):
+        """Check if band needs exemption from 'The' prefix"""
+        if the_band_to_update in exempted_bands:
+            return band_to_check
+        return the_band_to_update
+
     def the_bands_name_check():
-        # Add The to bands with The in their names
-        # Open and read the_bands.txt file
-        jukebox_selection_windows_to_update = ['--button0_bottom--', '--button1_bottom--', '--button2_bottom--', '--button3_bottom--',
-                    '--button4_bottom--', '--button5_bottom--', '--button6_bottom--', '--button7_bottom--', '--button8_bottom--',
-                    '--button9_bottom--', '--button10_bottom--', '--button11_bottom--', '--button12_bottom--', '--button13_bottom--',
-                    '--button14_bottom--', '--button15_bottom--', '--button16_bottom--', '--button17_bottom--', '--button18_bottom--',
-                    '--button19_bottom--', '--button20_bottom--']
-        if sys.platform.startswith('linux'):
-            for jukebox_selection_windows in jukebox_selection_windows_to_update:
-                with open(dir_path + '/the_bands.txt', 'r') as the_bands_text_file:
-                    the_bands = the_bands_text_file.read()
-                    def band_names_exemtions(the_band_to_update):
-                        # Open and read the_exempted_bands.txt file as list exempted_bands from The
-                        with open(dir_path + '/the_exempted_bands.txt', 'r') as file:
-                            # Read each line in the file and strip newline characters
-                            exempted_bands = [line.strip() for line in file] # Uses line breaks in txt file to create a list exempted_bands
-                            #return list_items
-                        if the_band_to_update in exempted_bands:
-                            the_band_to_update= band_to_check
-                        return the_band_to_update
-                    # Get text of band to check
-                    band_to_check = (jukebox_selection_window[jukebox_selection_windows].get_text())
-                    # check if a band is present in a file
-                    if band_to_check.lower() in the_bands:
-                        # Add The to bands name                
-                        # Band name exemptions
-                        the_band_to_update= 'The ' + band_to_check
-                        the_band_to_update= band_names_exemtions(the_band_to_update)
-                        print(the_band_to_update)
-                        # Check if band name is too long
-                        if len(the_band_to_update) > 22:
-                            jukebox_selection_window[jukebox_selection_windows].Widget.config(font='Helvetica 10 bold') # https://bit.ly/3y2mESv
-                        else:
-                            # Update Jukebox selection button
-                            jukebox_selection_window[jukebox_selection_windows].update(the_band_to_update)
-        if sys.platform.startswith('win32'):
-            for jukebox_selection_windows in jukebox_selection_windows_to_update:
-                with open(dir_path + '\\the_bands.txt', 'r') as the_bands_text_file:
-                    the_bands = the_bands_text_file.read()
-                    def band_names_exemtions(the_band_to_update):
-                        # Open and read the_exempted_bands.txt file as list exempted_bands from The
-                        with open(dir_path + '\\the_exempted_bands.txt', 'r') as file:
-                            # Read each line in the file and strip newline characters
-                            exempted_bands = [line.strip() for line in file] # Uses line breaks in txt file to create a list exempted_bands
-                            #return list_items
-                        if the_band_to_update in exempted_bands:
-                            the_band_to_update= band_to_check
-                        return the_band_to_update
-                    # Get text of band to check
-                    band_to_check = (jukebox_selection_window[jukebox_selection_windows].get_text())
-                    # check if a band is present in a file
-                    if band_to_check.lower() in the_bands:
-                        # Add The to bands name                
-                        # Band name exemptions
-                        the_band_to_update= 'The ' + band_to_check
-                        the_band_to_update= band_names_exemtions(the_band_to_update)
-                        print(the_band_to_update)
-                        # Check if band name is too long
-                        if len(the_band_to_update) > 22:
-                            jukebox_selection_window[jukebox_selection_windows].Widget.config(font='Helvetica 10 bold') # https://bit.ly/3y2mESv
-                        else:
-                            # Update Jukebox selection button
-                            jukebox_selection_window[jukebox_selection_windows].update(the_band_to_update)
+        # Call the compacted the_bands_name_check function from external module
+        check_bands_module(jukebox_selection_window, dir_path, band_names_exemptions)
+
     def enable_numbered_selection_buttons():
         buttons_to_disable = ['--1--', '--2--', '--3--', '--4--', '--5--', '--6--', '--7--']
         for buttons in buttons_to_disable:
             control_button_window[buttons].update(disabled=False)
-    def enable_all_buttons():        
-        buttons_to_enable = ['--button0_top--', '--button0_bottom--', '--button1_top--', '--button1_bottom--',
-                                '--button2_top--', '--button2_bottom--', '--button3_top--', '--button3_bottom--',
-                                '--button4_top--', '--button4_bottom--', '--button5_top--', '--button5_bottom--',
-                                '--button6_top--', '--button6_bottom--', '--button7_top--', '--button7_bottom--',
-                                '--button8_top--', '--button8_bottom--', '--button9_top--', '--button9_bottom--',
-                                '--button10_top--', '--button10_bottom--', '--button11_top--', '--button11_bottom--',
-                                '--button12_top--', '--button12_bottom--', '--button13_top--', '--button13_bottom--',
-                                '--button14_top--', '--button14_bottom--', '--button15_top--', '--button15_bottom--',
-                                '--button16_top--', '--button16_bottom--', '--button17_top--', '--button17_bottom--',
-                                '--button18_top--', '--button18_bottom--', '--button19_top--', '--button19_bottom--',
-                                '--button20_top--', '--button20_bottom--']
-        control_buttons_to_enable = ['--A--', '--B--', '--C--']
-        selection_windows_to_enable = ['--A1--', '--A2--', '--A3--', '--A4--', '--A5--', '--A6--', '--A7--',
-                                        '--B1--', '--B2--', '--B3--', '--B4--', '--B5--', '--B6--', '--B7--',
-                                        '--C1--', '--C2--', '--C3--', '--C4--', '--C5--', '--C6--', '--C7--']
-        for buttons in buttons_to_enable:
-            jukebox_selection_window[buttons].update(disabled=False) 
-        for control_buttons in control_buttons_to_enable:
-            control_button_window[control_buttons].update(disabled=False)
-        for selection_windows in selection_windows_to_enable:
-            jukebox_selection_window[selection_windows].update(disabled=False) 
+    def enable_all_buttons():
+        # Call the compacted enable_all_buttons function from external module
+        enable_all_buttons_module(jukebox_selection_window, control_button_window) 
     def selection_entry_complete(selection_entry_letter, selection_entry_number):
         if selection_entry_number:
             selection_entry = selection_entry_letter + selection_entry_number
@@ -411,68 +325,9 @@ def main():
             jukebox_selection_window['--button20_bottom--'].update(disabled=False)
         control_button_window['--select--'].update(disabled=False)
         return selection_entry
+    # Call the compacted upcoming selections update function
     def upcoming_selections_update():
-        info_screen_window['--upcoming_one--'].Update(' ')
-        info_screen_window['--upcoming_two--'].Update(' ')
-        info_screen_window['--upcoming_three--'].Update(' ')
-        info_screen_window['--upcoming_four--'].Update(' ')
-        info_screen_window['--upcoming_five--'].Update(' ')
-        info_screen_window['--upcoming_six--'].Update(' ')
-        info_screen_window['--upcoming_seven--'].Update(' ')
-        info_screen_window['--upcoming_eight--'].Update(' ')
-        info_screen_window['--upcoming_nine--'].Update(' ')
-        info_screen_window['--upcoming_ten--'].Update(' ')
-        # update upcoming selections on jukebox screens
-        try:
-            if UpcomingSongPlayList[0] != []:
-                info_screen_window['--upcoming_one--'].Update('  ' + UpcomingSongPlayList[0])
-        except Exception:
-            info_screen_window['--upcoming_one--'].Update(' ')
-        try:
-            if UpcomingSongPlayList[1] != []:
-                info_screen_window['--upcoming_two--'].Update('  ' + UpcomingSongPlayList[1])
-        except Exception:
-            info_screen_window['--upcoming_two--'].Update(' ')
-        try:
-            if UpcomingSongPlayList[2] != []:
-                info_screen_window['--upcoming_three--'].Update('  ' + UpcomingSongPlayList[2])
-        except Exception:
-            info_screen_window['--upcoming_three--'].Update(' ')
-        try:
-            if UpcomingSongPlayList[3] != []:
-                info_screen_window['--upcoming_four--'].Update('  ' + UpcomingSongPlayList[3])
-        except Exception:
-            info_screen_window['--upcoming_four--'].Update(' ')
-        try:
-            if UpcomingSongPlayList[4] != []:
-                info_screen_window['--upcoming_five--'].Update('  ' + UpcomingSongPlayList[4])
-        except Exception:
-            info_screen_window['--upcoming_five--'].Update(' ')
-        try:
-            if UpcomingSongPlayList[5] != []:
-                info_screen_window['--upcoming_six--'].Update('  ' + UpcomingSongPlayList[5])
-        except Exception:
-            info_screen_window['--upcoming_six--'].Update(' ')
-        try:
-            if UpcomingSongPlayList[6] != []:
-                info_screen_window['--upcoming_seven--'].Update('  ' + UpcomingSongPlayList[6])
-        except Exception:
-            info_screen_window['--upcoming_seven--'].Update(' ')
-        try:
-            if UpcomingSongPlayList[7] != []:
-                info_screen_window['--upcoming_eight--'].Update('  ' + UpcomingSongPlayList[7])
-        except Exception:
-            info_screen_window['--upcoming_eight--'].Update(' ')
-        try:
-            if UpcomingSongPlayList[8] != []:
-                info_screen_window['--upcoming_nine--'].Update('  ' + UpcomingSongPlayList[8])
-        except Exception:
-            info_screen_window['--upcoming_nine--'].Update(' ')
-        try:
-            if UpcomingSongPlayList[9] != []:
-                info_screen_window['--upcoming_ten--'].Update('  ' + UpcomingSongPlayList[9])
-        except Exception:
-            info_screen_window['--upcoming_ten--'].Update(' ')
+        update_upcoming_selections(info_screen_window, UpcomingSongPlayList)
     #  essential code for background image placement and transparent windows placed overtop from https://www.pysimplegui.org/en/latest/Demos/#demo_window_background_imagepy
     background_layout = [title_bar('This is the titlebar', sg.theme_text_color(), sg.theme_background_color()),
                          [sg.Image(data=background_image)]]
@@ -481,311 +336,8 @@ def main():
     window_background['--BG--'].expand(True, False,
                                     False)  # expand the titlebar's rightmost column so that it resizes correctly
     song_playing_lookup_layout = [[sg.Text()]]
-    info_screen_layout = [
-        [sg.Text(text="Now Playing", border_width=0, pad=(0, 0), size=(18, 1), justification="center",
-             text_color='SeaGreen3', font='Helvetica 20 bold')],
-        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(20, 1), justification="center",
-                 text_color='White', font='Helvetica 18 bold', key='--song_title--')],
-        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(24, 1), justification="center",
-                 text_color='White', font='Helvetica 16 bold', key='--song_artist--')],
-        [sg.Text(text='  Mode: Playing Song', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
-                 text_color='SeaGreen3', font='Helvetica 12 bold')],
-        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
-                 text_color='SeaGreen3', font='Helvetica 12 bold', key='--mini_song_title--')],
-        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
-                 text_color='SeaGreen3', font='Helvetica 12 bold', key='--mini_song_artist--')],
-        [sg.Text(text='  Year:        Length:     ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
-                 text_color='SeaGreen3', font='Helvetica 12 bold', key='--year--')],
-        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1),
-             justification="left", text_color='SeaGreen3', font='Helvetica 12 bold', key='--album--')],
-        [sg.Text(text='Upcoming Selections', border_width=0, pad=(0, 0), size=(20, 1), justification="center",
-                 text_color='SeaGreen3', font='Helvetica 18 bold')],
-        [sg.Text(text='', border_width=0, pad=(0, 0), size=(28, 1), justification="left", text_color='SeaGreen1',
-                  font='Helvetica 2 bold')],
-        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
-                 text_color='SeaGreen3',  font='Helvetica 12 bold', key='--upcoming_one--')],
-        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
-                 text_color='SeaGreen3',  font='Helvetica 12 bold', key='--upcoming_two--')],
-        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
-                 text_color='SeaGreen3',  font='Helvetica 12 bold',key='--upcoming_three--')],
-        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1),
-                 justification="left", text_color='SeaGreen3', font='Helvetica 12 bold', key='--upcoming_four--')],
-        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
-                 text_color='SeaGreen3',  font='Helvetica 12 bold', key='--upcoming_five--')],
-        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1),
-                 justification="left", text_color='SeaGreen3', font='Helvetica 12 bold', key='--upcoming_six--')],
-        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
-                 text_color='SeaGreen3',  font='Helvetica 12 bold', key='--upcoming_seven--')],
-        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
-                 text_color='SeaGreen3',  font='Helvetica 12 bold', key='--upcoming_eight--')],
-        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left",
-                 text_color='SeaGreen3',  font='Helvetica 12 bold', key='--upcoming_nine--')],
-        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1),
-                 justification="left", text_color='SeaGreen3', font='Helvetica 12 bold', key='--upcoming_ten--')],
-        [sg.Text(text=' ', border_width=0, pad=(0, 0), size=(28, 1), justification="left", text_color='SeaGreen1',
-                  font='Helvetica 2 bold')],
-        [sg.Text(text='CREDITS 0', border_width=0, pad=(0, 0), size=(19, 1), justification="center", text_color='White',
-                  font='Helvetica 20 bold', key='--credits--')],
-        [sg.Text(text='Twenty-Five Cents Per Selection', border_width=0, pad=(0, 0), size=(30, 1),
-                 justification="center", text_color='SeaGreen3', font='Helvetica 12 bold')],
-        [sg.Text(text=str(master_songlist_number) + ' Song Selections Available', border_width=0, pad=(0, 0), size=(30, 1),
-                 justification="center", text_color='SeaGreen3', font='Helvetica 12 bold')]
-                     ]
-    jukebox_selection_screen_layout = [
-        [sg.Button(button_text="A1", key='--A1--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0), font='Helvetica 16 bold'),
-        sg.Button(button_text=MusicMasterSongList[selection_window_number]['title'][:22], size=(22, 1),
-                   key='--button0_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold'),
-        sg.Button(button_text="B1", key='--B1--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-        sg.Button(button_text=MusicMasterSongList[selection_window_number + 14]['title'][:22], size=(22, 1),
-                   key='--button7_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold'),
-        sg.Button(button_text="C1", key='--C1--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-        sg.Button(button_text=MusicMasterSongList[selection_window_number + 28]['title'][:22], size=(22, 1),
-                   key='--button14_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white',
-                   font='Helvetica 12 bold')],
-        [sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number]['artist'][:22], size=(22, 1),
-                   key='--button0_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, pad=(0, (0, 0)),button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 14]['artist'][:22], size=(22, 1),
-                   key='--button7_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, pad=(0, (0, 0)), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 28]['artist'][:22], size=(22, 1),
-                   key='--button14_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, button_color='black on white', pad=(0, (0, 0)), font='Helvetica 12 bold')],
-        [sg.Button(button_text="A2", key='--A2--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 2]['title'][:22], size=(22, 1),
-                   key='--button1_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text="B2", key='--B2--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 16]['title'][:22], size=(22, 1),
-                   key='--button8_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text="C2", key='--C2--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 30]['title'][:22], size=(22, 1),
-                   key='--button15_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold')],
-        [sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 2]['artist'][:22], size=(22, 1),
-                   key='--button1_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, pad=(0, (0, 0)), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 16]['artist'][:22], size=(22, 1),
-                   key='--button8_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, pad=(0, (0, 0)), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 30]['artist'][:22], size=(22, 1),
-                   key='--button15_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, button_color='black on white', pad=(0, (0, 0)), font='Helvetica 12 bold')],
-        [sg.Button(button_text="A3", key='--A3--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 4]['title'][:22], size=(22, 1),
-                   key='--button2_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text="B3", key='--B3--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 18]['title'][:22], size=(22, 1),
-                   key='--button9_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text="C3", key='--C3--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 32]['title'][:22], size=(22, 1),
-                   key='--button16_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold')],
-        [sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 4]['artist'][:22], size=(22, 1),
-                   key='--button2_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, pad=(0, (0, 0)), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 18]['artist'][:22], size=(22, 1),
-                   key='--button9_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, pad=(0, (0, 0)), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 32]['artist'][:22], size=(22, 1),
-                   key='--button16_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, button_color='black on white', pad=(0, (0, 0)), font='Helvetica 12 bold')],
-        [sg.Button(button_text="A4", key='--A4--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 6]['title'][:22], size=(22, 1),
-                   key='--button3_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text="B4", key='--B4--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 20]['title'][:22], size=(22, 1),
-                   key='--button10_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text="C4", key='--C4--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 34]['title'][:22], size=(22, 1),
-                   key='--button17_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold')],
-        [sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 6]['artist'][:22], size=(22, 1),
-                   key='--button3_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, pad=(0, (0, 0)), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 20]['artist'][:22], size=(22, 1),
-                   key='--button10_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, button_color='black on white', pad=(0, (0, 0)), font='Helvetica 12 bold'),
-         sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 34]['artist'][:22], size=(22, 1),
-                   key='--button17_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, button_color='black on white', pad=(0, (0, 0)), font='Helvetica 12 bold')],
-        [sg.Button(button_text="A5", key='--A5--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 8]['title'][:22], size=(22, 1),
-                   key='--button4_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text="B5", key='--B5--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 22]['title'][:22], size=(22, 1),
-                   key='--button11_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text="C5", key='--C5--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 36]['title'][:22], size=(22, 1),
-                   key='--button18_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold')],
-        [sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 8]['artist'][:22], size=(22, 1),
-                   key='--button4_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, pad=(0, (0, 0)), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 22]['artist'][:22], size=(22, 1),
-                   key='--button11_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, button_color='black on white', pad=(0, (0, 0)), font='Helvetica 12 bold'),
-         sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 36]['artist'][:22], size=(22, 1),
-                   key='--button18_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, button_color='black on white', pad=(0, (0, 0)), font='Helvetica 12 bold')],
-        [sg.Button(button_text="A6", key='--A6--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 10]['title'][:22], size=(22, 1),
-                   key='--button5_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text="B6", key='--B6--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number +24]['title'][:22], size=(22, 1),
-                   key='--button12_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text="C6", key='--C6--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 38]['title'][:22], size=(22, 1),
-                   key='--button19_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold')],
-        [sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 10]['artist'][:22], size=(22, 1),
-                   key='--button5_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, pad=(0, (0, 0)), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 24]['artist'][:22], size=(22, 1),
-                   key='--button12_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, button_color='black on white', pad=(0, (0, 0)), font='Helvetica 12 bold'),
-         sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 38]['artist'][:22], size=(22, 1),
-                   key='--button19_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, button_color='black on white', pad=(0, (0, 0)), font='Helvetica 12 bold')],
-        [sg.Button(button_text="A7", key='--A7--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 12]['title'][:22], size=(22, 1),
-                   key='--button6_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text="B7", key='--B7--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 26]['title'][:22], size=(22, 1),
-                   key='--button13_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text="C7", key='--C7--', size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_bg.png', border_width=0, pad=(0, 0),
-                   font='Helvetica 16 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 40]['title'][:22], size=(22, 1),
-                   key='--button20_top--', image_filename=dir_path + '/images/new_selection_top_bg.png', border_width=0,
-                   pad=(0, 0), button_color='black on white', font='Helvetica 12 bold')],
-        [sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 12]['artist'][:22], size=(22, 1),
-                   key='--button6_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, pad=(0, (0, 0)), button_color='black on white', font='Helvetica 12 bold'),
-         sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 26]['artist'][:22], size=(22, 1),
-                   key='--button13_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, button_color='black on white', pad=(0, (0, 0)), font='Helvetica 12 bold'),
-         sg.Button(button_text=" ", size=(30, 26), image_size=(30, 26),
-                   image_filename=dir_path + '/images/button_id_black_bg.png',
-                   border_width=0, pad=(0, 0), font='Helvetica 11 bold'),
-         sg.Button(button_text=MusicMasterSongList[selection_window_number + 40]['artist'][:22], size=(22, 1),
-                   key='--button20_bottom--', image_filename=dir_path + '/images/new_selection_top_bg.png',
-                   border_width=0, button_color='black on white', pad=(0, (0, 0)), font='Helvetica 12 bold')],
-        # 22 char Limit
-        ]
+    info_screen_layout = create_info_screen_layout(master_songlist_number)
+    jukebox_selection_screen_layout = create_jukebox_selection_screen_layout(MusicMasterSongList, selection_window_number, dir_path)
     right_arrow_screen_layout = [
         [sg.Button(button_text="", key='--selection_right--', size=(100, 47), image_size=(100, 47),
                    image_filename=dir_path + '/images/lg_arrow_right.png', border_width=0, pad=(0, 0),
@@ -794,48 +346,7 @@ def main():
         [sg.Button(button_text="", key='--selection_left--', size=(100, 47), image_size=(100, 47),
                    image_filename=dir_path + '/images/lg_arrow_left.png', border_width=0, pad=(0, 0),
                    font='Helvetica 16 bold')]]
-    control_button_screen_layout = [
-        [sg.Button(size=(35, 25), image_size=(35, 25), key='--blank--', pad=(0, 0), border_width=0, font='Helvetica 38',
-                   image_filename=dir_path + '/images/blank_button.png'),
-         sg.Button(size=(50, 50), image_size=(50, 50), key='--blank--', pad=(0, 0), border_width=0, font='Helvetica 38',
-                   image_filename=dir_path + '/images/blank_button.png'),
-         sg.Button(size=(50, 50), image_size=(50, 50), key='--blank--', pad=(0, 0), border_width=0, font='Helvetica 38',
-                   image_filename=dir_path + '/images/blank_button.png'),
-         sg.Button(size=(50, 50), image_size=(50, 50), key='--blank--', pad=(0, 0), border_width=0, font='Helvetica 38',
-                   image_filename=dir_path + '/images/blank_button.png'),
-         sg.Button(size=(50, 50), image_size=(50, 50), key='--blank--', pad=(0, 0), border_width=0, font='Helvetica 38',
-                   image_filename=dir_path + '/images/blank_button.png'),
-         sg.Button(size=(50, 50), image_size=(50, 50), key='--A--', pad=(0, 0), border_width=0, font='Helvetica 38',
-                   image_filename=dir_path + '/images/a_button.png'),
-         sg.Button(size=(50, 50), image_size=(50, 50), key='--B--', pad=(0, 0), border_width=0, font='Helvetica 38',
-                   image_filename=dir_path + '/images/b_button.png'),
-         sg.Button(size=(50, 50), image_size=(50, 50), key='--C--', pad=(0, 0), border_width=0, font='Helvetica 38',
-                   image_filename=dir_path + '/images/c_button.png'),
-         sg.Button(size=(50, 50), image_size=(50, 50), key='--1--', pad=(0, 0), border_width=0, font='Helvetica 38',
-                   image_filename=dir_path + '/images/1_button.png', disabled=True),
-         sg.Button(size=(50, 50), image_size=(50, 50), key='--2--', pad=(0, 0), border_width=0, font='Helvetica 38',
-                   image_filename=dir_path + '/images/2_button.png', disabled=True)],
-        [sg.Button(size=(50, 25), image_size=(50, 25), key='--blank--', pad=(0, 0), border_width=0, font='Helvetica 38',
-                   image_filename=dir_path + '/images/blank_button.png'),
-         sg.Button(size=(150, 50), image_size=(150, 50), key='--correct--', pad=(0, 0), border_width=0,
-                   font='Helvetica 38', image_filename=dir_path + '/images/correct_button.png'),
-         sg.Button(size=(35, 25), image_size=(35, 25), key='--blank--', pad=(0, 0), border_width=0, font='Helvetica 38',
-                   image_filename=dir_path + '/images/blank_button.png'),
-         sg.Button(size=(50, 50), image_size=(50, 50), key='--3--', pad=(0, 0), border_width=0, font='Helvetica 38',
-                   image_filename=dir_path + '/images/3_button.png', disabled=True),
-         sg.Button(size=(50, 50), image_size=(50, 50), key='--4--', pad=(0, 0), border_width=0, font='Helvetica 38',
-                   image_filename=dir_path + '/images/4_button.png', disabled=True),
-         sg.Button(size=(50, 50), image_size=(50, 50), key='--5--', pad=(0, 0), border_width=0, font='Helvetica 38',
-                   image_filename=dir_path + '/images/5_button.png', disabled=True),
-         sg.Button(size=(50, 50), image_size=(50, 50), key='--6--', pad=(0, 0), border_width=0, font='Helvetica 38',
-                   image_filename=dir_path + '/images/6_button.png', disabled=True),
-         sg.Button(size=(50, 50), image_size=(50, 50), key='--7--', pad=(0, 0), border_width=0, font='Helvetica 38',
-                   image_filename=dir_path + '/images/7_button.png', disabled=True),
-         sg.Button(size=(35, 25), image_size=(35, 25), key='--blank--', pad=(0, 0), border_width=0, font='Helvetica 38',
-                   image_filename=dir_path + '/images/blank_button.png'),
-         sg.Button(size=(150, 50), image_size=(150, 50), key='--select--', pad=(0, 0), disabled=True, border_width=0,
-                   font='Helvetica 38', image_filename=dir_path + '/images/select_button.png'),
-         ]]
+    control_button_screen_layout = create_control_button_screen_layout(dir_path)
     title_search_screen_layout = [[sg.Button('Welcome To Title Search', key = "--TITLE_SEARCH--")]]
     artist_search_screen_layout = [[sg.Button('Welcome To Artist Search', key = "--ARTIST_SEARCH--")]]    
     right_arrow_selection_window = sg.Window('Right Arrow', right_arrow_screen_layout, finalize=True,
@@ -860,13 +371,30 @@ def main():
     artist_search_window = sg.Window('Artist Search Window', artist_search_screen_layout, finalize=True,
                 keep_on_top=True, transparent_color=sg.theme_background_color(),
                 no_titlebar=True, relative_location=(-60,280),return_keyboard_events=True, use_default_focus=False)
+
+    # Bind ESC key to all main windows for exit functionality
+    window_background.bind('<Escape>', '--ESC--')
+    right_arrow_selection_window.bind('<Escape>', '--ESC--')
+    left_arrow_selection_window.bind('<Escape>', '--ESC--')
+    jukebox_selection_window.bind('<Escape>', '--ESC--')
+    info_screen_window.bind('<Escape>', '--ESC--')
+    control_button_window.bind('<Escape>', '--ESC--')
+    song_playing_lookup_window.bind('<Escape>', '--ESC--')
+    title_search_window.bind('<Escape>', '--ESC--')
+    artist_search_window.bind('<Escape>', '--ESC--')
+
     the_bands_name_check()
     threading.Thread(target=file_lookup_thread, args=(song_playing_lookup_window,), daemon=True).start()
     # Main Jukebox GUI
-    while True:        
+    while True:
         window, event, values = sg.read_all_windows()
         print(event, values)
         print(event)  # prints buttons key name
+
+        # Handle ESC key to exit program
+        if event == '--ESC--':
+            break
+
         if (event) == "--selection_right--" or (event) == 'Right:39':
             selection_window_number = selection_window_number + 21
             selection_buttons_update(selection_window_number)
@@ -888,92 +416,18 @@ def main():
             song_playing_lookup_window.Hide()
             window_background.Hide()
             # Search Windows Button Layout
-            search_window_button_layout = ([[sg.Text("", font="Helvetica 8", s=(55, 1), background_color="black"),
-                      sg.Button("", s=(1, 1), disabled=True, image_size=(439, 226), image_filename="jukebox_2025_logo.png",
-                      button_color=["black", "white"], font="Helvetica 16 bold",),],
-           [sg.Text("", font="Helvetica 8", s=(30, 1), background_color="black")],
-           [sg.Text("", font="Helvetica 8", s=(38, 1), background_color="black"),
-            sg.Text("Search For Title", p=None, font="Helvetica 16 bold", background_color="white", text_color="black",
-                    k="--search_type--",),
-            sg.Button("", s=(1, 1), disabled=True, image_size=(25, 25), image_filename="magglass.png",
-                      button_color=["black", "white"], font="Helvetica 16 bold", ),
-            sg.Text("", font="Helvetica 16 bold", k="--letter_entry--", s=(35, 1), background_color="white", text_color="black",),
-            sg.Text("", font="Helvetica 8", s=(30, 1), background_color="black")],
-            [sg.Text("", font="Helvetica 8", s=(60, 1), background_color="black")],
-            [sg.Text("", font="Helvetica 8", s=(14, 1), background_color="black"),
-            sg.Button("1", focus=False, s=(1, 1), border_width=6,),
-            sg.Button("2", focus=False, s=(1, 1), border_width=6,),
-            sg.Button("3", focus=False, s=(1, 1), border_width=6,),
-            sg.Button("4", focus=False, s=(1, 1), border_width=6,),
-            sg.Button("5", focus=False, s=(1, 1), border_width=6,),
-            sg.Button("6", focus=False, s=(1, 1), border_width=6,),
-            sg.Button("7", focus=False, s=(1, 1), border_width=6,),
-            sg.Button("8", focus=False, s=(1, 1), border_width=6,),
-            sg.Button("9", focus=False, s=(1, 1), border_width=6,),
-            sg.Button("0", focus=False, s=(1, 1), border_width=6,),
-            sg.Button("-", focus=False, s=(1, 1), border_width=6,),
-            sg.Text("", font="Helvetica 8", s=(2, 1), background_color="black"),
-            
-            sg.Button("", s=(34, 1), visible=False, border_width=6, button_color=["white", "black"], k="--result_one--",
-                      disabled_button_color="black",),],
-                      
-            [sg.Text("", font="Helvetica 8", s=(14, 1), background_color="black"),
-            sg.Button("A", focus=False, size=(1, 1), key="--A--", button_color=["firebrick4", "goldenrod1"], border_width=6, font="Helvetica 16 bold",), 
-            sg.Button("B", s=(1, 1), border_width=6,),
-            sg.Button("C", s=(1, 1), border_width=6,),
-            sg.Button("D", s=(1, 1), border_width=6,),
-            sg.Button("E", s=(1, 1), border_width=6,),
-            sg.Button("F", s=(1, 1), border_width=6,),
-            sg.Button("G", s=(1, 1), border_width=6,),
-            sg.Button("H", s=(1, 1), border_width=6,),
-            sg.Button("I", s=(1, 1), border_width=6,),
-            sg.Button("J", s=(1, 1), border_width=6, ),
-            sg.Button("K", s=(1, 1), border_width=6,),
-            sg.Text("", font="Helvetica 8", s=(2, 1), background_color="black"),
-            
-            sg.Button("", s=(34, 1), visible=False, border_width=6, button_color=["white", "black"], k="--result_two--",
-                      disabled_button_color="black",),],
-                      
-            [sg.Text("", font="Helvetica 8", s=(14, 1), background_color="black"),
-             sg.Button("L", s=(1, 1), border_width=6,),
-             sg.Button("M", s=(1, 1), border_width=6,),
-             sg.Button("N", s=(1, 1), border_width=6,),
-             sg.Button("O", s=(1, 1), border_width=6,),
-             sg.Button("P", s=(1, 1), border_width=6,),
-             sg.Button("Q", s=(1, 1), border_width=6,),
-             sg.Button("R", s=(1, 1), border_width=6,),
-             sg.Button("S", s=(1, 1), border_width=6,),
-             sg.Button("T", s=(1, 1), border_width=6,),
-             sg.Button("U", s=(1, 1), border_width=6,),
-             sg.Button("V", s=(1, 1), border_width=6,),
-             sg.Text("", font="Helvetica 8", s=(2, 1), background_color="black"),
-             sg.Button("", s=(34, 1), visible=False, border_width=6, button_color=["white", "black"], k="--result_three--",
-                      disabled_button_color="black", ),],
-            [sg.Text("", font="Helvetica 8", s=(14, 1), background_color="black"),
-             sg.Button("W", s=(1, 1), border_width=6,),
-             sg.Button("X", s=(1, 1), border_width=6, ),
-             sg.Button("Y", s=(1, 1), border_width=6,),
-             sg.Button("Z", s=(1, 1), border_width=6,),
-             sg.Button("'", s=(1, 1), border_width=6,),             
-            sg.Button("DELETE LAST ENTRY",  k="--DELETE--", s=(17, 1), border_width=6,),
-            sg.Text("", font="Helvetica 8", s=(2, 1), background_color="black"),
-            sg.Button("", s=(34, 1), visible=False, border_width=6, button_color=["white", "black"], k="--result_four--",
-                      disabled_button_color="black",),],
-            [sg.Text("", font="Helvetica 8", s=(14, 1), background_color="black"),
-            sg.Button("SPACE",  k="--space--", s=(9, 1), border_width=6,),
-            sg.Button("CLEAR",  k="--CLEAR--", s=(9, 1), border_width=6,),
-            sg.Button("EXIT",  k="--EXIT--", s=(10, 1), border_width=6,),
-            sg.Text("", font="Helvetica 8", s=(1, 1), background_color="black"),
-            sg.Button("", s=(34, 1), visible=False, border_width=6, button_color=["white", "black"], k="--result_five--",
-                      disabled_button_color="black",),],],)           
+            search_window_button_layout = create_search_window_button_layout()           
             search_window = sg.Window('', search_window_button_layout, modal=True, no_titlebar = True, size = (1280,720),
-                default_button_element_size=(5, 2), auto_size_buttons=False, background_color='black', 
+                default_button_element_size=(5, 2), auto_size_buttons=False, background_color='black',
                 button_color=["firebrick4", "goldenrod1"], font="Helvetica 16 bold", finalize=True)
+            # Apply special formatting to A button (highlighted color scheme)
+            search_window['--A--'].update(button_color=["firebrick4", "goldenrod1"])
             search_window['--A--'].set_focus()
             search_window.bind('<Right>', '-NEXT-')
             search_window.bind('<Left>', '-PREV-')
             search_window.bind('<S>', '--SELECTED_LETTER--')
             search_window.bind('<C>', '--DELETE--')
+            search_window.bind('<Escape>', '--ESC--')
             keys_entered = ''
             search_results = []
             # Set search window to artist if Artist search selected
@@ -983,6 +437,10 @@ def main():
             while True:
                 event, values = search_window.read()  # read the title_search_window
                 print(event, values)
+                # Handle ESC key in search window
+                if event == '--ESC--':
+                    search_window.close()
+                    break
                 if event == "-NEXT-" or event == "-PREV-" or event == "--CLEAR--" or event == '--EXIT--':
                     if event == "-NEXT-":
                         next_element = search_window.find_element_with_focus().get_next_focus()
@@ -1536,7 +994,7 @@ def main():
             print("Entering Song Selected")
             if credit_amount == 0:
                 #VLC Song Playback Code Begin
-                p = vlc.MediaPlayer('buzz.mp3')
+                p = create_vlc_player_silent('jukebox_required_audio_files/buzz.mp3')
                 p.play()
                 enable_all_buttons()
                 selection_entry_letter = ""  # Used for selection entry
@@ -1633,102 +1091,50 @@ def main():
                         #  add matched song number to variable
                         song_to_add = (MusicMasterSongList[counter]['number']) 
                         #  open PaidMusicPlaylist text file and append song number to list
-                        with open('PaidMusicPlayList.txt', 'r') as PaidMusicPlayListOpen:
-                            PaidMusicPlayList = json.load(PaidMusicPlayListOpen)
-                            PaidMusicPlayList.append(int(song_to_add))
-                            # Check for duplicate song numbers in PaidMusicPlayList
-                            # Remove duplicate song numbers from PaidMusicPlayList
-                            test_set = set(PaidMusicPlayList)
-                            if len(PaidMusicPlayList) != len(test_set):
-                                PaidMusicPlayList = list(set(PaidMusicPlayList)) # https://bit.ly/4cZ7A6R
-                                UpcomingSongPlayList.pop(-1)
-                                print('Duplicate Song Found')
-                                #VLC Song Playback Code Begin
-                                p = vlc.MediaPlayer('buzz.mp3')
-                                p.play()
-                                enable_all_buttons()
-                                selection_entry_letter = ""  # Used for selection entry
-                                selection_entry_number = ""  # Used for selection entry
-                                selection_entry = ""  # Used for selection entry
-                                control_button_window['--select--'].update(disabled=True)
-                                enable_all_buttons()
-                                break
-                        # write updated PaidMusicPlayList.txt back to disk
-                        with open('PaidMusicPlayList.txt', 'w') as PaidMusicPlayListOpen:
-                            json.dump(PaidMusicPlayList, PaidMusicPlayListOpen)
+                        paid_music_file_path = os.path.join(dir_path, 'PaidMusicPlayList.txt')
+
+                        # Initialize PaidMusicPlayList with existing data or empty list
+                        try:
+                            with open(paid_music_file_path, 'r') as PaidMusicPlayListOpen:
+                                PaidMusicPlayList = json.load(PaidMusicPlayListOpen)
+                        except (FileNotFoundError, json.JSONDecodeError):
+                            # Create new list if file doesn't exist or is invalid
+                            PaidMusicPlayList = []
+                            print(f'Initializing new PaidMusicPlayList at {paid_music_file_path}')
+
+                        PaidMusicPlayList.append(int(song_to_add))
+
+                        # Check for duplicate song numbers in PaidMusicPlayList
+                        # Remove duplicate song numbers from PaidMusicPlayList
+                        test_set = set(PaidMusicPlayList)
+                        if len(PaidMusicPlayList) != len(test_set):
+                            PaidMusicPlayList = list(set(PaidMusicPlayList)) # https://bit.ly/4cZ7A6R
+                            UpcomingSongPlayList.pop(-1)
+                            print('Duplicate Song Found')
+                            #VLC Song Playback Code Begin
+                            p = create_vlc_player_silent('jukebox_required_audio_files/buzz.mp3')
+                            p.play()
+                            enable_all_buttons()
+                            selection_entry_letter = ""  # Used for selection entry
+                            selection_entry_number = ""  # Used for selection entry
+                            selection_entry = ""  # Used for selection entry
+                            control_button_window['--select--'].update(disabled=True)
+                            enable_all_buttons()
+                            break
+
+                        # Queue file I/O operations to background thread to prevent event loop freeze
+                        file_io_queue.put({
+                            'operation': 'save_song_selection',
+                            'paid_music_file_path': paid_music_file_path,
+                            'PaidMusicPlayList': PaidMusicPlayList,
+                            'song_info': (MusicMasterSongList[counter]['artist'], MusicMasterSongList[counter]['title'])
+                        })
                         #  end search
                         enable_all_buttons()
                         credit_amount -= 1
                         info_screen_window['--credits--'].Update('CREDITS ' + str(credit_amount))
-                        # Add selection to log file
-                        now = datetime.now()
-                        current_time = now.strftime("%H:%M:%S")
-                        with open('log.txt', 'a') as log:
-                            log.write('\n' + str(current_time) + ' ' + (str(MusicMasterSongList[counter]['artist'])
-                                            + ' - ' + str(MusicMasterSongList[counter]['title'] + ' Selected For Play,'))) # Add song selected to log file
-                        # 45 rpm image popup code goes here                        
-                        # https://www.tutorialspoint.com/how-to-add-text-on-an-image-using-pillow-in-python
-                        # Center Anchor Lable Position https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
-                        center_position = 684
-                        # Record Title Name
-                        record_title_name = str(MusicMasterSongList[counter]['title'])
-                        record_title_name_length = len(record_title_name)
-                        # Record Artist Name
-                        record_artist_name = str(MusicMasterSongList[counter]['artist'])
-                        record_artist_name_length = len(record_artist_name)
-                        # Open the desired Image you want to add text on
-                        # Create the list of all black print 45rpm record labels
-                        path = "record_labels/final_black_sel/"
-                        black_print_label_list = os.listdir(path)
-                        # Selects a random 45rpm record label requiring black print
-                        record_label = Image.open('record_labels/final_black_sel/' + str(random.choice(black_print_label_list)))
-                        draw_on_45rpm_image = ImageDraw.Draw(record_label) 
-                        # Record Display Generation
-                        if record_title_name_length > 37 or record_artist_name_length >= 30:
-                            font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 15)
-                            wrapper = textwrap.TextWrapper(width=37) # https://www.geeksforgeeks.org/textwrap-text-wrapping-filling-python/
-                            record_title_name_wrap = wrapper.wrap(text=record_title_name)
-                            draw_on_45rpm_image.text((center_position, 520), record_title_name_wrap[0], fill="black", anchor="mb", font=font)
-                            try:
-                                draw_on_45rpm_image.text((center_position, 535), record_title_name_wrap[1], fill="black", anchor="mb", font=font)
-                            except Exception:
-                                pass   
-                            wrapper = textwrap.TextWrapper(width=30)  
-                            record_artist_name_wrap = wrapper.wrap(text=record_artist_name)
-                            draw_on_45rpm_image.text((center_position, 555), record_artist_name_wrap[0], fill="black", anchor="mb", font=font)
-                            try:
-                                draw_on_45rpm_image.text((center_position, 570), record_artist_name_wrap[1], fill="black", anchor="mb", font=font)
-                            except Exception:
-                                pass
-                        elif record_title_name_length < 37 and record_title_name_length > 17:
-                            font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 20)
-                            draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
-                            draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)
-                        elif record_artist_name_length < 26 and record_artist_name_length > 13:
-                            font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 20)
-                            draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
-                            draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)
-                        elif record_title_name_length <= 17:
-                            font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 30)
-                            draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
-                            draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)    
-                        elif record_artist_name_length <= 13:
-                            font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 30)
-                            draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
-                            draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)                        
-                        # Save the image on which we have added the text
-                        record_label.save("selection_45.jpg")
-                        # Save and resize the image on which we have added the text
-                        record_label.resize((680,394)).save('selection_45.gif')
-                        #VLC Song Playback Code Begin
-                        p = vlc.MediaPlayer('success.mp3')
-                        p.play()
-                        # Display the image as popup
-                        jukebox_selection_window.Hide()
-                        for i in range(600): # adjust the range to control the time the image runs
-                            sg.PopupAnimated('selection_45.gif', relative_location = (167,45), time_between_frames = 1, no_titlebar = True, keep_on_top = True)
-                        sg.PopupAnimated(None) # close all Animated Popups
-                        jukebox_selection_window.UnHide() 
+                        # Call 45rpm popup display function
+                        display_45rpm_popup(MusicMasterSongList, counter, jukebox_selection_window)
                         break
                     counter += 1
         if event is None or event == 'Cancel' or event == 'Exit':
@@ -1770,81 +1176,7 @@ def main():
                                     UpcomingSongPlayList.pop(0)
                                 except IndexError: # Executed if no first entry in list
                                     pass
-                                # Create 45 RPM Record Image
-                                # https://www.tutorialspoint.com/how-to-add-text-on-an-image-using-pillow-in-python
-                                
-                                # Center Anchor Label Position https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
-                                center_position = 680
-                                # https://www.tutorialspoint.com/how-to-add-text-on-an-image-using-pillow-in-python
-                                # https://www.geeksforgeeks.org/textwrap-text-wrapping-filling-python/
-                                # https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
-                                # Open the desired Image you want to add text on
-                                # Create the list of all black print 45rpm record labels
-                                path = "record_labels/final_black_bg/"
-                                black_print_label_list = os.listdir(path)
-                                # Selects a random 45rpm record label requiring black print
-                                record_selection = str(random.choice(black_print_label_list))
-                                print(record_selection)
-                                record_label = Image.open('record_labels/final_black_bg/' + record_selection)
-                                # To add 2D graphics in an image call draw Method
-                                record_text = ImageDraw.Draw(record_label)
-                                # Set the default font size and type
-                                record_font = ImageFont.truetype('fonts/OpenSans-ExtraBold.ttf', 30) 
-                                # New Add Text to an image
-                                # Record Title Name
-                                record_title_name = str(MusicMasterSongList[counter]['title'])
-                                record_title_name_length = len(record_title_name)
-                                # Record Artist Name
-                                record_artist_name = str(MusicMasterSongList[counter]['artist'])
-                                record_artist_name_length = len(record_artist_name)
-                                # Add Text to an image
-                                draw_on_45rpm_image = ImageDraw.Draw(record_label)
-                                # Record Display Generation
-                                if record_title_name_length > 37 or record_artist_name_length >= 30:
-                                    font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 15)
-                                    wrapper = textwrap.TextWrapper(width=37) # https://www.geeksforgeeks.org/textwrap-text-wrapping-filling-python/
-                                    record_title_name_wrap = wrapper.wrap(text=record_title_name)
-                                    draw_on_45rpm_image.text((center_position, 520), record_title_name_wrap[0], fill="black", anchor="mb", font=font)
-                                    try:
-                                        draw_on_45rpm_image.text((center_position, 535), record_title_name_wrap[1], fill="black", anchor="mb", font=font)
-                                    except Exception:
-                                        pass   
-                                    wrapper = textwrap.TextWrapper(width=30)  
-                                    record_artist_name_wrap = wrapper.wrap(text=record_artist_name)
-                                    draw_on_45rpm_image.text((center_position, 555), record_artist_name_wrap[0], fill="black", anchor="mb", font=font)
-                                    try:
-                                        draw_on_45rpm_image.text((center_position, 570), record_artist_name_wrap[1], fill="black", anchor="mb", font=font)
-                                    except Exception:
-                                        pass
-                                elif record_title_name_length < 37 and record_title_name_length > 17:
-                                    font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 20)
-                                    draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
-                                    draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)
-                                elif record_artist_name_length < 26 and record_artist_name_length > 13:
-                                    font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 20)
-                                    draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
-                                    draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)
-                                elif record_title_name_length <= 17:
-                                    font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 30)
-                                    draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
-                                    draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)    
-                                elif record_artist_name_length <= 13:
-                                    font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 30)
-                                    draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
-                                    draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)
-
-                                # Save the image on which we have added the text
-                                record_label.save("selection_45.jpg")
-                                # Save and resize the image on which we have added the text
-                                record_label.resize((680,394)).save('selection_45.gif')
-                                # Display the image as popup
-                                jukebox_selection_window.Hide()
-                                for i in range(600): # adjust the range to control the time the image runs
-                                    sg.PopupAnimated('selection_45.gif', relative_location = (167,45), time_between_frames = 1, no_titlebar = True, keep_on_top = True)
-                                sg.PopupAnimated(None) # close all Animated Popups
-                                jukebox_selection_window.UnHide()
-                                # update upcoming selections on jukebox screens
-                                upcoming_selections_update()
+                                display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_selection_window, upcoming_selections_update)
                         if UpcomingSongPlayList != []:
                             # update upcoming selections on jukebox screens
                             upcoming_selections_update()

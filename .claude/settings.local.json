@@ -4,7 +4,14 @@
       "Bash(mkdir:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git mv:*)",
+      "Bash(ren \"45rpm_spinning_record\" \"45_RPM_Spinning_Record_Animation\")",
+      "Bash(mv:*)",
+      "Bash(rm:*)",
+      "Bash(cp:*)",
+      "Bash(git rm:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []
