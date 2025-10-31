@@ -66,8 +66,8 @@ with open('artist_song.pkl', 'rb') as f:
 output_dir = Path('record_labels')
 output_dir.mkdir(exist_ok=True)
 
-# Process only the second entry for testing
-entry = artist_song[1]
+# Process only the third entry for testing
+entry = artist_song[2]
 artist = entry[0]
 song = entry[1]
 
