@@ -231,9 +231,8 @@ for idx, entry in enumerate(artist_song):
     # Create filename with sequential numbering (000-348)
     filename = f'record_labels/record_{idx:03d}_{safe_artist}_{safe_song}.png'
 
-    # Quantize image to 128 colors and save with optimization
-    img = img.quantize(colors=128)
-    img.save(filename, optimize=True)
+    # Save with optimization and compression to maintain quality antialiased fonts
+    img.save(filename, optimize=True, compress_level=9)
     print(f"  Saved: {filename}")
 
 # Final completion message
