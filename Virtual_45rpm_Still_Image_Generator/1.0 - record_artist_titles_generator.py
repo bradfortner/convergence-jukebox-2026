@@ -15,9 +15,9 @@ KEY FEATURES:
 - Centered text: All text is horizontally centered on the record label
 - Safe filenames: Sanitizes artist/song names to create valid file paths
 
-INPUT:
+INPUT (REQUIRED FILES):
 - artist_song.pkl: Pickle file containing list of [artist, song] tuples
-- test_record_blank_record_small.png: Base record image template
+- test_record_blank_record.png: Base record image template (REQUIRED - blank vinyl record image)
 
 OUTPUT:
 - record_labels/record_NNN_ARTIST_SONG.png: Generated record label images
@@ -147,8 +147,9 @@ output_dir = Path('record_labels')
 output_dir.mkdir(exist_ok=True)
 
 # Load the base record image once (efficiency optimization)
+# REQUIRED: test_record_blank_record.png must exist in the script directory
 print("Loading base record template...")
-base_img = Image.open('test_record_blank_record_small.png')
+base_img = Image.open('test_record_blank_record.png')
 
 # Get image dimensions for positioning calculations
 width, height = base_img.size
@@ -230,8 +231,9 @@ for idx, entry in enumerate(artist_song):
     # Create filename with sequential numbering (000-348)
     filename = f'record_labels/record_{idx:03d}_{safe_artist}_{safe_song}.png'
 
-    # Save the image file
-    img.save(filename)
+    # Quantize image to 128 colors and save with optimization
+    img = img.quantize(colors=128)
+    img.save(filename, optimize=True)
     print(f"  Saved: {filename}")
 
 # Final completion message
