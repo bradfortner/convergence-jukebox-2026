@@ -2,7 +2,17 @@
   "permissions": {
     "allow": [
       "Read(//c/Users/bradf/Desktop/convergence-jukebox-2026/**)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(python record_artist_titles.py:*)",
+      "Bash(move:*)",
+      "Bash(python:*)",
+      "Bash(/dev/null)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd record_artist_titles_generator.py to Virtual 45rpm module\n\nRenamed and enhanced record_artist_titles.py with comprehensive comments\ndescribing the script''s functionality. This script parses jukebox log files,\nextracts artist and song titles, and saves the structured data as a pickle file.\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git commit:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []
