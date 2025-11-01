@@ -1,10 +1,10 @@
-# Virtual 45rpm Still Image Generator
+# Virtual 45rpm Still And Rotating Image Generator
 
-Generate custom vinyl record label images with randomly selected templates and automatically adjusted typography.
+Generate custom vinyl record label images with randomly selected templates and automatically adjusted typography, then view them with an animated rotating record visualization.
 
 ## Overview
 
-This project creates beautiful vinyl record label images by overlaying artist and song titles onto randomly selected blank record templates. Perfect for creating retro vinyl record-themed designs with authentic record label aesthetics.
+This project creates beautiful vinyl record label images by overlaying artist and song titles onto randomly selected blank record templates, and displays them with an animated rotating record visualization. Perfect for creating retro vinyl record-themed designs with authentic record label aesthetics that can be viewed in motion.
 
 ## Features
 
@@ -52,7 +52,7 @@ This project creates beautiful vinyl record label images by overlaying artist an
 ## File Structure
 
 ```
-Virtual_45rpm_Still_Image_Generator/
+Virtual_45rpm_Still_And_Rotating_Image_Generator/
 ├── 1.6 - record_artist_titles_generator.py  # Main generator script (ACTIVE)
 ├── rotate_record_module.py                   # Animation module
 ├── record_labels/
