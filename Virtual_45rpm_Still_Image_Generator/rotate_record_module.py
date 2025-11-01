@@ -60,8 +60,8 @@ def display_record_playing(image_path):
         screen.blit(rotated_surface, rotated_rect)
         pygame.display.flip()
 
-        # Increment angle: 240° per second at 30 fps = 8° per frame
-        angle = (angle + 8) % 360
+        # Decrement angle: 240° per second at 30 fps = 8° per frame (reversed direction)
+        angle = (angle - 8) % 360
 
         # 30 fps = 1000ms / 30 = ~33.33ms per frame
         clock.tick(30)
