@@ -1,27 +1,37 @@
 """
 ================================================================================
-RECORD ARTIST TITLES GENERATOR - 1.0
+RECORD ARTIST TITLES GENERATOR - 1.4
 ================================================================================
 
 OVERVIEW:
-This script generates custom vinyl record label images by overlaying artist and
-song titles onto a blank record template. It processes a batch of artist/song
-data from a pickle file and creates individual PNG files for each record.
+This script generates a custom vinyl record label image by overlaying artist and
+song titles onto a blank record template. It randomly selects one record from the
+artist/song data in a pickle file, creates a single PNG file, and displays an
+animated rotating visualization of the record.
 
 KEY FEATURES:
-- Batch processing: Generates labels for multiple records in sequence
+- Random selection: Randomly chooses one record from the entire dataset
+- Single output: Generates exactly one record label image per execution
 - Auto-fit text: Dynamically adjusts font sizes to fit text within defined areas
 - Text wrapping: Breaks long titles into multiple lines with proper formatting
 - Centered text: All text is horizontally centered on the record label
-- Safe filenames: Sanitizes artist/song names to create valid file paths
+- Fixed filename: Output file is always named final_record_pressing.png
+- Threaded animation: Displays rotating record animation after generation
 
 INPUT (REQUIRED FILES):
 - artist_song.pkl: Pickle file containing list of [artist, song] tuples
 - test_record_blank_record.png: Base record image template (REQUIRED - blank vinyl record image)
 
 OUTPUT:
-- record_labels/record_NNN_ARTIST_SONG.png: Generated record label images
-  (numbered sequentially from 000-348)
+- final_record_pressing.png: Single randomly-selected record label image
+  (saved to current directory, overwrites previous output)
+- Animated display: Shows rotating record at 45 fps with dark grey background
+
+ANIMATION DETAILS:
+- Frame rate: 45 fps
+- Rotation speed: 360° per second (8° per frame)
+- Background: Dark grey (64, 64, 64)
+- Close window to stop animation
 
 CONFIGURATION:
 - Font: Arial Bold (arialbd.ttf)
@@ -30,12 +40,22 @@ CONFIGURATION:
 - Song text: Up to 2 lines, positioned at vertical center + 90px
 - Artist text: Up to 2 lines, positioned at vertical center + 125px
 
+CHANGES FROM 1.3:
+- Integrated rotate_record_module for animated visualization
+- Animation runs in separate thread after image generation
+- Displays rotating record with dark grey background
+- Requires pygame for animation display
+
 ================================================================================
 """
 
 import pickle
+import random
+import threading
+import pygame
 from PIL import Image, ImageDraw, ImageFont
 from pathlib import Path
+from rotate_record_module import display_record_playing
 
 
 def wrap_text(text, font, max_width, draw):
@@ -142,9 +162,10 @@ with open('artist_song.pkl', 'rb') as f:
     artist_song = pickle.load(f)
 print(f"Loaded {len(artist_song)} records")
 
-# Create output directory if it doesn't exist
-output_dir = Path('record_labels')
-output_dir.mkdir(exist_ok=True)
+# Randomly select one record from the dataset
+selected_idx = random.randint(0, len(artist_song) - 1)
+artist, song = artist_song[selected_idx]
+print(f"Randomly selected record #{selected_idx}: {artist} - {song}")
 
 # Load the base record image once (efficiency optimization)
 # REQUIRED: test_record_blank_record.png must exist in the script directory
@@ -162,81 +183,79 @@ artist_y = (height // 2) + 125     # Y position for artist name (below song)
 song_line_height = 25              # Vertical spacing between song title lines
 artist_line_height = 30            # Vertical spacing between artist name lines
 
-print(f"Starting batch processing...")
+print(f"Creating record label...")
 print("-" * 80)
 
-# Process each record in the dataset
-for idx, entry in enumerate(artist_song):
-    artist = entry[0]
-    song = entry[1]
+# Create a working copy of the base image
+img = base_img.copy()
+draw = ImageDraw.Draw(img)
 
-    # Display progress
-    print(f"[{idx + 1}/{len(artist_song)}] Creating record for: {artist} - {song}")
+# Auto-fit song title text
+# Start at 28pt, allow max 2 lines
+song_lines, song_font_size, song_font = fit_text_to_width(
+    song, font_path, 28, max_text_width, 2, draw
+)
 
-    # Create a working copy of the base image
-    img = base_img.copy()
-    draw = ImageDraw.Draw(img)
+# Auto-fit artist name text
+# Start at 28pt, allow max 2 lines
+artist_lines, artist_font_size, artist_font = fit_text_to_width(
+    artist, font_path, 28, max_text_width, 2, draw
+)
 
-    # Auto-fit song title text
-    # Start at 28pt, allow max 2 lines
-    song_lines, song_font_size, song_font = fit_text_to_width(
-        song, font_path, 28, max_text_width, 2, draw
+# Draw song title lines, centered horizontally
+for i, line in enumerate(song_lines):
+    # Calculate width of this line to center it
+    song_bbox = draw.textbbox((0, 0), line, font=song_font)
+    song_width = song_bbox[2] - song_bbox[0]
+    song_x = (width - song_width) // 2  # Center horizontally
+
+    # Draw the line at calculated position
+    draw.text(
+        (song_x, song_y + (i * song_line_height)),
+        line,
+        font=song_font,
+        fill="black"
     )
 
-    # Auto-fit artist name text
-    # Start at 28pt, allow max 2 lines
-    artist_lines, artist_font_size, artist_font = fit_text_to_width(
-        artist, font_path, 28, max_text_width, 2, draw
+# Adjust artist Y position based on number of song lines
+# This prevents overlap if song title wraps to multiple lines
+artist_y_adjusted = artist_y + ((len(song_lines) - 1) * song_line_height)
+
+# Draw artist name lines, centered horizontally
+for i, line in enumerate(artist_lines):
+    # Calculate width of this line to center it
+    artist_bbox = draw.textbbox((0, 0), line, font=artist_font)
+    artist_width = artist_bbox[2] - artist_bbox[0]
+    artist_x = (width - artist_width) // 2  # Center horizontally
+
+    # Draw the line at calculated position
+    draw.text(
+        (artist_x, artist_y_adjusted + (i * artist_line_height)),
+        line,
+        font=artist_font,
+        fill="black"
     )
 
-    # Draw song title lines, centered horizontally
-    for i, line in enumerate(song_lines):
-        # Calculate width of this line to center it
-        song_bbox = draw.textbbox((0, 0), line, font=song_font)
-        song_width = song_bbox[2] - song_bbox[0]
-        song_x = (width - song_width) // 2  # Center horizontally
+# Save the record image with fixed filename
+filename = 'final_record_pressing.png'
 
-        # Draw the line at calculated position
-        draw.text(
-            (song_x, song_y + (i * song_line_height)),
-            line,
-            font=song_font,
-            fill="black"
-        )
-
-    # Adjust artist Y position based on number of song lines
-    # This prevents overlap if song title wraps to multiple lines
-    artist_y_adjusted = artist_y + ((len(song_lines) - 1) * song_line_height)
-
-    # Draw artist name lines, centered horizontally
-    for i, line in enumerate(artist_lines):
-        # Calculate width of this line to center it
-        artist_bbox = draw.textbbox((0, 0), line, font=artist_font)
-        artist_width = artist_bbox[2] - artist_bbox[0]
-        artist_x = (width - artist_width) // 2  # Center horizontally
-
-        # Draw the line at calculated position
-        draw.text(
-            (artist_x, artist_y_adjusted + (i * artist_line_height)),
-            line,
-            font=artist_font,
-            fill="black"
-        )
-
-    # Save the record image with sanitized filename
-    # Replace special characters that are invalid in filenames
-    safe_artist = artist.replace('/', '_').replace('\\', '_').replace(':', '_')
-    safe_song = song.replace('/', '_').replace('\\', '_').replace(':', '_')
-
-    # Create filename with sequential numbering (000-348)
-    filename = f'record_labels/record_{idx:03d}_{safe_artist}_{safe_song}.png'
-
-    # Save with optimization and compression to maintain quality antialiased fonts
-    img.save(filename, optimize=True, compress_level=9)
-    print(f"  Saved: {filename}")
+# Save with optimization and compression to maintain quality antialiased fonts
+img.save(filename, optimize=True, compress_level=9)
+print(f"  Saved: {filename}")
 
 # Final completion message
 print("-" * 80)
-print(f"\nBatch processing complete!")
-print(f"Successfully created {len(artist_song)} record label images")
-print(f"Output location: record_labels/")
+print(f"\nRecord generation complete!")
+print(f"Successfully created 1 random record label image")
+print(f"Output location: {filename} in current directory")
+
+# Launch animation in separate thread
+print("\nLaunching record player animation...")
+animation_thread = threading.Thread(target=display_record_playing, args=(filename,), daemon=True)
+animation_thread.start()
+
+# Keep the main thread alive while animation runs
+try:
+    animation_thread.join()
+except KeyboardInterrupt:
+    print("\nAnimation interrupted by user")
