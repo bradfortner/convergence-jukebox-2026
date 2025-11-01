@@ -170,7 +170,12 @@ blank_records_dir = "record_labels/blank_record_labels"
 
 # Load the base record image once (efficiency optimization)
 # REQUIRED: test_record_blank_record.png must exist in the script directory
-print("Loading base record template...")
+
+# Brad manually changed code here
+
+print("Loading blank record label template randomly...")
+
+
 base_img = Image.open('test_record_blank_record.png')
 
 # Get image dimensions for positioning calculations
