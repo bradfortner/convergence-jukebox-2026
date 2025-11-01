@@ -165,6 +165,9 @@ selected_idx = random.randint(0, len(artist_song) - 1)
 artist, song = artist_song[selected_idx]
 print(f"Randomly selected record #{selected_idx}: {artist} - {song}")
 
+# Path to blank record labels directory
+blank_records_dir = "record_labels/blank_record_labels"
+
 # Load the base record image once (efficiency optimization)
 # REQUIRED: test_record_blank_record.png must exist in the script directory
 print("Loading base record template...")
