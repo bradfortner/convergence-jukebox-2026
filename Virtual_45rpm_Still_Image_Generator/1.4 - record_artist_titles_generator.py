@@ -34,7 +34,7 @@ ANIMATION DETAILS:
 - Close window to stop animation
 
 CONFIGURATION:
-- Font: Arial Bold (arialbd.ttf)
+- Font: OpenSans ExtraBold (fonts/OpenSans-ExtraBold.ttf)
 - Max width: 300 pixels for text
 - Start font size: 28pt, minimum: 16pt
 - Song text: Up to 2 lines, positioned at vertical center + 90px
