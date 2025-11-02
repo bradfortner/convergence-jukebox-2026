@@ -594,15 +594,33 @@ For questions or issues, please open a GitHub issue or contact the maintainers.
 
 ## Recent Bug Fixes (v0.47-0.65)
 
-### v0.65 - Keyboard Input Blocking Fix
-**Issue:** When popup windows (both song selection and now-playing) displayed for 3 seconds, keyboard input to the main jukebox window was blocked. Users could not interact with the application (e.g., pressing 'x' to update credits) while popups were visible.
-**Root Cause:** Popup display used a blocking while loop that continuously read from the popup window, preventing the main window from receiving keyboard events.
-**Solution:** Implemented background threading to display popups asynchronously. Popups now run in daemon threads that don't block the main event loop. Main window remains visible and responsive to keyboard input throughout the entire popup display duration.
-**Technical Details:**
-- Created `display_popup_thread()` inner function that runs popup window loop in background
-- Used `threading.Thread(target=display_popup_thread, daemon=True)` for non-blocking display
-- Main function returns immediately after starting thread
-- Both popup modules updated: `popup_45rpm_now_playing_code_module.py` and `popup_45rpm_song_selection_code_module.py`
+### v0.65 - Keyboard Input Blocking Fix (Final Resolution)
+**Issue:** When popup windows displayed for 3 seconds, keyboard input to the main jukebox window was blocked. Users could not interact with the application (e.g., pressing 'x' to update credits) while popups were visible.
+
+**Root Cause Evolution:**
+1. Initial approach: Blocking while loop (9+ seconds of blocking)
+2. Attempted fix: Short-timeout reads (10ms) - still blocking
+3. Second attempt: Daemon threads to create windows - Tkinter thread-unsafe error
+4. Final solution: Non-blocking popup creation with daemon thread for cleanup only
+
+**Final Solution (v0.65 Final):** Removed ALL blocking loops from popup display
+- Create popup window with single non-blocking read: `popup_window.read(timeout=0)`
+- Return immediately without waiting
+- Use daemon thread ONLY to close popup after 3 seconds (safe, not creating window)
+- Main window never enters blocking loop - remains 100% responsive to keyboard
+
+**Technical Implementation:**
+- Eliminated blocking while loop completely
+- Single non-blocking initialization: `popup_window.read(timeout=0)`
+- Async cleanup: `threading.Thread(target=close_popup_after_delay, daemon=True)`
+- Popup displays with `keep_on_top=True` while main window processes keyboard events
+- Both modules updated: `popup_45rpm_now_playing_code_module.py` and `popup_45rpm_song_selection_code_module.py`
+
+**Why This Works:**
+- FreeSimpleGUI/Tkinter is thread-safe for closing windows (not for creating them)
+- No blocking means main event loop never stalls
+- Main window processes keyboard input continuously
+- Popups still display for 3 seconds, then auto-close
 
 ### v0.48 - VLC Error Message Suppression
 **Issue:** VLC was printing hundreds of error messages about stale plugins cache when the screen advance arrow hit the end of available songs, slowing down I/O performance.
