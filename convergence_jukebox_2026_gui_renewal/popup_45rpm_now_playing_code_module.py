@@ -92,6 +92,9 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
         draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)
 
     # Save the image on which we have added the text
+    # Convert RGBA to RGB for JPEG compatibility (JPEG doesn't support alpha channel)
+    if record_label.mode == 'RGBA':
+        record_label = record_label.convert('RGB')
     record_label.save("images/selection_45.jpg")
     # Save and resize the image on which we have added the text
     record_label.resize((680,394)).save('images/selection_45.gif')
