@@ -290,6 +290,7 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
             '',  # No title
             layout,
             no_titlebar=True,
+            no_border=True,
             keep_on_top=True,
             location=(100, 100),
             finalize=True
