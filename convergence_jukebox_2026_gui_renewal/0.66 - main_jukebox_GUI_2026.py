@@ -1111,67 +1111,87 @@ def main():
                 control_button_window['--select--'].update(disabled=True)
                 disable_numbered_selection_buttons()
                 # Check and remove The from artist name
-                if str(paid_song_selected_artist).startswith('The '):
-                    paid_song_selected_artist_no_the = paid_song_selected_artist.replace('The ', '')
-                    paid_song_selected_artist = paid_song_selected_artist_no_the
-                # add selection to paid song list
-                counter = 0
-                #  find library number of selected song
-                for i in MusicMasterSongList:
-                    # search for match of song in MusicMasterSongList
-                    if str(paid_song_selected_title) == MusicMasterSongList[counter]['title'][:22] and str(paid_song_selected_artist) == MusicMasterSongList[counter]['artist'][:22]:
-                        # add song to upcoming list file
-                        # UpcomingSongPlayList
-                        UpcomingSongPlayList.append(str(MusicMasterSongList[counter]['title'][:22]) + ' - ' + str(MusicMasterSongList[counter]['artist'][:22]))
-                        #  add matched song number to variable
-                        song_to_add = (MusicMasterSongList[counter]['number']) 
-                        #  open PaidMusicPlaylist text file and append song number to list
-                        paid_music_file_path = os.path.join(dir_path, 'PaidMusicPlayList.txt')
+                try:
+                    print(f"DEBUG: paid_song_selected_title='{paid_song_selected_title}', paid_song_selected_artist='{paid_song_selected_artist}'")
+                    if str(paid_song_selected_artist).startswith('The '):
+                        paid_song_selected_artist_no_the = paid_song_selected_artist.replace('The ', '')
+                        paid_song_selected_artist = paid_song_selected_artist_no_the
+                    print(f"DEBUG: After 'The' removal: title='{paid_song_selected_title}', artist='{paid_song_selected_artist}'")
 
-                        # Initialize PaidMusicPlayList with existing data or empty list
-                        try:
-                            with open(paid_music_file_path, 'r') as PaidMusicPlayListOpen:
-                                PaidMusicPlayList = json.load(PaidMusicPlayListOpen)
-                        except (FileNotFoundError, json.JSONDecodeError):
-                            # Create new list if file doesn't exist or is invalid
-                            PaidMusicPlayList = []
-                            print(f'Initializing new PaidMusicPlayList at {paid_music_file_path}')
+                    # add selection to paid song list
+                    counter = 0
+                    song_found = False
+                    #  find library number of selected song
+                    print(f"DEBUG: Starting song search in MusicMasterSongList with {len(MusicMasterSongList)} songs")
+                    for i in MusicMasterSongList:
+                        # search for match of song in MusicMasterSongList
+                        if str(paid_song_selected_title) == MusicMasterSongList[counter]['title'][:22] and str(paid_song_selected_artist) == MusicMasterSongList[counter]['artist'][:22]:
+                            song_found = True
+                            print(f"DEBUG: FOUND MATCH at counter={counter}")
+                            # add song to upcoming list file
+                            # UpcomingSongPlayList
+                            UpcomingSongPlayList.append(str(MusicMasterSongList[counter]['title'][:22]) + ' - ' + str(MusicMasterSongList[counter]['artist'][:22]))
+                            #  add matched song number to variable
+                            song_to_add = (MusicMasterSongList[counter]['number'])
+                            #  open PaidMusicPlaylist text file and append song number to list
+                            paid_music_file_path = os.path.join(dir_path, 'PaidMusicPlayList.txt')
 
-                        PaidMusicPlayList.append(int(song_to_add))
+                            # Initialize PaidMusicPlayList with existing data or empty list
+                            try:
+                                with open(paid_music_file_path, 'r') as PaidMusicPlayListOpen:
+                                    PaidMusicPlayList = json.load(PaidMusicPlayListOpen)
+                            except (FileNotFoundError, json.JSONDecodeError):
+                                # Create new list if file doesn't exist or is invalid
+                                PaidMusicPlayList = []
+                                print(f'Initializing new PaidMusicPlayList at {paid_music_file_path}')
 
-                        # Check for duplicate song numbers in PaidMusicPlayList
-                        # Remove duplicate song numbers from PaidMusicPlayList
-                        test_set = set(PaidMusicPlayList)
-                        if len(PaidMusicPlayList) != len(test_set):
-                            PaidMusicPlayList = list(set(PaidMusicPlayList)) # https://bit.ly/4cZ7A6R
-                            UpcomingSongPlayList.pop(-1)
-                            print('Duplicate Song Found')
-                            #VLC Song Playback Code Begin
-                            p = create_vlc_player_silent('jukebox_required_audio_files/buzz.mp3')
-                            p.play()
+                            PaidMusicPlayList.append(int(song_to_add))
+
+                            # Check for duplicate song numbers in PaidMusicPlayList
+                            # Remove duplicate song numbers from PaidMusicPlayList
+                            test_set = set(PaidMusicPlayList)
+                            if len(PaidMusicPlayList) != len(test_set):
+                                PaidMusicPlayList = list(set(PaidMusicPlayList)) # https://bit.ly/4cZ7A6R
+                                UpcomingSongPlayList.pop(-1)
+                                print('Duplicate Song Found')
+                                #VLC Song Playback Code Begin
+                                p = create_vlc_player_silent('jukebox_required_audio_files/buzz.mp3')
+                                p.play()
+                                enable_all_buttons()
+                                selection_entry_letter = ""  # Used for selection entry
+                                selection_entry_number = ""  # Used for selection entry
+                                selection_entry = ""  # Used for selection entry
+                                control_button_window['--select--'].update(disabled=True)
+                                enable_all_buttons()
+                                break
+
+                            # Queue file I/O operations to background thread to prevent event loop freeze
+                            file_io_queue.put({
+                                'operation': 'save_song_selection',
+                                'paid_music_file_path': paid_music_file_path,
+                                'PaidMusicPlayList': PaidMusicPlayList,
+                                'song_info': (MusicMasterSongList[counter]['artist'], MusicMasterSongList[counter]['title'])
+                            })
+                            #  end search
                             enable_all_buttons()
-                            selection_entry_letter = ""  # Used for selection entry
-                            selection_entry_number = ""  # Used for selection entry
-                            selection_entry = ""  # Used for selection entry
-                            control_button_window['--select--'].update(disabled=True)
-                            enable_all_buttons()
+                            credit_amount -= 1
+                            info_screen_window['--credits--'].Update('CREDITS ' + str(credit_amount))
+                            # Call 45rpm popup display function
+                            active_popup_window, popup_start_time, popup_duration = display_45rpm_popup(MusicMasterSongList, counter, jukebox_selection_window)
                             break
+                        counter += 1
 
-                        # Queue file I/O operations to background thread to prevent event loop freeze
-                        file_io_queue.put({
-                            'operation': 'save_song_selection',
-                            'paid_music_file_path': paid_music_file_path,
-                            'PaidMusicPlayList': PaidMusicPlayList,
-                            'song_info': (MusicMasterSongList[counter]['artist'], MusicMasterSongList[counter]['title'])
-                        })
-                        #  end search
+                    if not song_found:
+                        print(f"ERROR: Song '{paid_song_selected_title}' by '{paid_song_selected_artist}' not found in music library!")
                         enable_all_buttons()
-                        credit_amount -= 1
-                        info_screen_window['--credits--'].Update('CREDITS ' + str(credit_amount))
-                        # Call 45rpm popup display function
-                        active_popup_window, popup_start_time, popup_duration = display_45rpm_popup(MusicMasterSongList, counter, jukebox_selection_window)
-                        break
-                    counter += 1
+                        control_button_window['--select--'].update(disabled=True)
+
+                except Exception as e:
+                    print(f"ERROR during song selection: {str(e)}")
+                    import traceback
+                    traceback.print_exc()
+                    enable_all_buttons()
+                    control_button_window['--select--'].update(disabled=True)
         if event is None or event == 'Cancel' or event == 'Exit':
             print(f'closing window = {window.Title}')
             break
