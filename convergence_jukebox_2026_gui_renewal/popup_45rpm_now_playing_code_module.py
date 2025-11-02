@@ -174,11 +174,38 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     print(f"Creating record label with {color_mode} text...")
     print("-" * 80)
 
-    # Create a working copy of the base image and convert to RGBA for transparency support
+    # Create a working copy of the base image and convert to RGBA
     img = base_img.copy()
     if img.mode != 'RGBA':
         img = img.convert('RGBA')
 
+    # Make the background transparent by detecting and removing the background color
+    # Get the color of the corner pixel (typically the background color)
+    background_color = img.getpixel((0, 0))
+
+    # Convert background color to RGBA if it's RGB
+    if len(background_color) == 3:
+        background_color = background_color + (255,)
+
+    # Create a new image data list with transparent background
+    data = img.getdata()
+    new_data = []
+
+    # Tolerance for color matching (allows slight variations in background color)
+    tolerance = 30
+
+    for item in data:
+        # Check if pixel is close to background color
+        if (abs(item[0] - background_color[0]) < tolerance and
+            abs(item[1] - background_color[1]) < tolerance and
+            abs(item[2] - background_color[2]) < tolerance):
+            # Make this pixel transparent
+            new_data.append((item[0], item[1], item[2], 0))
+        else:
+            # Keep original pixel with full opacity
+            new_data.append((item[0], item[1], item[2], 255))
+
+    img.putdata(new_data)
     draw = ImageDraw.Draw(img)
 
     # Auto-fit song title text
@@ -253,11 +280,21 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
                             layout,
                             no_titlebar=True,
                             keep_on_top=True,
-                            transparent_color=None,
                             background_color=None,
                             margins=(0, 0),
                             element_padding=(0, 0),
                             finalize=True)
+
+    # Enable true window transparency on Windows
+    try:
+        import ctypes
+        hwnd = popup_window.TKroot.winfo_id()
+        WS_EX_LAYERED = 0x00080000
+        LWA_ALPHA = 0x00000002
+        ctypes.windll.user32.SetWindowLongW(hwnd, -20, ctypes.windll.user32.GetWindowLongW(hwnd, -20) | WS_EX_LAYERED)
+        ctypes.windll.user32.SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA)
+    except Exception as e:
+        print(f"Note: Could not enable full transparency on this platform: {e}")
 
     # Keep the popup visible for a short duration
     # ADJUST DISPLAY TIME HERE: Change the value (3.0) to control popup duration in seconds
