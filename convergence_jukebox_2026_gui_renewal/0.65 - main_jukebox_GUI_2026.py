@@ -65,6 +65,13 @@ global master_songlist_number
 last_song_check = ""
 global credit_amount
 credit_amount = 0
+# Popup window tracking
+global active_popup_window
+global popup_start_time
+global popup_duration
+active_popup_window = None
+popup_start_time = None
+popup_duration = None
 UpcomingSongPlayList = []
 all_songs_list = []
 all_artists_list = []
@@ -394,6 +401,34 @@ def main():
         # Handle ESC key to exit program
         if event == '--ESC--':
             break
+
+        # Handle popup window events
+        if active_popup_window is not None:
+            # Check if popup has exceeded 3 second duration
+            if popup_start_time is not None and time.time() - popup_start_time >= popup_duration:
+                try:
+                    active_popup_window.close()
+                    active_popup_window = None
+                    popup_start_time = None
+                    popup_duration = None
+                except:
+                    pass
+
+            # Handle 'x' key press on popup - add one credit
+            if event == '--POPUP_X_PRESSED--':
+                credit_amount += 1
+                info_screen_window['--credits--'].Update('CREDITS ' + str(credit_amount))
+                print(f"Credit added via popup! Total credits: {credit_amount}")
+
+            # Handle ESC on popup - close it
+            if event == '--POPUP_ESC--':
+                try:
+                    active_popup_window.close()
+                    active_popup_window = None
+                    popup_start_time = None
+                    popup_duration = None
+                except:
+                    pass
 
         if (event) == "--selection_right--" or (event) == 'Right:39':
             selection_window_number = selection_window_number + 21
@@ -1134,7 +1169,7 @@ def main():
                         credit_amount -= 1
                         info_screen_window['--credits--'].Update('CREDITS ' + str(credit_amount))
                         # Call 45rpm popup display function
-                        display_45rpm_popup(MusicMasterSongList, counter, jukebox_selection_window)
+                        active_popup_window, popup_start_time, popup_duration = display_45rpm_popup(MusicMasterSongList, counter, jukebox_selection_window)
                         break
                     counter += 1
         if event is None or event == 'Cancel' or event == 'Exit':
@@ -1176,7 +1211,7 @@ def main():
                                     UpcomingSongPlayList.pop(0)
                                 except IndexError: # Executed if no first entry in list
                                     pass
-                                display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_selection_window, upcoming_selections_update)
+                                active_popup_window, popup_start_time, popup_duration = display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_selection_window, upcoming_selections_update)
                         if UpcomingSongPlayList != []:
                             # update upcoming selections on jukebox screens
                             upcoming_selections_update()

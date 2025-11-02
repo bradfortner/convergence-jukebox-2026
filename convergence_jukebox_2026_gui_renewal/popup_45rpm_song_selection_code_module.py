@@ -11,7 +11,7 @@ import vlc
 import FreeSimpleGUI as sg
 
 
-def display_45rpm_popup(MusicMasterSongList, counter, jukebox_selection_window):
+def display_45rpm_popup(MusicMasterSongList, counter, jukebox_selection_window, add_credit_callback=None):
     """
     Display an animated 45rpm record popup with song title and artist information.
 
@@ -285,13 +285,12 @@ def display_45rpm_popup(MusicMasterSongList, counter, jukebox_selection_window):
     except Exception as e:
         print(f"Warning: Could not play success sound: {e}")
 
-    # Display the popup WITHOUT blocking to ensure main window remains responsive to keyboard input
-    # Note: FreeSimpleGUI/Tkinter cannot be used with threads for window creation, and any blocking
-    #       loop prevents main window from processing keyboard events. Solution: Show popup asynchronously.
+    # Display the popup as an interactive window that accepts keyboard input
+    # This popup window is part of the main event loop (sg.read_all_windows())
+    # and can handle 'x' key presses to update credits
     try:
-        # Create a simple popup window with the record label image
         layout = [
-            [sg.Image(filename=composite_filename)]
+            [sg.Image(filename=composite_filename, key='--POPUP_IMAGE--')]
         ]
 
         popup_window = sg.Window(
@@ -306,34 +305,20 @@ def display_45rpm_popup(MusicMasterSongList, counter, jukebox_selection_window):
             finalize=True
         )
 
-        # Show popup by doing a single non-blocking read to initialize display
-        popup_window.read(timeout=0)
+        # Bind keyboard input to the popup window
+        popup_window.bind('<x>', '--POPUP_X_PRESSED--')
+        popup_window.bind('<Escape>', '--POPUP_ESC--')
 
-        # CRITICAL: Return focus to main window so keyboard events go there, not to popup
-        # This is essential for keyboard input to work while popup is displayed
-        try:
-            jukebox_selection_window.BringToFront()
-            jukebox_selection_window.set_focus()
-        except:
-            pass
+        # Store popup creation time for auto-close after 3 seconds
+        popup_start_time = time.time()
+        popup_duration = 3.0
 
-        # Schedule popup to close after 3 seconds
-        # Using daemon thread to close window (only closing, not creating)
-        def close_popup_after_delay():
-            time.sleep(3.0)
-            try:
-                popup_window.close()
-            except:
-                pass
-
-        # Start daemon thread to close popup asynchronously
-        close_thread = threading.Thread(target=close_popup_after_delay, daemon=True)
-        close_thread.start()
-
-        # Return immediately - main window stays responsive to keyboard input
-        # Popup stays visible for 3 seconds then closes automatically
+        # Return the popup window to be processed by main event loop
+        # The popup will be included in sg.read_all_windows() reads
+        return popup_window, popup_start_time, popup_duration
 
     except Exception as e:
         print(f"Error displaying record label popup: {e}")
         import traceback
         traceback.print_exc()
+        return None, None, None
