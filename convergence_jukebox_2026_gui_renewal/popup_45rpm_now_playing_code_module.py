@@ -97,7 +97,7 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
         record_label = record_label.convert('RGB')
     record_label.save("images/selection_45.jpg")
     # Save and resize the image on which we have added the text
-    record_label.resize((680,394)).save('images/selection_45.gif')
+    record_label.resize((394,394)).save('images/selection_45.gif')
     # Display the image as popup
     jukebox_selection_window.Hide()
     for i in range(600): # adjust the range to control the time the image runs
