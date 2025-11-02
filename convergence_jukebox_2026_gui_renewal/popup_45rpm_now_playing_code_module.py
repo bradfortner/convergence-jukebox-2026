@@ -231,10 +231,42 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     # Save the record image with fixed filename
     filename = 'final_record_pressing.png'
 
-    # Save as PNG with transparency support (RGBA mode)
-    # PNG format automatically preserves alpha channel when image is in RGBA mode
+    # Make the background transparent before saving
+    # Get the background color from corner pixels
+    background_color = img.getpixel((0, 0))
+
+    # Convert to RGBA if needed
+    if img.mode != 'RGBA':
+        img = img.convert('RGBA')
+
+    # Create a transparent version by replacing background color with alpha=0
+    # Get all pixels
+    pixels = img.getdata()
+    new_pixels = []
+
+    # Color tolerance for matching background
+    tolerance = 40
+
+    for pixel in pixels:
+        # Check if pixel matches background color (with tolerance)
+        if (abs(pixel[0] - background_color[0]) < tolerance and
+            abs(pixel[1] - background_color[1]) < tolerance and
+            abs(pixel[2] - background_color[2]) < tolerance and
+            pixel[0:3] != (0, 0, 0)):  # Don't remove black text
+            # Make this pixel transparent
+            new_pixels.append((255, 255, 255, 0))  # Transparent white
+        else:
+            # Keep the pixel but ensure it has full alpha
+            if len(pixel) == 3:
+                new_pixels.append((pixel[0], pixel[1], pixel[2], 255))
+            else:
+                new_pixels.append(pixel)
+
+    img.putdata(new_pixels)
+
+    # Save as PNG with transparency support
     img.save(filename, 'PNG')
-    print(f"  Saved: {filename} (with transparency support)")
+    print(f"  Saved: {filename} (with transparent background)")
 
     # Final completion message
     print("-" * 80)
