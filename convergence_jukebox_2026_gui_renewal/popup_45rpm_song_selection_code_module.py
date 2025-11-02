@@ -280,8 +280,15 @@ def display_45rpm_popup(MusicMasterSongList, counter, jukebox_selection_window, 
 
     # Play success sound
     try:
-        p = vlc.MediaPlayer('jukebox_required_audio_files/success.mp3')
-        p.play()
+        success_sound_path = 'jukebox_required_audio_files/success.mp3'
+        if os.path.exists(success_sound_path):
+            p = vlc.MediaPlayer(success_sound_path)
+            p.play()
+            # Give VLC time to initialize and start playing the audio
+            time.sleep(0.5)
+            print(f"Playing success sound: {success_sound_path}")
+        else:
+            print(f"Warning: Success sound file not found at {success_sound_path}")
     except Exception as e:
         print(f"Warning: Could not play success sound: {e}")
 
@@ -309,9 +316,10 @@ def display_45rpm_popup(MusicMasterSongList, counter, jukebox_selection_window, 
         popup_window.bind('<x>', '--POPUP_X_PRESSED--')
         popup_window.bind('<Escape>', '--POPUP_ESC--')
 
-        # Store popup creation time for auto-close after 3 seconds
+        # Store popup creation time for auto-close after 4 seconds
+        # Extended to 4 seconds to allow success.mp3 audio to play fully
         popup_start_time = time.time()
-        popup_duration = 3.0
+        popup_duration = 4.0
 
         # Return the popup window to be processed by main event loop
         # The popup will be included in sg.read_all_windows() reads
