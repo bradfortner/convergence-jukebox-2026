@@ -177,6 +177,11 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
 
     # Create a working copy of the base image
     img = base_img.copy()
+
+    # Convert to RGBA to support transparency
+    if img.mode != 'RGBA':
+        img = img.convert('RGBA')
+
     draw = ImageDraw.Draw(img)
 
     # Auto-fit song title text
@@ -228,9 +233,10 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     # Save the record image with fixed filename
     filename = 'final_record_pressing.png'
 
-    # Save with optimization and compression to maintain quality antialiased fonts
-    img.save(filename, optimize=True, compress_level=9)
-    print(f"  Saved: {filename}")
+    # Save as PNG with transparency support (RGBA mode)
+    # PNG format automatically preserves alpha channel when image is in RGBA mode
+    img.save(filename, 'PNG')
+    print(f"  Saved: {filename} (with transparency support)")
 
     # Final completion message
     print("-" * 80)
