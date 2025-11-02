@@ -2,7 +2,6 @@
 45RPM Now-Playing Record Pop-up Code Module
 Handles the display of 45rpm record labels with now-playing song information as animated popups
 """
-import pickle # -Should Not Be Required
 import threading
 from pathlib import Path
 import os
@@ -126,70 +125,6 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
         font = ImageFont.truetype(base_font_path, min_font_size)
         return wrap_text(text, font, max_width, draw), min_font_size, font
 
-    """
-    # Create 45 RPM Record Image
-    # https://www.tutorialspoint.com/how-to-add-text-on-an-image-using-pillow-in-python
-
-    # Center Anchor Label Position https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
-    center_position = 680
-    # https://www.tutorialspoint.com/how-to-add-text-on-an-image-using-pillow-in-python
-    # https://www.geeksforgeeks.org/textwrap-text-wrapping-filling-python/
-    # https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
-    # Open the desired Image you want to add text on
-    # Create the list of all black print 45rpm record labels
-    path = "record_labels/final_black_bg/"
-    black_print_label_list = os.listdir(path)
-    # Selects a random 45rpm record label requiring black print
-    record_selection = str(random.choice(black_print_label_list))
-    print(record_selection)
-    record_label = Image.open('record_labels/final_black_bg/' + record_selection)
-    # To add 2D graphics in an image call draw Method
-    record_text = ImageDraw.Draw(record_label)
-    # Set the default font size and type
-    record_font = ImageFont.truetype('fonts/OpenSans-ExtraBold.ttf', 30)
-    # New Add Text to an image
-    # Record Title Name
-    record_title_name = str(MusicMasterSongList[counter]['title'])
-    record_title_name_length = len(record_title_name)
-    # Record Artist Name
-    record_artist_name = str(MusicMasterSongList[counter]['artist'])
-    record_artist_name_length = len(record_artist_name)
-    # Add Text to an image
-    draw_on_45rpm_image = ImageDraw.Draw(record_label)
-    # Record Display Generation
-    if record_title_name_length > 37 or record_artist_name_length >= 30:
-        font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 15)
-        wrapper = textwrap.TextWrapper(width=37) # https://www.geeksforgeeks.org/textwrap-text-wrapping-filling-python/
-        record_title_name_wrap = wrapper.wrap(text=record_title_name)
-        draw_on_45rpm_image.text((center_position, 520), record_title_name_wrap[0], fill="black", anchor="mb", font=font)
-        try:
-            draw_on_45rpm_image.text((center_position, 535), record_title_name_wrap[1], fill="black", anchor="mb", font=font)
-        except Exception:
-            pass
-        wrapper = textwrap.TextWrapper(width=30)
-        record_artist_name_wrap = wrapper.wrap(text=record_artist_name)
-        draw_on_45rpm_image.text((center_position, 555), record_artist_name_wrap[0], fill="black", anchor="mb", font=font)
-        try:
-            draw_on_45rpm_image.text((center_position, 570), record_artist_name_wrap[1], fill="black", anchor="mb", font=font)
-        except Exception:
-            pass
-    elif record_title_name_length < 37 and record_title_name_length > 17:
-        font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 20)
-        draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
-        draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)
-    elif record_artist_name_length < 26 and record_artist_name_length > 13:
-        font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 20)
-        draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
-        draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)
-    elif record_title_name_length <= 17:
-        font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 30)
-        draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
-        draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)
-    elif record_artist_name_length <= 13:
-        font = ImageFont.truetype("fonts/OpenSans-ExtraBold.ttf", 30)
-        draw_on_45rpm_image.text((center_position, 515), record_title_name, fill="black", anchor="mb", font=font)
-        draw_on_45rpm_image.text((center_position, 540), record_artist_name, fill="black", anchor="mb", font=font)
-    """
 
     # Record Title Name
     song = str(MusicMasterSongList[counter]['title'])
@@ -223,16 +158,6 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     print("Loading blank record label template...")
     base_img = Image.open(label_path)
 
-
-    """
-    # Save the image on which we have added the text
-    # Convert RGBA to RGB for JPEG compatibility (JPEG doesn't support alpha channel)
-    if record_label.mode == 'RGBA':
-        record_label = record_label.convert('RGB')
-    record_label.save("images/selection_45.jpg")
-    # Save and resize the image on which we have added the text
-    record_label.resize((394,394)).save('images/selection_45.gif')
-    """ 
 
     # Get image dimensions for positioning calculations
     width, height = base_img.size
@@ -312,9 +237,6 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     print(f"Font color: {font_color.upper()}")
     print(f"Successfully created 1 random record label image")
     print(f"Output location: {filename} in current directory")
-
-
-
 
 
     # Display the image as popup
