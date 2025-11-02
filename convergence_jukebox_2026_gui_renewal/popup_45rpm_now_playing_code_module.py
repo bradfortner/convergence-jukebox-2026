@@ -241,6 +241,40 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     print(f"Successfully created 1 random record label image")
     print(f"Output location: {filename} in current directory")
 
+    # Composite the record label with the background
+    try:
+        # Load the background image
+        background_path = "images/45rpm_background.png"
+        background = Image.open(background_path)
+
+        # Load the record label
+        record_label = Image.open(filename)
+
+        # Convert both to RGBA if needed
+        if background.mode != 'RGBA':
+            background = background.convert('RGBA')
+        if record_label.mode != 'RGBA':
+            record_label = record_label.convert('RGBA')
+
+        # Calculate position to center the record label on the background
+        bg_width, bg_height = background.size
+        record_width, record_height = record_label.size
+        x_position = (bg_width - record_width) // 2
+        y_position = (bg_height - record_height) // 2
+
+        # Create composite image
+        composite = background.copy()
+        composite.paste(record_label, (x_position, y_position), record_label)
+
+        # Save the composite image
+        composite_filename = 'final_record_with_background.png'
+        composite.save(composite_filename, 'PNG')
+        print(f"Composite image saved: {composite_filename}")
+
+    except Exception as e:
+        print(f"Warning: Could not create composite image: {e}")
+        composite_filename = filename  # Fall back to record label without background
+
 
     # Display the image as popup
     jukebox_selection_window.Hide()
@@ -249,7 +283,7 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     try:
         # Create a simple popup window with the record label image
         layout = [
-            [sg.Image(filename='final_record_pressing.png')]
+            [sg.Image(filename=composite_filename)]
         ]
 
         popup_window = sg.Window(
