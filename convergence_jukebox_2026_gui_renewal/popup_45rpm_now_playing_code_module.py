@@ -286,12 +286,15 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
         pygame.init()
         pygame.mixer.quit()  # Disable audio to avoid conflicts
 
-        # Load the record label image
-        record_image = pygame.image.load('final_record_pressing.png').convert()
-        img_width, img_height = record_image.get_size()
+        # Load the record label image (use load first, then convert after display is set)
+        record_image_temp = pygame.image.load('final_record_pressing.png')
+        img_width, img_height = record_image_temp.get_size()
 
         # Create window without frame
         screen = pygame.display.set_mode((img_width, img_height), pygame.NOFRAME | pygame.DOUBLEBUF)
+
+        # Now convert the image for faster rendering
+        record_image = record_image_temp.convert()
         pygame.display.set_caption('')
 
         # Set up Windows API for always-on-top and transparency
