@@ -10,7 +10,6 @@ import textwrap
 import time
 from PIL import Image, ImageDraw, ImageFont
 import FreeSimpleGUI as sg
-from rotate_record_module import display_record_playing
 
 
 
