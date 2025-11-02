@@ -182,6 +182,7 @@ def title_bar(title, text_color, background_color):
     return [sg.Col([]),
                 sg.Col([[sg.T(),sg.Text()]],element_justification='r', key='--BG--')]
 def main():
+    global active_popup_window, popup_start_time, popup_duration, credit_amount
     selection_window_number = 0  # Used to frame initial selection buttons
     selection_entry = ""  # Used for selection entry
     def disable_a_selection_buttons():
@@ -871,7 +872,6 @@ def main():
             enable_numbered_selection_buttons()
         #if event == "--X--" or (event) == "x":
         if (event) == "x":
-            global credit_amount
             credit_amount += 1
             info_screen_window['--credits--'].Update('CREDITS ' + str(credit_amount))            
             # Add credit to log file
