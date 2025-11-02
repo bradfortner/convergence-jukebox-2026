@@ -307,6 +307,14 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
         # Show popup by doing a single non-blocking read to initialize display
         popup_window.read(timeout=0)
 
+        # CRITICAL: Return focus to main window so keyboard events go there, not to popup
+        # This is essential for keyboard input to work while popup is displayed
+        try:
+            jukebox_selection_window.BringToFront()
+            jukebox_selection_window.set_focus()
+        except:
+            pass
+
         # Schedule popup to close after 3 seconds by storing close time
         # Main event loop will need to check and close old popups, or we close it now
         # For maximum main window responsiveness, close immediately after showing
