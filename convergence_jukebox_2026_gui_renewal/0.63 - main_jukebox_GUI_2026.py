@@ -8,7 +8,7 @@ import random
 import FreeSimpleGUI as sg
 import threading
 import time
-from queue import Queue
+from queue import Queue, Empty
 from gc import disable
 from operator import itemgetter
 from PIL import Image
@@ -151,6 +151,9 @@ def file_io_worker_thread():
                 except IOError as e:
                     print(f'Background thread error writing files: {e}')
 
+        except Empty:
+            # Queue timeout is normal - just continue waiting for tasks
+            continue
         except Exception as e:
             print(f'File I/O worker thread error: {e}')
 
