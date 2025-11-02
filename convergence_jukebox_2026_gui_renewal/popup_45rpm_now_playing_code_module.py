@@ -156,7 +156,7 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     color_mode = "WHITE" if selected_label.startswith("w_") else "BLACK"
     print(f"Font color mode: {color_mode}")
 
-    # Load the selected record label image to get dimensions
+    # Load the selected record label image
     print("Loading blank record label template...")
     base_img = Image.open(label_path)
 
@@ -174,9 +174,11 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     print(f"Creating record label with {color_mode} text...")
     print("-" * 80)
 
-    # Create a transparent RGBA image with text only (no background)
-    # (0, 0, 0, 0) = fully transparent black
-    img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+    # Create a working copy of the base image and convert to RGBA for transparency support
+    img = base_img.copy()
+    if img.mode != 'RGBA':
+        img = img.convert('RGBA')
+
     draw = ImageDraw.Draw(img)
 
     # Auto-fit song title text
@@ -250,9 +252,9 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     popup_window = sg.Window('', layout, no_titlebar=True, keep_on_top=True, finalize=True)
 
     # Keep the popup visible for a short duration
-    # ADJUST DISPLAY TIME HERE: Change the value (0.6) to control popup duration in seconds
-    # Current: 0.6 seconds (600ms) - change to desired duration (e.g., 1.0 for 1 second, 2.0 for 2 seconds)
-    end_time = time.time() + 0.6
+    # ADJUST DISPLAY TIME HERE: Change the value (3.0) to control popup duration in seconds
+    # Current: 3.0 seconds (3000ms) - change to desired duration (e.g., 1.0 for 1 second, 2.0 for 2 seconds)
+    end_time = time.time() + 3.0
     while True:
         event, values = popup_window.read(timeout=100)
         if event == sg.WINDOW_CLOSED or time.time() > end_time:
