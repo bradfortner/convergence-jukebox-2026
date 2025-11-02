@@ -2,10 +2,6 @@
 45RPM Now-Playing Record Pop-up Code Module
 Handles the display of 45rpm record labels with now-playing song information as animated popups
 """
-import warnings
-warnings.filterwarnings('ignore', category=DeprecationWarning)
-warnings.filterwarnings('ignore', category=UserWarning, message='.*pkg_resources.*')
-
 import threading
 from pathlib import Path
 import os
@@ -13,7 +9,6 @@ import random
 import textwrap
 import time
 from PIL import Image, ImageDraw, ImageFont
-import pygame
 import FreeSimpleGUI as sg
 from rotate_record_module import display_record_playing
 
@@ -251,64 +246,38 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     # Display the image as popup
     jukebox_selection_window.Hide()
 
-    # Display the record label using Pygame
+    # Display the record label using FreeSimpleGUI
     try:
-        # Initialize Pygame
-        pygame.init()
+        # Create a simple popup window with the record label image
+        layout = [
+            [sg.Image(filename='final_record_pressing.png')]
+        ]
 
-        # Load the record label image
-        record_image = pygame.image.load('final_record_pressing.png')
-        img_width, img_height = record_image.get_size()
+        popup_window = sg.Window(
+            '',  # No title
+            layout,
+            no_titlebar=True,
+            keep_on_top=True,
+            location=(100, 100),
+            finalize=True
+        )
 
-        # Create a window to display the record label
-        # NOFRAME = no window decorations, DOUBLEBUF = double buffering for smooth display
-        screen = pygame.display.set_mode((img_width, img_height), pygame.NOFRAME | pygame.DOUBLEBUF)
-        pygame.display.set_caption('')
-
-        # Set window to always be on top using Windows API
-        try:
-            import ctypes
-            user32 = ctypes.windll.user32
-            hwnd_val = pygame.display.get_wm_info()['window']
-
-            # Set window position to top-most (HWND_TOPMOST = -1)
-            # SWP_NOSIZE | SWP_NOMOVE = 0x0001 | 0x0002 = 0x0003
-            user32.SetWindowPos(hwnd_val, -1, 0, 0, 0, 0, 0x0003)
-
-        except Exception as e:
-            print(f"Warning: Could not set window to always-on-top: {e}")
-
-        # Display the record label image
-        screen.blit(record_image, (0, 0))
-        pygame.display.flip()
-
-        # Keep popup visible for specified duration
-        # ADJUST DISPLAY TIME HERE: Change the value (3.0) to control popup duration in seconds
-        # Current: 3.0 seconds (3000ms) - change to desired duration (e.g., 1.0 for 1 second, 2.0 for 2 seconds)
+        # Display for 3 seconds
         display_duration = 3.0
         end_time = time.time() + display_duration
-        clock = pygame.time.Clock()
 
         while time.time() < end_time:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    break
+            event, values = popup_window.read(timeout=100)
 
-            # Keep display updated
-            screen.blit(record_image, (0, 0))
-            pygame.display.flip()
-            clock.tick(30)  # 30 FPS
+            if event == sg.WINDOW_CLOSED:
+                break
 
-        pygame.quit()
+        popup_window.close()
 
     except Exception as e:
         print(f"Error displaying record label popup: {e}")
         import traceback
         traceback.print_exc()
-        try:
-            pygame.quit()
-        except:
-            pass
 
     jukebox_selection_window.UnHide()
     # update upcoming selections on jukebox screens
