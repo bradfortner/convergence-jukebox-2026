@@ -22,7 +22,7 @@ The Convergence Jukebox 2026 is a complete jukebox solution designed for enterta
 
 ```
 convergence-jukebox-2026/
-├── convergence_jukebox_2026_gui_renewal/       (Current GUI - v0.61)
+├── convergence_jukebox_2026_gui_renewal/       (Current GUI - v0.62)
 ├── convergence_jukebox_2026_player_renewal/    (Current Engine - v0.9)
 ├── 45_RPM_Spinning_Record_Animation/           (Record animation module)
 ├── convergence-jukebox-pygame/                 (Alternative pygame implementation)
@@ -35,12 +35,13 @@ convergence-jukebox-2026/
 
 ## 🚀 Active Components
 
-### 1. **convergence_jukebox_2026_gui_renewal** (Current: v0.61)
+### 1. **convergence_jukebox_2026_gui_renewal** (Current: v0.62)
 
 The modern, modular graphical user interface built with FreeSimpleGUI.
 
 #### What's New
 
+- **v0.62**: Fixed PopupAnimated ZeroDivisionError - replaced with static image display using sg.Image() with adjustable duration
 - **v0.61**: Improved module naming for better code organization (band name check and upcoming selections modules renamed)
 - **v0.48-0.60**: Fixed UI freeze issues by moving file I/O operations to background threads
 - **v0.47**: Enhanced responsiveness with asynchronous file handling
@@ -101,7 +102,7 @@ Pillow >= 8.0.0
 1. Ensure Python 3.7+ is installed
 2. Install dependencies: `pip install -r convergence_jukebox_2026_gui_renewal/requirements.txt`
 3. Place your music files in the `music/` directory
-4. Run the GUI: `python "convergence_jukebox_2026_gui_renewal/0.61 - main_jukebox_GUI_2026.py"`
+4. Run the GUI: `python "convergence_jukebox_2026_gui_renewal/0.62 - main_jukebox_GUI_2026.py"`
 
 ---
 
@@ -274,7 +275,7 @@ The three components work together seamlessly:
                          │ Song metadata & now-playing info
                          ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    GUI Interface (v0.61)                    │
+│                    GUI Interface (v0.62)                    │
 │  - Displays song selection grid (A1-C7)                     │
 │  - Shows real-time queue and statistics                     │
 │  - Communicates user selections back to engine              │
@@ -299,7 +300,7 @@ The three components work together seamlessly:
 | **Active Components** | 3 major modules |
 | **GUI Function Modules** | 15+ independent modules |
 | **Record Label Images** | 200+ variants (3 color schemes) |
-| **Current GUI Version** | 0.61 |
+| **Current GUI Version** | 0.62 |
 | **Current Player Version** | 0.9 (STABLE HYBRID) |
 | **Record Animation Version** | 0.0 (Master Pipeline) |
 | **Python Version** | 3.7+ required |
@@ -339,7 +340,7 @@ The three components work together seamlessly:
 4. **Run the application**
    ```bash
    # Start the GUI
-   python "convergence_jukebox_2026_gui_renewal/0.61 - main_jukebox_GUI_2026.py"
+   python "convergence_jukebox_2026_gui_renewal/0.62 - main_jukebox_GUI_2026.py"
    ```
 
 ---
@@ -376,7 +377,12 @@ Customize "The" prefix behavior:
 
 ## 📝 Recent Changes & Development
 
-### Version 0.61 (Current)
+### Version 0.62 (Current)
+- Fixed PopupAnimated ZeroDivisionError by replacing with static image display
+- Replaced sg.PopupAnimated() with sg.Image() element in popup window
+- Added adjustable display duration (600ms default) with clear comments for customization
+
+### Version 0.61
 - Improved module naming conventions for better code organization
 - Enhanced readability with descriptive module names
 - Maintained backward compatibility with existing configurations
@@ -475,8 +481,8 @@ For questions, bug reports, or feature requests:
 
 ---
 
-**Last Updated**: October 30, 2025
-**Current Active Versions**: GUI v0.61 | Player v0.9 | Animation v0.0
+**Last Updated**: November 2, 2025
+**Current Active Versions**: GUI v0.62 | Player v0.9 | Animation v0.0
 **Status**: Production Ready ✅
 
 ---
