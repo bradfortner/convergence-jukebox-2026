@@ -250,28 +250,58 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
 
     # Display the record label using Pygame with transparent background
     try:
-        # Initialize Pygame if not already done
-        if not pygame.display.get_surface():
-            pygame.init()
+        # Initialize Pygame with proper SDL environment for transparency
+        os.environ['SDL_VIDEODRIVER'] = 'windows'
+
+        # Initialize Pygame
+        pygame.init()
 
         # Load the record label image
         record_image = pygame.image.load('final_record_pressing.png')
         img_width, img_height = record_image.get_size()
 
         # Create a transparent window using Pygame
-        # Use SRCALPHA flag for per-pixel transparency
-        screen = pygame.display.set_mode((img_width, img_height), pygame.SRCALPHA | pygame.NOFRAME)
+        # Use SRCALPHA flag for per-pixel transparency and NOFRAME for borderless
+        screen = pygame.display.set_mode((img_width, img_height), pygame.SRCALPHA)
         pygame.display.set_caption('')
+
+        # Get window handle and set Windows properties for transparency and always-on-top
+        try:
+            import ctypes
+            hwnd = pygame.display.get_surface()
+            # Get the actual window handle from Pygame
+            import ctypes.wintypes as wintypes
+
+            # Set window to always be on top (HWND_TOPMOST = -1)
+            user32 = ctypes.windll.user32
+            WS_EX_LAYERED = 0x00080000
+            WS_EX_TRANSPARENT = 0x00000020
+            WS_EX_TOOLWINDOW = 0x00000080
+
+            # Get the Pygame window handle through SDL environment
+            hwnd_val = pygame.display.get_wm_info()['window']
+
+            # Set window style to always on top
+            user32.SetWindowPos(hwnd_val, -1, 0, 0, 0, 0,
+                              0x0001 | 0x0002)  # SWP_NOSIZE | SWP_NOMOVE
+
+            # Enable layered window for transparency
+            user32.SetWindowLongW(hwnd_val, -20,
+                                user32.GetWindowLongW(hwnd_val, -20) | WS_EX_LAYERED)
+
+            # Set transparency color key
+            user32.SetLayeredWindowAttributes(hwnd_val, 0, 255, 2)  # LWA_ALPHA = 2
+
+        except Exception as e:
+            print(f"Note: Could not set Windows transparency properties: {e}")
 
         # Get screen position - center on display
         display_info = pygame.display.Info()
         screen_x = (display_info.current_w - img_width) // 2
         screen_y = (display_info.current_h - img_height) // 2
 
-        # Move window to position
-        os.environ['SDL_WINDOW_POS'] = f'{screen_x},{screen_y}'
-
-        # Display the image
+        # Display the image with transparency
+        screen.fill((0, 0, 0, 0))  # Fill with transparent black first
         screen.blit(record_image, (0, 0))
         pygame.display.flip()
 
@@ -286,13 +316,21 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     break
+
+            # Keep updating display for transparency
+            screen.fill((0, 0, 0, 0))
+            screen.blit(record_image, (0, 0))
+            pygame.display.flip()
             clock.tick(30)  # 30 FPS
 
         pygame.quit()
 
     except Exception as e:
         print(f"Error displaying record label popup: {e}")
-        pygame.quit()
+        try:
+            pygame.quit()
+        except:
+            pass
 
     jukebox_selection_window.UnHide()
     # update upcoming selections on jukebox screens
