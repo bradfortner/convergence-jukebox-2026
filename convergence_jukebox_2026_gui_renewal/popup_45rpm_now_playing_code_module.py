@@ -231,42 +231,9 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     # Save the record image with fixed filename
     filename = 'final_record_pressing.png'
 
-    # Make the background transparent before saving
-    # Get the background color from corner pixels
-    background_color = img.getpixel((0, 0))
-
-    # Convert to RGBA if needed
-    if img.mode != 'RGBA':
-        img = img.convert('RGBA')
-
-    # Create a transparent version by replacing background color with alpha=0
-    # Get all pixels
-    pixels = img.getdata()
-    new_pixels = []
-
-    # Color tolerance for matching background
-    tolerance = 40
-
-    for pixel in pixels:
-        # Check if pixel matches background color (with tolerance)
-        if (abs(pixel[0] - background_color[0]) < tolerance and
-            abs(pixel[1] - background_color[1]) < tolerance and
-            abs(pixel[2] - background_color[2]) < tolerance and
-            pixel[0:3] != (0, 0, 0)):  # Don't remove black text
-            # Make this pixel transparent
-            new_pixels.append((255, 255, 255, 0))  # Transparent white
-        else:
-            # Keep the pixel but ensure it has full alpha
-            if len(pixel) == 3:
-                new_pixels.append((pixel[0], pixel[1], pixel[2], 255))
-            else:
-                new_pixels.append(pixel)
-
-    img.putdata(new_pixels)
-
-    # Save as PNG with transparency support
+    # Save as PNG - keep the image as-is without any modifications
     img.save(filename, 'PNG')
-    print(f"  Saved: {filename} (with transparent background)")
+    print(f"  Saved: {filename}")
 
     # Final completion message
     print("-" * 80)
@@ -280,63 +247,58 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     # Display the image as popup
     jukebox_selection_window.Hide()
 
-    # Display the record label using Pygame with color key transparency
+    # Display the record label using Pygame
     try:
         # Initialize Pygame
         pygame.init()
-        pygame.mixer.quit()  # Disable audio to avoid conflicts
 
-        # Load the record label image (use load first, then convert after display is set)
-        record_image_temp = pygame.image.load('final_record_pressing.png')
-        img_width, img_height = record_image_temp.get_size()
+        # Suppress the pkg_resources warning by quieting it
+        import warnings
+        warnings.filterwarnings('ignore', category=DeprecationWarning)
 
-        # Create window without frame
+        # Load the record label image
+        record_image = pygame.image.load('final_record_pressing.png')
+        img_width, img_height = record_image.get_size()
+
+        # Create a window to display the record label
+        # NOFRAME = no window decorations, DOUBLEBUF = double buffering for smooth display
         screen = pygame.display.set_mode((img_width, img_height), pygame.NOFRAME | pygame.DOUBLEBUF)
-
-        # Now convert the image for faster rendering
-        record_image = record_image_temp.convert()
         pygame.display.set_caption('')
 
-        # Set up Windows API for always-on-top and transparency
+        # Set window to always be on top using Windows API
         try:
             import ctypes
             user32 = ctypes.windll.user32
-
-            # Get Pygame window handle
             hwnd_val = pygame.display.get_wm_info()['window']
 
-            # Set window to always be on top (SetWindowPos with HWND_TOPMOST = -1)
-            user32.SetWindowPos(hwnd_val, -1, 0, 0, 0, 0, 0x0001)  # SWP_NOSIZE
-
-            print(f"Popup window handle: {hwnd_val}")
-            print("Window set to always-on-top")
+            # Set window position to top-most (HWND_TOPMOST = -1)
+            # SWP_NOSIZE | SWP_NOMOVE = 0x0001 | 0x0002 = 0x0003
+            user32.SetWindowPos(hwnd_val, -1, 0, 0, 0, 0, 0x0003)
 
         except Exception as e:
-            print(f"Note: Could not set always-on-top: {e}")
+            print(f"Warning: Could not set window to always-on-top: {e}")
 
-        # Display the image
+        # Display the record label image
         screen.blit(record_image, (0, 0))
         pygame.display.flip()
 
-        # Keep the popup visible for a short duration
+        # Keep popup visible for specified duration
         # ADJUST DISPLAY TIME HERE: Change the value (3.0) to control popup duration in seconds
         # Current: 3.0 seconds (3000ms) - change to desired duration (e.g., 1.0 for 1 second, 2.0 for 2 seconds)
         display_duration = 3.0
         end_time = time.time() + display_duration
         clock = pygame.time.Clock()
 
-        print(f"Displaying record label popup for {display_duration} seconds...")
-
         while time.time() < end_time:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     break
 
+            # Keep display updated
             screen.blit(record_image, (0, 0))
             pygame.display.flip()
             clock.tick(30)  # 30 FPS
 
-        print("Closing popup window...")
         pygame.quit()
 
     except Exception as e:
