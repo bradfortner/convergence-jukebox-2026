@@ -9,6 +9,7 @@ import random
 import textwrap
 import time
 from PIL import Image, ImageDraw, ImageFont
+import pygame
 import FreeSimpleGUI as sg
 from rotate_record_module import display_record_playing
 
@@ -247,38 +248,52 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     # Display the image as popup
     jukebox_selection_window.Hide()
 
-    # Create a simple popup window with the record image and transparent background
-    layout = [[sg.Image(filename='final_record_pressing.png', background_color=None)]]
-    popup_window = sg.Window('',
-                            layout,
-                            no_titlebar=True,
-                            keep_on_top=True,
-                            background_color=None,
-                            margins=(0, 0),
-                            element_padding=(0, 0),
-                            finalize=True)
-
-    # Enable true window transparency on Windows
+    # Display the record label using Pygame with transparent background
     try:
-        import ctypes
-        hwnd = popup_window.TKroot.winfo_id()
-        WS_EX_LAYERED = 0x00080000
-        LWA_ALPHA = 0x00000002
-        ctypes.windll.user32.SetWindowLongW(hwnd, -20, ctypes.windll.user32.GetWindowLongW(hwnd, -20) | WS_EX_LAYERED)
-        ctypes.windll.user32.SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA)
+        # Initialize Pygame if not already done
+        if not pygame.display.get_surface():
+            pygame.init()
+
+        # Load the record label image
+        record_image = pygame.image.load('final_record_pressing.png')
+        img_width, img_height = record_image.get_size()
+
+        # Create a transparent window using Pygame
+        # Use SRCALPHA flag for per-pixel transparency
+        screen = pygame.display.set_mode((img_width, img_height), pygame.SRCALPHA | pygame.NOFRAME)
+        pygame.display.set_caption('')
+
+        # Get screen position - center on display
+        display_info = pygame.display.Info()
+        screen_x = (display_info.current_w - img_width) // 2
+        screen_y = (display_info.current_h - img_height) // 2
+
+        # Move window to position
+        os.environ['SDL_WINDOW_POS'] = f'{screen_x},{screen_y}'
+
+        # Display the image
+        screen.blit(record_image, (0, 0))
+        pygame.display.flip()
+
+        # Keep the popup visible for a short duration
+        # ADJUST DISPLAY TIME HERE: Change the value (3.0) to control popup duration in seconds
+        # Current: 3.0 seconds (3000ms) - change to desired duration (e.g., 1.0 for 1 second, 2.0 for 2 seconds)
+        display_duration = 3.0
+        end_time = time.time() + display_duration
+        clock = pygame.time.Clock()
+
+        while time.time() < end_time:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    break
+            clock.tick(30)  # 30 FPS
+
+        pygame.quit()
+
     except Exception as e:
-        print(f"Note: Could not enable full transparency on this platform: {e}")
+        print(f"Error displaying record label popup: {e}")
+        pygame.quit()
 
-    # Keep the popup visible for a short duration
-    # ADJUST DISPLAY TIME HERE: Change the value (3.0) to control popup duration in seconds
-    # Current: 3.0 seconds (3000ms) - change to desired duration (e.g., 1.0 for 1 second, 2.0 for 2 seconds)
-    end_time = time.time() + 3.0
-    while True:
-        event, values = popup_window.read(timeout=100)
-        if event == sg.WINDOW_CLOSED or time.time() > end_time:
-            break
-
-    popup_window.close()
     jukebox_selection_window.UnHide()
     # update upcoming selections on jukebox screens
     upcoming_selections_update()
