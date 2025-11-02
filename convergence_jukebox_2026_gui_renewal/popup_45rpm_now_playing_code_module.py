@@ -247,9 +247,17 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     # Display the image as popup
     jukebox_selection_window.Hide()
 
-    # Create a simple popup window with the record image
-    layout = [[sg.Image(filename='final_record_pressing.png')]]
-    popup_window = sg.Window('', layout, no_titlebar=True, keep_on_top=True, finalize=True)
+    # Create a simple popup window with the record image and transparent background
+    layout = [[sg.Image(filename='final_record_pressing.png', background_color=None)]]
+    popup_window = sg.Window('',
+                            layout,
+                            no_titlebar=True,
+                            keep_on_top=True,
+                            transparent_color=None,
+                            background_color=None,
+                            margins=(0, 0),
+                            element_padding=(0, 0),
+                            finalize=True)
 
     # Keep the popup visible for a short duration
     # ADJUST DISPLAY TIME HERE: Change the value (3.0) to control popup duration in seconds
