@@ -2,6 +2,10 @@
 45RPM Now-Playing Record Pop-up Code Module
 Handles the display of 45rpm record labels with now-playing song information as animated popups
 """
+import warnings
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+warnings.filterwarnings('ignore', category=UserWarning, message='.*pkg_resources.*')
+
 import threading
 from pathlib import Path
 import os
@@ -251,10 +255,6 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     try:
         # Initialize Pygame
         pygame.init()
-
-        # Suppress the pkg_resources warning by quieting it
-        import warnings
-        warnings.filterwarnings('ignore', category=DeprecationWarning)
 
         # Load the record label image
         record_image = pygame.image.load('final_record_pressing.png')
