@@ -151,15 +151,14 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
 
     # Determine font color based on filename
     # If filename starts with "w_", use white font; otherwise use black
-    # Use RGB tuples for solid, pure colors (PIL requirement)
-    font_color = (255, 255, 255) if selected_label.startswith("w_") else (0, 0, 0)
+    # Use RGBA tuples (R, G, B, Alpha) where 255 = fully opaque
+    font_color = (255, 255, 255, 255) if selected_label.startswith("w_") else (0, 0, 0, 255)
     color_mode = "WHITE" if selected_label.startswith("w_") else "BLACK"
     print(f"Font color mode: {color_mode}")
 
-    # Load the selected record label image
+    # Load the selected record label image to get dimensions
     print("Loading blank record label template...")
     base_img = Image.open(label_path)
-
 
     # Get image dimensions for positioning calculations
     width, height = base_img.size
@@ -175,13 +174,9 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     print(f"Creating record label with {color_mode} text...")
     print("-" * 80)
 
-    # Create a working copy of the base image
-    img = base_img.copy()
-
-    # Convert to RGBA to support transparency
-    if img.mode != 'RGBA':
-        img = img.convert('RGBA')
-
+    # Create a transparent RGBA image with text only (no background)
+    # (0, 0, 0, 0) = fully transparent black
+    img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
 
     # Auto-fit song title text
