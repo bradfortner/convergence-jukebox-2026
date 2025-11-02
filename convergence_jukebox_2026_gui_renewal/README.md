@@ -6,7 +6,7 @@ A modern, modular implementation of the Convergence Jukebox 2026 graphical user 
 
 The Convergence Jukebox 2026 is a comprehensive jukebox application that displays and plays music with an interactive GUI. This GUI renewal project implements a clean, modular architecture that separates concerns and improves maintainability by extracting functional components into independent modules.
 
-**Current Version:** 0.61 - main_jukebox_GUI_2026.py
+**Current Version:** 0.65 - main_jukebox_GUI_2026.py
 
 ## Features
 
@@ -46,7 +46,10 @@ The Convergence Jukebox 2026 is a comprehensive jukebox application that display
 
 ```
 convergence_jukebox_2026_gui_renewal/
-├── 0.61 - main_jukebox_GUI_2026.py      # Production main file (current) - the_bands_name_check & upcoming_selections_update module rename
+├── 0.65 - main_jukebox_GUI_2026.py      # Production main file (current) - keyboard input fix for popup threading
+├── 0.64 - main_jukebox_GUI_2026.py      # Previous version - recoded song selection popup
+├── 0.63 - main_jukebox_GUI_2026.py      # Earlier version - refined popup dimensions
+├── 0.61 - main_jukebox_GUI_2026.py      # Earlier version - the_bands_name_check & upcoming_selections_update module rename
 ├── 0.60 - main_jukebox_GUI_2026.py      # Previous version - search_window_button_layout module rename
 │
 ├── Modular Function Files:
@@ -137,15 +140,17 @@ The 45RPM song selection popup display has been extracted into its own module fo
 
 **Functionality:**
 1. Extracts song title and artist from song list
-2. Loads random 45RPM record label image from `record_labels/final_black_sel/`
+2. Loads random 45RPM record label image from `record_labels/blank_record_labels/`
 3. Generates text overlay with:
-   - Dynamic font sizing (15-30pt based on text length)
-   - Text wrapping for long titles/artists
+   - Auto-fit font sizing (16-28pt based on text length and constraints)
+   - Smart text wrapping for long titles/artists
    - Centered positioning on record label
-4. Saves generated image as `selection_45.jpg` and `selection_45.gif`
-5. Plays success sound via VLC
-6. Displays animated 600-frame popup showing record label
-7. Maintains UI state (hides/unhides main window)
+4. Composites record label with background image
+5. Saves generated image as `final_record_pressing.png` and `final_record_with_background.png`
+6. Plays success sound via VLC
+7. **Displays popup in non-blocking background thread** (v0.65+)
+8. Main window remains visible and responsive to keyboard input during popup display
+9. Returns immediately - popup display does not block GUI interaction
 
 ### Example Usage
 
@@ -172,13 +177,18 @@ The now-playing 45RPM popup display has been extracted into its own module for m
 
 **Functionality:**
 1. Extracts currently playing song title and artist from song list
-2. Loads random 45RPM record label image from `record_labels/final_black_bg/`
-3. Generates text overlay with dynamic font sizing (15-30pt based on text length)
-4. Saves generated image as `selection_45.jpg` and `selection_45.gif`
-5. Displays animated 600-frame popup showing record label
-6. Triggers on song change in the background playback thread
-7. Calls `upcoming_selections_update()` to refresh queue display
-8. Maintains UI state (hides/unhides main window)
+2. Loads random 45RPM record label image from `record_labels/blank_record_labels/`
+3. Generates text overlay with:
+   - Auto-fit font sizing (16-28pt based on text length and constraints)
+   - Smart text wrapping for long titles/artists
+   - Centered positioning on record label
+4. Composites record label with background image
+5. Saves generated image as `final_record_pressing.png` and `final_record_with_background.png`
+6. **Displays popup in non-blocking background thread** (v0.65+)
+7. Main window remains visible and responsive to keyboard input during popup display
+8. Triggers on song change in the background playback thread
+9. Calls `upcoming_selections_update()` to refresh queue display after popup closes
+10. Returns immediately - popup display does not block GUI interaction
 
 ### Key Differences from Selection Popup
 
@@ -478,7 +488,11 @@ pip install --upgrade FreeSimpleGUI
 
 ### Version History
 
-- **0.48** - Suppressed VLC plugin cache error messages using OS-level file descriptor redirection (current)
+- **0.65** - Fixed keyboard input blocking during popup display by implementing threading (current)
+- **0.64** - Recoded song selection popup to match now_playing module architecture
+- **0.63** - Refined popup positioning and dimensions
+- **0.62** - Fixed RGBA/RGB conversion and GIF resize distortion issues
+- **0.48** - Suppressed VLC plugin cache error messages using OS-level file descriptor redirection
 - **0.47** - Fixed song selection freeze when adding credits by moving file I/O to background thread
 - **0.46** - Bug discovery version (freezing issue identified)
 - **0.45** - Previous stable version
@@ -570,14 +584,25 @@ For questions or issues, please open a GitHub issue or contact the maintainers.
 
 ## Version Information
 
-- **Current Version:** 0.48
+- **Current Version:** 0.65
 - **GUI Framework:** FreeSimpleGUI 4.60+
 - **Media Backend:** VLC (python-vlc 3.0+)
 - **Image Support:** Pillow 8.0+
+- **Threading:** Python threading module for non-blocking popup display
 - **Python:** 3.7+
-- **Last Updated:** 2025-10-28
+- **Last Updated:** 2025-11-02
 
-## Recent Bug Fixes (v0.47-0.48)
+## Recent Bug Fixes (v0.47-0.65)
+
+### v0.65 - Keyboard Input Blocking Fix
+**Issue:** When popup windows (both song selection and now-playing) displayed for 3 seconds, keyboard input to the main jukebox window was blocked. Users could not interact with the application (e.g., pressing 'x' to update credits) while popups were visible.
+**Root Cause:** Popup display used a blocking while loop that continuously read from the popup window, preventing the main window from receiving keyboard events.
+**Solution:** Implemented background threading to display popups asynchronously. Popups now run in daemon threads that don't block the main event loop. Main window remains visible and responsive to keyboard input throughout the entire popup display duration.
+**Technical Details:**
+- Created `display_popup_thread()` inner function that runs popup window loop in background
+- Used `threading.Thread(target=display_popup_thread, daemon=True)` for non-blocking display
+- Main function returns immediately after starting thread
+- Both popup modules updated: `popup_45rpm_now_playing_code_module.py` and `popup_45rpm_song_selection_code_module.py`
 
 ### v0.48 - VLC Error Message Suppression
 **Issue:** VLC was printing hundreds of error messages about stale plugins cache when the screen advance arrow hit the end of available songs, slowing down I/O performance.
