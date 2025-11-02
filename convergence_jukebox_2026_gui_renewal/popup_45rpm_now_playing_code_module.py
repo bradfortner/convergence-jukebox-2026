@@ -266,16 +266,17 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
         composite = background.copy()
         composite.paste(record_label, (x_position, y_position), record_label)
 
-        # Stretch the composite image to ensure complete coverage of popup window
-        # Add padding to account for window borders/padding (10 pixels on each side)
-        stretched_width = bg_width + 20
-        stretched_height = bg_height + 20
-        composite = composite.resize((stretched_width, stretched_height), Image.LANCZOS)
+        # Resize the composite image to desired popup window size
+        # ADJUST POPUP SIZE HERE: Change the values below to modify popup window dimensions
+        # Current: 580x580 pixels - change to desired size (e.g., 800x800, 600x600, etc.)
+        popup_width = 580
+        popup_height = 580
+        composite = composite.resize((popup_width, popup_height), Image.LANCZOS)
 
         # Save the composite image
         composite_filename = 'final_record_with_background.png'
         composite.save(composite_filename, 'PNG')
-        print(f"Composite image saved: {composite_filename} (resized to {stretched_width}x{stretched_height})")
+        print(f"Composite image saved: {composite_filename} (resized to {popup_width}x{popup_height})")
 
     except Exception as e:
         print(f"Warning: Could not create composite image: {e}")
