@@ -266,10 +266,16 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
         composite = background.copy()
         composite.paste(record_label, (x_position, y_position), record_label)
 
+        # Stretch the composite image to ensure complete coverage of popup window
+        # Add padding to account for window borders/padding (10 pixels on each side)
+        stretched_width = bg_width + 20
+        stretched_height = bg_height + 20
+        composite = composite.resize((stretched_width, stretched_height), Image.LANCZOS)
+
         # Save the composite image
         composite_filename = 'final_record_with_background.png'
         composite.save(composite_filename, 'PNG')
-        print(f"Composite image saved: {composite_filename}")
+        print(f"Composite image saved: {composite_filename} (resized to {stretched_width}x{stretched_height})")
 
     except Exception as e:
         print(f"Warning: Could not create composite image: {e}")
@@ -290,7 +296,6 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
             '',  # No title
             layout,
             no_titlebar=True,
-            no_border=True,
             keep_on_top=True,
             location=(100, 100),
             finalize=True
