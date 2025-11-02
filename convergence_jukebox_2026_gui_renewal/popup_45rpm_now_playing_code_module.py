@@ -151,8 +151,10 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
 
     # Determine font color based on filename
     # If filename starts with "w_", use white font; otherwise use black
-    font_color = "white" if selected_label.startswith("w_") else "black"
-    print(f"Font color mode: {font_color.upper()}")
+    # Use RGB tuples for solid, pure colors (PIL requirement)
+    font_color = (255, 255, 255) if selected_label.startswith("w_") else (0, 0, 0)
+    color_mode = "WHITE" if selected_label.startswith("w_") else "BLACK"
+    print(f"Font color mode: {color_mode}")
 
     # Load the selected record label image
     print("Loading blank record label template...")
@@ -170,7 +172,7 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     song_line_height = 25              # Vertical spacing between song title lines
     artist_line_height = 30            # Vertical spacing between artist name lines
 
-    print(f"Creating record label...")
+    print(f"Creating record label with {color_mode} text...")
     print("-" * 80)
 
     # Create a working copy of the base image
@@ -234,7 +236,7 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     print("-" * 80)
     print(f"\nRecord generation complete!")
     print(f"Selected label: {selected_label}")
-    print(f"Font color: {font_color.upper()}")
+    print(f"Font color: {color_mode}")
     print(f"Successfully created 1 random record label image")
     print(f"Output location: {filename} in current directory")
 
