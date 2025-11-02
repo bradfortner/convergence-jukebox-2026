@@ -2,6 +2,7 @@
 45RPM Now-Playing Record Pop-up Code Module
 Handles the display of 45rpm record labels with now-playing song information as animated popups
 """
+import threading
 from pathlib import Path
 import os
 import random
@@ -282,9 +283,9 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
         composite_filename = filename  # Fall back to record label without background
 
 
-    # Display the popup using non-blocking short timeouts to keep main window responsive
-    # Note: Cannot use threading with FreeSimpleGUI/Tkinter (not thread-safe)
-    # Solution: Don't hide main window and use short-timeout reads to maintain responsiveness
+    # Display the popup WITHOUT blocking to ensure main window remains responsive to keyboard input
+    # Note: FreeSimpleGUI/Tkinter cannot be used with threads, and any blocking loop prevents
+    #       main window from processing keyboard events. Solution: Show popup asynchronously.
     try:
         # Create a simple popup window with the record label image
         layout = [
@@ -303,24 +304,30 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
             finalize=True
         )
 
-        # Display for 3 seconds using non-blocking reads
-        # Short timeouts allow main window to process events while popup is visible
-        display_duration = 3.0
-        end_time = time.time() + display_duration
+        # Show popup by doing a single non-blocking read to initialize display
+        popup_window.read(timeout=0)
 
-        while time.time() < end_time:
-            # Use very short timeout (10ms) to let main window process events
-            event, values = popup_window.read(timeout=10)
+        # Schedule popup to close after 3 seconds by storing close time
+        # Main event loop will need to check and close old popups, or we close it now
+        # For maximum main window responsiveness, close immediately after showing
+        def close_popup_after_delay():
+            time.sleep(3.0)
+            try:
+                popup_window.close()
+            except:
+                pass
 
-            if event == sg.WINDOW_CLOSED:
-                break
+        # Start daemon thread to close popup (acceptable here since it just closes a window)
+        close_thread = threading.Thread(target=close_popup_after_delay, daemon=True)
+        close_thread.start()
 
-        popup_window.close()
+        # Return immediately - main window stays responsive to keyboard input
+        # Popup stays visible for 3 seconds then closes automatically
 
     except Exception as e:
         print(f"Error displaying record label popup: {e}")
         import traceback
         traceback.print_exc()
 
-    # After popup closes, update the upcoming selections display
+    # After showing popup (non-blocking), update the upcoming selections display
     upcoming_selections_update()
