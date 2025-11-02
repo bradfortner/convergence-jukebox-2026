@@ -179,33 +179,6 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     if img.mode != 'RGBA':
         img = img.convert('RGBA')
 
-    # Make the background transparent by detecting and removing the background color
-    # Get the color of the corner pixel (typically the background color)
-    background_color = img.getpixel((0, 0))
-
-    # Convert background color to RGBA if it's RGB
-    if len(background_color) == 3:
-        background_color = background_color + (255,)
-
-    # Create a new image data list with transparent background
-    data = img.getdata()
-    new_data = []
-
-    # Tolerance for color matching (allows slight variations in background color)
-    tolerance = 30
-
-    for item in data:
-        # Check if pixel is close to background color
-        if (abs(item[0] - background_color[0]) < tolerance and
-            abs(item[1] - background_color[1]) < tolerance and
-            abs(item[2] - background_color[2]) < tolerance):
-            # Make this pixel transparent
-            new_data.append((item[0], item[1], item[2], 0))
-        else:
-            # Keep original pixel with full opacity
-            new_data.append((item[0], item[1], item[2], 255))
-
-    img.putdata(new_data)
     draw = ImageDraw.Draw(img)
 
     # Auto-fit song title text
