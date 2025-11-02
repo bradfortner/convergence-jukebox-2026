@@ -35,12 +35,14 @@ convergence-jukebox-2026/
 
 ## 🚀 Active Components
 
-### 1. **convergence_jukebox_2026_gui_renewal** (Current: v0.62)
+### 1. **convergence_jukebox_2026_gui_renewal** (Current: v0.64)
 
 The modern, modular graphical user interface built with FreeSimpleGUI.
 
 #### What's New
 
+- **v0.64**: Removed title bar from main background window for seamless full-screen display
+- **v0.63**: Migrated popup display from pygame to FreeSimpleGUI with background compositing, resized to 580x580px, positioned at (841, 300)
 - **v0.62**: Fixed PopupAnimated ZeroDivisionError - replaced with static image display using sg.Image() with adjustable duration
 - **v0.61**: Improved module naming for better code organization (band name check and upcoming selections modules renamed)
 - **v0.48-0.60**: Fixed UI freeze issues by moving file I/O operations to background threads
@@ -102,7 +104,7 @@ Pillow >= 8.0.0
 1. Ensure Python 3.7+ is installed
 2. Install dependencies: `pip install -r convergence_jukebox_2026_gui_renewal/requirements.txt`
 3. Place your music files in the `music/` directory
-4. Run the GUI: `python "convergence_jukebox_2026_gui_renewal/0.62 - main_jukebox_GUI_2026.py"`
+4. Run the GUI: `python "convergence_jukebox_2026_gui_renewal/0.64 - main_jukebox_GUI_2026.py"`
 
 ---
 
@@ -300,7 +302,7 @@ The three components work together seamlessly:
 | **Active Components** | 3 major modules |
 | **GUI Function Modules** | 15+ independent modules |
 | **Record Label Images** | 200+ variants (3 color schemes) |
-| **Current GUI Version** | 0.62 |
+| **Current GUI Version** | 0.64 |
 | **Current Player Version** | 0.9 (STABLE HYBRID) |
 | **Record Animation Version** | 0.0 (Master Pipeline) |
 | **Python Version** | 3.7+ required |
@@ -482,7 +484,7 @@ For questions, bug reports, or feature requests:
 ---
 
 **Last Updated**: November 2, 2025
-**Current Active Versions**: GUI v0.62 | Player v0.9 | Animation v0.0
+**Current Active Versions**: GUI v0.64 | Player v0.9 | Animation v0.0
 **Status**: Production Ready ✅
 
 ---
