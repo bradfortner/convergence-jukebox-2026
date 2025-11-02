@@ -283,45 +283,49 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
         composite_filename = filename  # Fall back to record label without background
 
 
-    # Display the image as popup
-    jukebox_selection_window.Hide()
+    # Display the image as popup in a non-blocking way using threading
+    def display_popup_thread():
+        """Display the popup in a separate thread to avoid blocking keyboard input"""
+        try:
+            # Create a simple popup window with the record label image
+            layout = [
+                [sg.Image(filename=composite_filename)]
+            ]
 
-    # Display the record label using FreeSimpleGUI
-    try:
-        # Create a simple popup window with the record label image
-        layout = [
-            [sg.Image(filename=composite_filename)]
-        ]
+            popup_window = sg.Window(
+                '',  # No title
+                layout,
+                no_titlebar=True,
+                keep_on_top=True,
+                location=(825, 280),
+                background_color='black',
+                margins=(0, 0),
+                element_padding=(0, 0),
+                finalize=True
+            )
 
-        popup_window = sg.Window(
-            '',  # No title
-            layout,
-            no_titlebar=True,
-            keep_on_top=True,
-            location=(825, 280),
-            background_color='black',
-            margins=(0, 0),
-            element_padding=(0, 0),
-            finalize=True
-        )
+            # Display for 3 seconds
+            display_duration = 3.0
+            end_time = time.time() + display_duration
 
-        # Display for 3 seconds
-        display_duration = 3.0
-        end_time = time.time() + display_duration
+            while time.time() < end_time:
+                event, values = popup_window.read(timeout=100)
 
-        while time.time() < end_time:
-            event, values = popup_window.read(timeout=100)
+                if event == sg.WINDOW_CLOSED:
+                    break
 
-            if event == sg.WINDOW_CLOSED:
-                break
+            popup_window.close()
 
-        popup_window.close()
+            # After popup closes, update the upcoming selections display
+            upcoming_selections_update()
 
-    except Exception as e:
-        print(f"Error displaying record label popup: {e}")
-        import traceback
-        traceback.print_exc()
+        except Exception as e:
+            print(f"Error displaying record label popup: {e}")
+            import traceback
+            traceback.print_exc()
+            # Still call update even if popup fails
+            upcoming_selections_update()
 
-    jukebox_selection_window.UnHide()
-    # update upcoming selections on jukebox screens
-    upcoming_selections_update()
+    # Start popup display in a separate thread so main window stays responsive
+    popup_thread = threading.Thread(target=display_popup_thread, daemon=True)
+    popup_thread.start()
