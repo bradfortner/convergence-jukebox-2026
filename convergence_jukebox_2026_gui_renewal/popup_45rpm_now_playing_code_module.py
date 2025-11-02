@@ -248,60 +248,38 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
     # Display the image as popup
     jukebox_selection_window.Hide()
 
-    # Display the record label using Pygame with transparent background
+    # Display the record label using Pygame with color key transparency
     try:
-        # Initialize Pygame with proper SDL environment for transparency
-        os.environ['SDL_VIDEODRIVER'] = 'windows'
-
         # Initialize Pygame
         pygame.init()
+        pygame.mixer.quit()  # Disable audio to avoid conflicts
 
         # Load the record label image
-        record_image = pygame.image.load('final_record_pressing.png')
+        record_image = pygame.image.load('final_record_pressing.png').convert()
         img_width, img_height = record_image.get_size()
 
-        # Create a transparent window using Pygame
-        # Use SRCALPHA flag for per-pixel transparency and NOFRAME for borderless
-        screen = pygame.display.set_mode((img_width, img_height), pygame.SRCALPHA)
+        # Create window without frame
+        screen = pygame.display.set_mode((img_width, img_height), pygame.NOFRAME | pygame.DOUBLEBUF)
         pygame.display.set_caption('')
 
-        # Get window handle and set Windows properties for transparency and always-on-top
+        # Set up Windows API for always-on-top and transparency
         try:
             import ctypes
-            hwnd = pygame.display.get_surface()
-            # Get the actual window handle from Pygame
-            import ctypes.wintypes as wintypes
-
-            # Set window to always be on top (HWND_TOPMOST = -1)
             user32 = ctypes.windll.user32
-            WS_EX_LAYERED = 0x00080000
-            WS_EX_TRANSPARENT = 0x00000020
-            WS_EX_TOOLWINDOW = 0x00000080
 
-            # Get the Pygame window handle through SDL environment
+            # Get Pygame window handle
             hwnd_val = pygame.display.get_wm_info()['window']
 
-            # Set window style to always on top
-            user32.SetWindowPos(hwnd_val, -1, 0, 0, 0, 0,
-                              0x0001 | 0x0002)  # SWP_NOSIZE | SWP_NOMOVE
+            # Set window to always be on top (SetWindowPos with HWND_TOPMOST = -1)
+            user32.SetWindowPos(hwnd_val, -1, 0, 0, 0, 0, 0x0001)  # SWP_NOSIZE
 
-            # Enable layered window for transparency
-            user32.SetWindowLongW(hwnd_val, -20,
-                                user32.GetWindowLongW(hwnd_val, -20) | WS_EX_LAYERED)
-
-            # Set transparency color key
-            user32.SetLayeredWindowAttributes(hwnd_val, 0, 255, 2)  # LWA_ALPHA = 2
+            print(f"Popup window handle: {hwnd_val}")
+            print("Window set to always-on-top")
 
         except Exception as e:
-            print(f"Note: Could not set Windows transparency properties: {e}")
+            print(f"Note: Could not set always-on-top: {e}")
 
-        # Get screen position - center on display
-        display_info = pygame.display.Info()
-        screen_x = (display_info.current_w - img_width) // 2
-        screen_y = (display_info.current_h - img_height) // 2
-
-        # Display the image with transparency
-        screen.fill((0, 0, 0, 0))  # Fill with transparent black first
+        # Display the image
         screen.blit(record_image, (0, 0))
         pygame.display.flip()
 
@@ -312,21 +290,24 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
         end_time = time.time() + display_duration
         clock = pygame.time.Clock()
 
+        print(f"Displaying record label popup for {display_duration} seconds...")
+
         while time.time() < end_time:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     break
 
-            # Keep updating display for transparency
-            screen.fill((0, 0, 0, 0))
             screen.blit(record_image, (0, 0))
             pygame.display.flip()
             clock.tick(30)  # 30 FPS
 
+        print("Closing popup window...")
         pygame.quit()
 
     except Exception as e:
         print(f"Error displaying record label popup: {e}")
+        import traceback
+        traceback.print_exc()
         try:
             pygame.quit()
         except:
