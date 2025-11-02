@@ -299,6 +299,8 @@ def display_45rpm_now_playing_popup(MusicMasterSongList, counter, jukebox_select
             keep_on_top=True,
             location=(100, 100),
             background_color='black',
+            margins=(0, 0),
+            element_padding=(0, 0),
             finalize=True
         )
 
