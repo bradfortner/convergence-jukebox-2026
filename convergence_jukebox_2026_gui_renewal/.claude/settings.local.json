@@ -29,7 +29,14 @@
       "Bash(git push:*)",
       "Bash(git reset:*)",
       "Bash(dir:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(timeout 120 python:*)",
+      "Bash(set:*)",
+      "Bash(pkill:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd /c \"taskkill /F /IM python.exe\")",
+      "Bash(del \"0.66 - main_jukebox_GUI_2026.py\" \"0.67 - main_jukebox_GUI_2026.py\" \"0.68 - main_jukebox_GUI_2026.py\" \"0.69 - main_jukebox_GUI_2026.py\" \"0.70 - main_jukebox_GUI_2026.py\" \"0.71 - main_jukebox_GUI_2026.py\")",
+      "Bash(cmd /c \"tasklist | findstr python\")"
     ],
     "deny": [],
     "ask": []

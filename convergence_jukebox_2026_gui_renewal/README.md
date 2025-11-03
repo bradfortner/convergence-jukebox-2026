@@ -6,7 +6,7 @@ A modern, modular implementation of the Convergence Jukebox 2026 graphical user 
 
 The Convergence Jukebox 2026 is a comprehensive jukebox application that displays and plays music with an interactive GUI. This GUI renewal project implements a clean, modular architecture that separates concerns and improves maintainability by extracting functional components into independent modules.
 
-**Current Version:** 0.65 - main_jukebox_GUI_2026.py
+**Current Version:** 0.67 - main_jukebox_GUI_2026.py
 
 ## Features
 
@@ -46,8 +46,10 @@ The Convergence Jukebox 2026 is a comprehensive jukebox application that display
 
 ```
 convergence_jukebox_2026_gui_renewal/
-├── 0.65 - main_jukebox_GUI_2026.py      # Production main file (current) - keyboard input fix for popup threading
-├── 0.64 - main_jukebox_GUI_2026.py      # Previous version - recoded song selection popup
+├── 0.67 - main_jukebox_GUI_2026.py      # Production main file (current) - fixed second song selection failure
+├── 0.66 - main_jukebox_GUI_2026.py      # Previous version - proper code structure and error handling
+├── 0.65 - main_jukebox_GUI_2026.py      # Earlier version - keyboard input fix for popup threading
+├── 0.64 - main_jukebox_GUI_2026.py      # Earlier version - recoded song selection popup
 ├── 0.63 - main_jukebox_GUI_2026.py      # Earlier version - refined popup dimensions
 ├── 0.61 - main_jukebox_GUI_2026.py      # Earlier version - the_bands_name_check & upcoming_selections_update module rename
 ├── 0.60 - main_jukebox_GUI_2026.py      # Previous version - search_window_button_layout module rename
@@ -488,7 +490,9 @@ pip install --upgrade FreeSimpleGUI
 
 ### Version History
 
-- **0.65** - Fixed keyboard input blocking during popup display by implementing threading (current)
+- **0.67** - Fixed second song selection failure - proper title/artist truncation for consistent matching (current)
+- **0.66** - Fixed code structure and added comprehensive error handling for song selection
+- **0.65** - Fixed keyboard input blocking during popup display by implementing threading
 - **0.64** - Recoded song selection popup to match now_playing module architecture
 - **0.63** - Refined popup positioning and dimensions
 - **0.62** - Fixed RGBA/RGB conversion and GIF resize distortion issues
