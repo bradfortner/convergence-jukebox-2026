@@ -531,9 +531,9 @@ class JukeboxEngine:
             message (str): The success message
         """
         if self.config['console']['colors_enabled']:
-            print(f"{Colors.GREEN}[+] {message}{Colors.ENDC}")
+            print(f"{Colors.GREEN}✓ {message}{Colors.ENDC}")
         else:
-            print(f"[+] {message}")
+            print(f"✓ {message}")
 
     def _print_warning(self, message: str) -> None:
         """Print a warning message in yellow
@@ -542,9 +542,9 @@ class JukeboxEngine:
             message (str): The warning message
         """
         if self.config['console']['colors_enabled']:
-            print(f"{Colors.YELLOW}[!] {message}{Colors.ENDC}")
+            print(f"{Colors.YELLOW}⚠ {message}{Colors.ENDC}")
         else:
-            print(f"[!] {message}")
+            print(f"⚠ {message}")
 
     def _print_error_msg(self, message: str) -> None:
         """Print an error message in red
@@ -553,9 +553,9 @@ class JukeboxEngine:
             message (str): The error message
         """
         if self.config['console']['colors_enabled']:
-            print(f"{Colors.RED}[-] {message}{Colors.ENDC}")
+            print(f"{Colors.RED}✗ {message}{Colors.ENDC}")
         else:
-            print(f"[-] {message}")
+            print(f"✗ {message}")
 
     def _get_rounded_timestamp(self) -> datetime:
         """Helper method to get current timestamp rounded to nearest second
