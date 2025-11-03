@@ -121,8 +121,12 @@ Your project directory should contain:
 
 ```
 convergence_jukebox_2026_player_renewal/
-├── 0.91 - main_jukebox_engine.py
+├── main_jukebox_engine_2026.py
 ├── jukebox_config.json
+├── depreciated code/
+│   ├── 0.0 - main_jukebox_engine.py
+│   ├── 0.1 - main_jukebox_engine.py
+│   └── ... (previous versions)
 ├── MusicMasterSongList.txt
 ├── GenreFlagsList.txt
 ├── PaidMusicPlayList.txt
@@ -162,7 +166,7 @@ convergence_jukebox_2026_player_renewal/
 ### Running the Jukebox
 
 ```bash
-python "0.91 - main_jukebox_engine.py"
+python main_jukebox_engine_2026.py
 ```
 
 The jukebox will:
@@ -325,8 +329,8 @@ Configure logging behavior in `jukebox_config.json` under the `logging` section.
 
 ### Complete Version History
 
-- **0.9**: STABLE HYBRID - Combined 0.8 stability with 0.91 features (current production)
-- **0.8**: ✓ LAST STABLE - Console colors, logging configuration, config file support
+- **0.9**: ✓ CURRENT STABLE - Combined 0.8 stability with 0.91 features (production-ready)
+- **0.8**: Previous Stable - Console colors, logging configuration, config file support
 - **0.7**: Comprehensive type hints throughout codebase
 - **0.6**: Cross-platform path handling
 - **0.5**: Removed dead code
